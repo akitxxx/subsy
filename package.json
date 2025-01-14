@@ -11,9 +11,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "biome lint --apply ./src/**/*",
-    "format": "biome format ./src/**/* --write",
-    "check": "biome check --apply ./src/**/*"
+    "lint": "biome lint --write ./src/**/*",
+    "format": "biome format ./src/**/* --write"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",
