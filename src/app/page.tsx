@@ -1,101 +1,211 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
-	return (
-		<div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-			<main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-				<Image
-					className="dark:invert"
-					src="/next.svg"
-					alt="Next.js logo"
-					width={180}
-					height={38}
-					priority
-				/>
-				<ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-					<li className="mb-2">
-						Get started by editing{" "}
-						<code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-							src/app/page.tsx
-						</code>
-						.
-					</li>
-					<li>Save and see your changes instantly.</li>
-				</ol>
+import { DeleteConfirmDialog } from '@/components/delete-confirm-dialog';
+import { SubscriptionModal } from '@/components/subscription-modal';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useState } from 'react';
 
-				<div className="flex gap-4 items-center flex-col sm:flex-row">
-					<a
-						className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-						href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<Image
-							className="dark:invert"
-							src="/vercel.svg"
-							alt="Vercel logomark"
-							width={20}
-							height={20}
-						/>
-						Deploy now
-					</a>
-					<a
-						className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-						href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						Read our docs
-					</a>
-				</div>
-			</main>
-			<footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image
-						aria-hidden
-						src="/file.svg"
-						alt="File icon"
-						width={16}
-						height={16}
-					/>
-					Learn
-				</a>
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image
-						aria-hidden
-						src="/window.svg"
-						alt="Window icon"
-						width={16}
-						height={16}
-					/>
-					Examples
-				</a>
-				<a
-					className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-					href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					target="_blank"
-					rel="noopener noreferrer"
-				>
-					<Image
-						aria-hidden
-						src="/globe.svg"
-						alt="Globe icon"
-						width={16}
-						height={16}
-					/>
-					Go to nextjs.org →
-				</a>
-			</footer>
-		</div>
-	);
+type Subscription = {
+  id: number;
+  name: string;
+  amount: number;
+  cycle: string;
+  nextBillingDate: string;
+};
+
+export default function DashboardPage() {
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([
+    {
+      id: 1,
+      name: 'Netflix',
+      amount: 1490,
+      cycle: '月額',
+      nextBillingDate: '2023-07-15',
+    },
+    {
+      id: 2,
+      name: 'Spotify',
+      amount: 980,
+      cycle: '月額',
+      nextBillingDate: '2023-07-20',
+    },
+    {
+      id: 3,
+      name: 'Amazon Prime',
+      amount: 4900,
+      cycle: '年額',
+      nextBillingDate: '2024-01-01',
+    },
+  ]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentSubscription, setCurrentSubscription] =
+    useState<Subscription | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const totalThisMonth = subscriptions.reduce(
+    (total, sub) => total + sub.amount,
+    0,
+  );
+  const upcomingSubscriptions = subscriptions
+    .sort(
+      (a, b) =>
+        new Date(a.nextBillingDate).getTime() -
+        new Date(b.nextBillingDate).getTime(),
+    )
+    .slice(0, 2);
+
+  const handleOpenModal = (subscription?: Subscription) => {
+    setCurrentSubscription(
+      subscription || {
+        id: Date.now(),
+        name: '',
+        amount: 0,
+        cycle: '',
+        nextBillingDate: '',
+      },
+    );
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setCurrentSubscription(null);
+  };
+
+  const handleSaveSubscription = (subscription: Subscription) => {
+    if (subscription.id) {
+      setSubscriptions((prev) =>
+        prev.map((sub) => (sub.id === subscription.id ? subscription : sub)),
+      );
+    } else {
+      setSubscriptions((prev) => [
+        ...prev,
+        { ...subscription, id: Date.now() },
+      ]);
+    }
+    handleCloseModal();
+  };
+
+  const handleDelete = (id: number) => {
+    setSubscriptions((prev) => prev.filter((sub) => sub.id !== id));
+    setIsDeleteDialogOpen(false);
+  };
+
+  return (
+    <div className="container mx-auto p-4 min-h-screen bg-gradient-to-b from-background to-primary/10">
+      <h1 className="text-4xl font-bold mb-8 text-primary">
+        サブスクリプション管理
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>今月の合計</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-4xl font-bold text-primary">
+              ¥{totalThisMonth.toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>次回支払い日が近いサブスク</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-3">
+              {upcomingSubscriptions.map((sub) => (
+                <li
+                  key={sub.id}
+                  className="flex justify-between items-center p-3 rounded-lg bg-secondary"
+                >
+                  <span className="font-semibold">{sub.name}</span>
+                  <span className="text-primary font-medium">
+                    ¥{sub.amount.toLocaleString()} ({sub.nextBillingDate})
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="mb-8">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>サブスク一覧</CardTitle>
+          <Button onClick={() => handleOpenModal()}>新規サブスク追加</Button>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>サービス名</TableHead>
+                <TableHead>金額</TableHead>
+                <TableHead>支払いサイクル</TableHead>
+                <TableHead>次回支払い日</TableHead>
+                <TableHead>操作</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {subscriptions.map((sub) => (
+                <TableRow key={sub.id}>
+                  <TableCell className="font-medium">{sub.name}</TableCell>
+                  <TableCell>¥{sub.amount.toLocaleString()}</TableCell>
+                  <TableCell>{sub.cycle}</TableCell>
+                  <TableCell>{sub.nextBillingDate}</TableCell>
+                  <TableCell>
+                    <Button
+                      onClick={() => handleOpenModal(sub)}
+                      variant="outline"
+                      size="sm"
+                      className="mr-2"
+                    >
+                      編集
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        setCurrentSubscription(sub);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                    >
+                      削除
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <SubscriptionModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSave={handleSaveSubscription}
+        subscription={currentSubscription}
+      />
+
+      <DeleteConfirmDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={() =>
+          currentSubscription && handleDelete(currentSubscription.id)
+        }
+        subscriptionName={currentSubscription?.name}
+      />
+    </div>
+  );
 }
