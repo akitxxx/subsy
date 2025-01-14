@@ -11,10 +11,9 @@
 		"dev": "next dev --turbopack",
 		"build": "next build",
 		"start": "next start",
-		"lint": "next lint",
-		"format": "biome format . --write",
-		"format:check": "biome format . --check",
-		"lint:check": "biome lint ."
+		"lint": "biome lint --apply ./src/**/*",
+		"format": "biome format ./src/**/* --write",
+		"check": "biome check --apply ./src/**/*"
 	},
 	"dependencies": {
 		"next": "15.1.4",
