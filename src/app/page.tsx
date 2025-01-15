@@ -102,7 +102,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="container mx-auto p-4 min-h-screen bg-gradient-to-b from-background to-primary/10">
+    <div className="container mx-auto p-4 min-h-screen">
       <h1 className="text-4xl font-bold mb-8 text-primary">
         サブスクリプション管理
       </h1>
