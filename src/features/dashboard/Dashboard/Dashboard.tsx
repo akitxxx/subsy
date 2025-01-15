@@ -39,7 +39,7 @@ export const Dashboard = () => {
                   className="flex justify-between items-center p-3 rounded-lg bg-secondary"
                 >
                   <span className="font-semibold">{sub.name}</span>
-                  <span className="text-primary font-medium">
+                  <span className="font-medium">
                     ¥{sub.amount.toLocaleString()} ({sub.nextBillingDate})
                   </span>
                 </li>
