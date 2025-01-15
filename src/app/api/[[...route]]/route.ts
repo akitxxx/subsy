@@ -1,13 +1,13 @@
 import { Hono } from 'hono';
 import { handle } from 'hono/vercel';
+import dashboard from './dashboard';
 
 const app = new Hono().basePath('/api');
-
-app.get('/', (c) => c.text('Hello World'));
+const route = app.route('/dashboard', dashboard);
 
 export const GET = handle(app);
 export const POST = handle(app);
 export const PUT = handle(app);
 export const DELETE = handle(app);
 
-export type AppType = typeof app;
+export type AppType = typeof route;
