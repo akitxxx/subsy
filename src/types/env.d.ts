@@ -5,5 +5,6 @@ declare namespace NodeJS {
     NODE_ENV: 'development' | 'production' | 'test';
     APP_ENV: 'development' | 'staging' | 'production' | 'test';
     DATABASE_URL: string;
+    NEXT_PUBLIC_API_URL: string;
   }
 }
