@@ -1,29 +1,19 @@
 import { sql } from 'drizzle-orm';
-import {
-  index,
-  integer,
-  real,
-  sqliteTable,
-  text,
-} from 'drizzle-orm/sqlite-core';
+import { index, integer, pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 
 // usersテーブル
-export const usersTable = sqliteTable('users', {
+export const usersTable = pgTable('users', {
   id: text('id').primaryKey(),
   nickname: text('nickname').notNull(),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
-    .notNull()
-    .default(sql`CURRENT_TIMESTAMP`),
-  deletedAt: integer('deleted_at', { mode: 'timestamp' }),
+  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+  deletedAt: timestamp('deleted_at'),
 });
 export type SelectUser = typeof usersTable.$inferSelect;
 export type InsertUser = typeof usersTable.$inferInsert;
 
 // subscriptionsテーブル
-export const subscriptionsTable = sqliteTable(
+export const subscriptionsTable = pgTable(
   'subscriptions',
   {
     id: text('id').primaryKey(),
@@ -31,19 +21,19 @@ export const subscriptionsTable = sqliteTable(
       .notNull()
       .references(() => usersTable.id),
     name: text('name').notNull(),
-    price: real('price').notNull(),
+    price: integer('price').notNull(),
     cycle: text('cycle').notNull(),
-    startedAt: integer('started_at', { mode: 'timestamp' }).notNull(),
-    nextPaymentAt: integer('next_payment_at', { mode: 'timestamp' }).notNull(),
+    startedAt: timestamp('started_at').notNull(),
+    nextPaymentAt: timestamp('next_payment_at').notNull(),
     description: text('description'),
     status: text('status').notNull(),
-    createdAt: integer('created_at', { mode: 'timestamp' })
+    createdAt: timestamp('created_at')
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`),
-    updatedAt: integer('updated_at', { mode: 'timestamp' })
+    updatedAt: timestamp('updated_at')
       .notNull()
       .default(sql`CURRENT_TIMESTAMP`),
-    deletedAt: integer('deleted_at', { mode: 'timestamp' }),
+    deletedAt: timestamp('deleted_at'),
   },
   (table) => ({
     userIdIdx: index('subscriptions_user_id_idx').on(table.userId),
