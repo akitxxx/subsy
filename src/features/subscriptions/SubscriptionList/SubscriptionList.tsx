@@ -1,5 +1,3 @@
-import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
-import { SubscriptionModal } from '@/components/SubscriptionModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -10,6 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { DeleteConfirmDialog } from '@/features/subscriptions/DeleteConfirmDialog';
+import { SubscriptionModal } from '@/features/subscriptions/SubscriptionModal';
 import type { Subscription } from '@/types/domains/subscription';
 import { useSubscriptionList } from './useSubscriptionList';
 
