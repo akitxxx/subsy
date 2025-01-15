@@ -1,7 +1,7 @@
 'use client';
 
-import { DeleteConfirmDialog } from '@/components/delete-confirm-dialog';
-import { SubscriptionModal } from '@/components/subscription-modal';
+import { DeleteConfirmDialog } from '@/components/DeleteConfirmDialog';
+import { SubscriptionModal } from '@/components/SubscriptionModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -129,7 +129,7 @@ export default function DashboardPage() {
                   className="flex justify-between items-center p-3 rounded-lg bg-secondary"
                 >
                   <span className="font-semibold">{sub.name}</span>
-                  <span className="font-medium">
+                  <span className=" font-medium">
                     ¥{sub.amount.toLocaleString()} ({sub.nextBillingDate})
                   </span>
                 </li>
@@ -141,7 +141,7 @@ export default function DashboardPage() {
 
       <Card className="mb-8">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>サブスク一覧</CardTitle>
+          <CardTitle />
           <Button onClick={() => handleOpenModal()}>新規サブスク追加</Button>
         </CardHeader>
         <CardContent>
