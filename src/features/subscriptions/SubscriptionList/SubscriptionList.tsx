@@ -50,7 +50,7 @@ export const SubscriptionList = ({
               <TableHead>金額</TableHead>
               <TableHead>支払いサイクル</TableHead>
               <TableHead>次回支払い日</TableHead>
-              <TableHead>操作</TableHead>
+              <TableHead />
             </TableRow>
           </TableHeader>
           <TableBody>
