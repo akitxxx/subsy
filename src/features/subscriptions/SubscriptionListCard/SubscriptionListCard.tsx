@@ -19,7 +19,7 @@ type Props = {
   onDelete: (id: number) => void;
 };
 
-export const SubscriptionList = ({
+export const SubscriptionListCard = ({
   subscriptions,
   onSave,
   onDelete,
@@ -39,7 +39,7 @@ export const SubscriptionList = ({
   return (
     <Card className="mb-8">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle />
+        <CardTitle>サブスクリプション</CardTitle>
         <Button onClick={() => handleOpenModal()}>新規サブスク追加</Button>
       </CardHeader>
       <CardContent>

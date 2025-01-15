@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SubscriptionList } from '@/features/subscriptions/SubscriptionList';
+import { SubscriptionListCard } from '@/features/subscriptions/SubscriptionListCard';
 import { useDashboard } from './useDashboard';
 
 export const Dashboard = () => {
@@ -13,9 +13,9 @@ export const Dashboard = () => {
 
   return (
     <div className="container mx-auto p-4 min-h-screen">
-      <h1 className="text-4xl font-bold mb-8">Subsy</h1>
+      <h1 className="text-2xl font-bold mb-4">Subsy</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 gap-6">
         <Card>
           <CardHeader>
             <CardTitle>今月の合計</CardTitle>
@@ -39,7 +39,7 @@ export const Dashboard = () => {
                   className="flex justify-between items-center p-3 rounded-lg bg-secondary"
                 >
                   <span className="font-semibold">{sub.name}</span>
-                  <span className=" font-medium">
+                  <span className="text-primary font-medium">
                     ¥{sub.amount.toLocaleString()} ({sub.nextBillingDate})
                   </span>
                 </li>
@@ -47,13 +47,13 @@ export const Dashboard = () => {
             </ul>
           </CardContent>
         </Card>
-      </div>
 
-      <SubscriptionList
-        subscriptions={subscriptions}
-        onSave={handleSaveSubscription}
-        onDelete={handleDelete}
-      />
+        <SubscriptionListCard
+          subscriptions={subscriptions}
+          onSave={handleSaveSubscription}
+          onDelete={handleDelete}
+        />
+      </div>
     </div>
   );
 };
