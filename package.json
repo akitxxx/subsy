@@ -12,7 +12,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome lint --write ./src/**/*",
-    "format": "biome format ./src/**/* --write"
+    "format": "biome format ./src/**/* --write",
+    "db:generate": "drizzle-kit generate --config=./drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config=./drizzle.config.ts",
+    "db:reset": "drizzle-kit reset --config=./drizzle.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",
