@@ -103,9 +103,7 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto p-4 min-h-screen">
-      <h1 className="text-4xl font-bold mb-8 text-primary">
-        サブスクリプション管理
-      </h1>
+      <h1 className="text-4xl font-bold mb-8">Subsy</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card>
@@ -113,7 +111,7 @@ export default function DashboardPage() {
             <CardTitle>今月の合計</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold text-primary">
+            <p className="text-4xl font-bold">
               ¥{totalThisMonth.toLocaleString()}
             </p>
           </CardContent>
@@ -131,7 +129,7 @@ export default function DashboardPage() {
                   className="flex justify-between items-center p-3 rounded-lg bg-secondary"
                 >
                   <span className="font-semibold">{sub.name}</span>
-                  <span className="text-primary font-medium">
+                  <span className="font-medium">
                     ¥{sub.amount.toLocaleString()} ({sub.nextBillingDate})
                   </span>
                 </li>
