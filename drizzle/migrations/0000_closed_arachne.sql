@@ -1,21 +1,21 @@
 CREATE TABLE "subscriptions" (
-	"id" text PRIMARY KEY NOT NULL,
-	"user_id" text NOT NULL,
-	"name" text NOT NULL,
-	"price" integer NOT NULL,
-	"cycle" text NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"name" varchar(255) NOT NULL,
+	"price" numeric(10, 2) NOT NULL,
+	"cycle" varchar(255) NOT NULL,
 	"started_at" timestamp NOT NULL,
 	"next_payment_at" timestamp NOT NULL,
 	"description" text,
-	"status" text NOT NULL,
+	"status" varchar(255) NOT NULL,
 	"created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"updated_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"deleted_at" timestamp
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" text PRIMARY KEY NOT NULL,
-	"nickname" text NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"nickname" varchar(255) NOT NULL,
 	"created_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"updated_at" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	"deleted_at" timestamp
