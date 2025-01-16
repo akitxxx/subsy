@@ -2,7 +2,7 @@ import { getDrizzleClient } from '@/lib/db/drizzle';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono, type Next } from 'hono';
 import { handle } from 'hono/vercel';
-import dashboard from './_dashboard/route';
+import dashboard from './_dashboard/dashboard.route';
 
 const app = new Hono().basePath('/api');
 
