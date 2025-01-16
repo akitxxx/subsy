@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { handle } from 'hono/vercel';
-import dashboard from './dashboard';
+import dashboard from './_dashboard/route';
 
 const app = new Hono().basePath('/api');
 const route = app.route('/dashboard', dashboard);
