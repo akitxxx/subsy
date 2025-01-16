@@ -1,61 +1,65 @@
-type Subscription = {
-  id: number;
-  name: string;
-  amount: number;
-  cycle: string;
-  nextBillingDate: string;
+import type { DrizzleClient } from '@/lib/db/drizzle';
+import { subscriptionsTable } from '@/lib/db/schema';
+import type { SelectSubscription } from '@/lib/db/schema';
+import { and, eq, isNull } from 'drizzle-orm';
+
+type Inject = {
+  db: DrizzleClient;
+};
+
+type Input = {
+  userId: string;
 };
 
 type Output = {
-  subscriptions: Subscription[];
+  subscriptions: SelectSubscription[];
   totalThisMonth: number;
-  upcomingSubscriptions: Subscription[];
+  upcomingSubscriptions: SelectSubscription[];
 };
 
-// モックデータ
-const mockSubscriptions: Subscription[] = [
-  {
-    id: 1,
-    name: 'Netflix',
-    amount: 1490,
-    cycle: '月額',
-    nextBillingDate: '2024-04-15',
-  },
-  {
-    id: 2,
-    name: 'Spotify',
-    amount: 980,
-    cycle: '月額',
-    nextBillingDate: '2024-04-20',
-  },
-  {
-    id: 3,
-    name: 'Amazon Prime',
-    amount: 4900,
-    cycle: '年額',
-    nextBillingDate: '2024-12-01',
-  },
-];
+const findManySubscriptions = async (
+  db: DrizzleClient,
+  userId: string,
+): Promise<SelectSubscription[]> => {
+  return db
+    .select()
+    .from(subscriptionsTable)
+    .where(
+      and(
+        eq(subscriptionsTable.userId, userId),
+        isNull(subscriptionsTable.deletedAt),
+      ),
+    );
+};
 
-const run = async (): Promise<Output> => {
-  const totalThisMonth = mockSubscriptions.reduce(
-    (total, sub) => total + sub.amount,
-    0,
-  );
+const calculateTotalAmount = (subscriptions: SelectSubscription[]): number => {
+  return subscriptions.reduce((total, sub) => total + Number(sub.price), 0);
+};
 
-  const upcomingSubscriptions = [...mockSubscriptions]
+const getUpcomingSubscriptions = (
+  subscriptions: SelectSubscription[],
+): SelectSubscription[] => {
+  return [...subscriptions]
     .sort(
       (a, b) =>
-        new Date(a.nextBillingDate).getTime() -
-        new Date(b.nextBillingDate).getTime(),
+        new Date(a.nextPaymentAt).getTime() -
+        new Date(b.nextPaymentAt).getTime(),
     )
     .slice(0, 2);
-
-  return {
-    subscriptions: mockSubscriptions,
-    totalThisMonth,
-    upcomingSubscriptions,
-  };
 };
+
+const run =
+  ({ db }: Inject) =>
+  async ({ userId }: Input): Promise<Output> => {
+    const subscriptions = await findManySubscriptions(db, userId);
+    const totalThisMonth = calculateTotalAmount(subscriptions);
+    const upcomingSubscriptions = getUpcomingSubscriptions(subscriptions);
+
+    return {
+      subscriptions,
+      totalThisMonth,
+      upcomingSubscriptions,
+    };
+  };
 
 export const GetDashboardUsecase = { run };
