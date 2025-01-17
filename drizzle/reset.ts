@@ -4,7 +4,6 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 import * as schema from '../src/lib/db/schema';
 import drizzleConfig from './drizzle.config';
-import { migrateDB } from './migrate';
 
 export const resetDatabase = async () => {
   // dotenvをすでに読み込んでいる前提
