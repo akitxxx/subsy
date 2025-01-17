@@ -17,9 +17,9 @@
     "db:migrate": "drizzle-kit migrate --config=./drizzle/drizzle.config.ts",
     "db:reset": "tsx drizzle/reset.ts",
     "db:reset:test": "dotenv -e .env.test tsx drizzle/reset.ts",
-    "test:frontend": "vitest run --dir src/app",
-    "test:backend": "vitest run --dir src/app/api",
-    "test": "vitest run"
+    "test:front": "vitest run --dir src/app",
+    "test:back": "vitest run --dir src/app/api",
+    "test": "vitest run --config=vitest.config.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",

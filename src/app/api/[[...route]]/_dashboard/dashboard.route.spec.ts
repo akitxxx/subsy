@@ -10,7 +10,13 @@ import dashboard from './dashboard.route';
 
 describe('/api/dashboard', () => {
   const app = new Hono<HonoEnv>();
+  const db = getDrizzleClient();
+  app.use(async (c, next) => {
+    c.set('db', db);
+    await next();
+  });
   app.route('/', dashboard);
+
   const client = testClient(app) as {
     $get: (
       path: string,
@@ -19,7 +25,6 @@ describe('/api/dashboard', () => {
     ) => Promise<Response>;
   };
 
-  const db = getDrizzleClient();
   const testUser = {
     id: '12345678-1234-1234-1234-123456789012',
     nickname: 'テストユーザー',
@@ -68,50 +73,68 @@ describe('/api/dashboard', () => {
 
   describe('GET /', () => {
     it('サブスクリプション一覧と合計金額を返す', async () => {
-      const res = await client.$get('/', undefined, {
-        env: {
-          Variables: {
-            db,
-          },
-        },
-      });
+      const res = await client.$get('/');
 
       expect(res.status).toBe(200);
       const data = await res.json();
-      expect(data).toEqual({
-        subscriptions: expect.arrayContaining([
+      expect(data.subscriptions).toHaveLength(2);
+      expect(data.subscriptions).toEqual(
+        expect.arrayContaining([
           expect.objectContaining({
             name: 'Netflix',
-            price: '1490',
+            price: '1490.00',
             cycle: 'monthly',
             status: 'active',
+            description: 'ベーシックプラン',
+            userId: testUser.id,
           }),
           expect.objectContaining({
             name: 'Spotify',
-            price: '980',
+            price: '980.00',
             cycle: 'monthly',
             status: 'active',
+            description: '個人プラン',
+            userId: testUser.id,
           }),
         ]),
-        totalAmount: 2470,
-      });
+      );
+      expect(data.totalThisMonth).toBe(2470);
+      expect(data.upcomingSubscriptions).toHaveLength(2);
+      expect(data.upcomingSubscriptions).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            name: 'Netflix',
+            nextPaymentAt: new Date('2024-04-01').toISOString(),
+          }),
+          expect.objectContaining({
+            name: 'Spotify',
+            nextPaymentAt: new Date('2024-04-15').toISOString(),
+          }),
+        ]),
+      );
     });
 
     it('DBエラー時は500エラーを返す', async () => {
-      const mockDb = {
-        ...db,
-        select: () => {
-          throw new Error('DB接続エラー');
-        },
-      } as unknown as DrizzleClient;
-
-      const res = await client.$get('/', undefined, {
-        env: {
-          Variables: {
-            db: mockDb,
+      const mockApp = new Hono<HonoEnv>();
+      mockApp.use(async (c, next) => {
+        c.set('db', {
+          ...db,
+          select: () => {
+            throw new Error('DB接続エラー');
           },
-        },
+        } as unknown as DrizzleClient);
+        await next();
       });
+      mockApp.route('/', dashboard);
+      const mockClient = testClient(mockApp) as {
+        $get: (
+          path: string,
+          query?: unknown,
+          options?: { env?: { Variables: HonoEnv['Variables'] } },
+        ) => Promise<Response>;
+      };
+
+      const res = await mockClient.$get('/');
 
       expect(res.status).toBe(500);
       const data = await res.json();

@@ -5,7 +5,8 @@ import { GetDashboardUsecase } from './get_dashboard.usecase';
 const dashboard = new Hono();
 
 dashboard.get('/', async (c: Context<HonoEnv>) => {
-  const userId = '';
+  const userId = '12345678-1234-1234-1234-123456789012';
+
   try {
     const result = await GetDashboardUsecase.run({ db: c.var.db })({ userId });
     return c.json(result);
