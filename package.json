@@ -19,7 +19,7 @@
     "db:reset:test": "dotenv -e .env.test tsx drizzle/reset.ts",
     "test:frontend": "vitest run --dir src/app",
     "test:backend": "vitest run --dir src/app/api",
-    "test": "pnpm db:reset && vitest run"
+    "test": "vitest run"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",
