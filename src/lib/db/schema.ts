@@ -4,8 +4,10 @@ import {
   integer,
   numeric,
   pgTable,
+  primaryKey,
   text,
   timestamp,
+  unique,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
@@ -21,6 +23,35 @@ export const usersTable = pgTable('users', {
 });
 export type SelectUser = typeof usersTable.$inferSelect;
 export type InsertUser = typeof usersTable.$inferInsert;
+
+// user_authsテーブル
+export const userAuthsTable = pgTable(
+  'user_auths',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => usersTable.id),
+    provider: varchar('provider', { length: 255 }).notNull(),
+    providerId: varchar('provider_id', { length: 255 }).notNull(),
+
+    createdAt: timestamp('created_at')
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at')
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.userId, table.provider] }),
+    providerIdIdx: index('user_auths_provider_id_idx').on(table.providerId),
+    uniqueProviderConstraint: unique('user_auths_provider_unique_idx').on(
+      table.provider,
+      table.providerId,
+    ),
+  }),
+);
+export type SelectUserAuth = typeof userAuthsTable.$inferSelect;
+export type InsertUserAuth = typeof userAuthsTable.$inferInsert;
 
 // subscriptionsテーブル
 export const subscriptionsTable = pgTable(
