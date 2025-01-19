@@ -40,7 +40,9 @@ export const SubscriptionListCard = ({
     <Card className="mb-8">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>サブスクリプション</CardTitle>
-        <Button onClick={() => handleOpenModal()}>新規サブスク追加</Button>
+        <Button onClick={() => handleOpenModal()} className="font-bold">
+          追加
+        </Button>
       </CardHeader>
       <CardContent>
         <Table>
