@@ -1,11 +1,7 @@
 import { auth } from '@/lib/auth/auth';
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-// 認証が必要なパスのパターン
-const protectedPaths = ['/dashboard'];
-
-// 認証不要のパスのパターン
+// 認証が不要なパスを定義
 const publicPaths = ['/', '/sign-in'];
 
 // ミドルウェアを適用するパスを設定
@@ -13,24 +9,17 @@ export const config = {
   matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
 
-export async function middleware(request: NextRequest) {
-  // 現在のパス
-  const path = request.nextUrl.pathname;
+export default auth((req) => {
+  const { nextUrl } = req;
+  const isPublicPath = publicPaths.includes(nextUrl.pathname);
 
-  // 認証情報を取得
-  const session = await auth();
+  if (isPublicPath) return NextResponse.next();
+  if (req.auth) return NextResponse.next();
 
-  // 認証が必要なパスへのアクセスで未認証の場合
-  if (protectedPaths.some((p) => path.startsWith(p)) && !session) {
-    const signInUrl = new URL('/sign-in', request.url);
-    signInUrl.searchParams.set('callbackUrl', path);
-    return NextResponse.redirect(signInUrl);
-  }
+  // 未認証かつ保護されたパスへのアクセスの場合、サインインページにリダイレクト
+  const signInUrl = new URL('/sign-in', nextUrl.origin);
+  // 認証後のリダイレクト先を設定
+  signInUrl.searchParams.set('redirectTo', nextUrl.pathname);
 
-  // 認証済みユーザーがsign-inページにアクセスした場合
-  if (path === '/sign-in' && session) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  return NextResponse.next();
-}
+  return NextResponse.redirect(signInUrl);
+});
