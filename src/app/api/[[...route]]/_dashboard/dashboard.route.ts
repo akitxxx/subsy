@@ -1,6 +1,6 @@
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
-import { GetDashboardUsecase } from './get_dashboard.usecase';
+import { GetDashboardUsecase } from './getDashboard.usecase';
 
 const dashboard = new Hono();
 
