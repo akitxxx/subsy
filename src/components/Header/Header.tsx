@@ -15,7 +15,7 @@ type Props = {
 
 export function Header({ isLoggedIn }: Props) {
   return (
-    <header className="bg-primary text-primary-foreground py-4">
+    <header className="bg-primary text-primary-foreground py-3">
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold">
           Subsy
