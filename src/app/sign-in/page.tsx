@@ -5,7 +5,7 @@ import { signInWithGoogle } from './signInWithGoogle.action';
 export default async function SignInPage() {
   const session = await auth();
 
-  if (session) {
+  if (session?.user) {
     redirect('/dashboard');
   }
 

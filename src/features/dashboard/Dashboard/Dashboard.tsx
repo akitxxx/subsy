@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SubscriptionListCard } from '@/features/subscriptions/SubscriptionListCard';
 import { useDashboard } from './useDashboard';
