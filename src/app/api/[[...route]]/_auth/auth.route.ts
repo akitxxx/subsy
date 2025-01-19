@@ -2,7 +2,7 @@ import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
 // import { GoogleAuthUsecase } from './google-auth.usecase';
 
-const auth = new Hono();
+const auth = new Hono<HonoEnv>();
 
 // auth.post('/google/callback', async (c: Context<HonoEnv>) => {
 //   const { credential } = await c.req.json();
