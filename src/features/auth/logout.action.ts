@@ -1,7 +1,7 @@
 'use server';
 
-import { signOut } from '@/lib/auth/auth';
+import { supabase } from '@/lib/supabase';
 
 export async function logout() {
-  await signOut();
+  await supabase.auth.signOut();
 }

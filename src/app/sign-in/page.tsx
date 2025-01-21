@@ -1,11 +1,11 @@
 import { GoogleSignInButton } from '@/features/auth/GoogleSignInButton';
-import { auth } from '@/lib/auth/auth';
+import { supabase } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 
 export default async function SignInPage() {
-  const session = await auth();
+  const session = await supabase.auth.getSession();
   console.log(session);
-  if (session?.user) {
+  if (session?.data?.session) {
     redirect('/dashboard');
   }
 

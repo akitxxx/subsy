@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/Header';
-import { auth } from '@/lib/auth/auth';
+import { supabase } from '@/lib/supabase';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -24,8 +24,8 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
-  const isLoggedIn = !!session;
+  const sessionData = await supabase.auth.getSession();
+  const isLoggedIn = !!sessionData.data.session;
 
   return (
     <html lang="ja">

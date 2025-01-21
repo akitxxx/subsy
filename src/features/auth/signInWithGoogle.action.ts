@@ -1,7 +1,12 @@
 'use server';
 
-import { signIn } from '@/lib/auth/auth';
+import { supabase } from '@/lib/supabase';
 
 export async function signInWithGoogle() {
-  await signIn('google', { callbackUrl: '/' });
+  await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: '/dashboard',
+    },
+  });
 }
