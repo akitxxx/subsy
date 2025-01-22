@@ -7,7 +7,7 @@ declare namespace NodeJS {
     DATABASE_URL: string;
     AUTH_GOOGLE_CLIENT_ID: string;
     AUTH_GOOGLE_CLIENT_SECRET: string;
-    NEXT_PUBLIC_API_URL: string;
+    NEXT_PUBLIC_API_HOST: string;
     NEXT_PUBLIC_SUPABASE_URL: string;
     NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
   }
