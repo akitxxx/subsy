@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { logout } from '@/features/auth/logout.action';
+import { signOut } from '@/features/auth/logout.action';
 import Link from 'next/link';
 
 type Props = {
@@ -84,7 +84,7 @@ const MyMenu = () => {
             <span>マイページ</span>
           </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={logout} className="flex items-center">
+        <DropdownMenuItem onClick={signOut} className="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
