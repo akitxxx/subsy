@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { signOut } from '@/features/auth/logout.action';
+import { signOut } from '@/features/auth/signOut.action';
 import Link from 'next/link';
 
 type Props = {
