@@ -4,6 +4,7 @@ import { type Context, Hono } from 'hono';
 
 const auth = new Hono<HonoEnv>();
 
+// oauth callback
 auth.get('callback', async (c: Context<HonoEnv>) => {
   const { searchParams, origin } = new URL(c.req.url);
   const code = searchParams.get('code');
