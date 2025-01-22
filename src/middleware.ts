@@ -1,38 +1,58 @@
-import { supabase } from '@/lib/supabase';
 import { type NextRequest, NextResponse } from 'next/server';
+import { createSupabaseServerClient } from './lib/supabase/supabase';
 
-// 認証が不要なパスを定義
-const publicPaths = ['/', '/sign-in'];
+// 認証をスキップするパス
+const PUBLIC_PATHS = {
+  pages: ['/', '/sign-in', '/auth'],
+  api: ['/api/auth'],
+  system: ['/_next', '/favicon.ico'],
+};
 
-// ミドルウェアを適用するパスを設定
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: '/((?!_next/static|_next/image|favicon.ico).*)',
 };
 
 export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // 公開パスはスキップ
+  if (isPublicPath(pathname)) {
+    return NextResponse.next();
+  }
+
+  // 認証チェック
+  const session = await getSession();
+  if (!session) {
+    return redirectToSignIn(req.nextUrl);
+  }
+
+  return NextResponse.next();
+}
+
+// ========== private ==========
+
+// ヘルパー関数
+function isPublicPath(pathname: string): boolean {
+  return Object.values(PUBLIC_PATHS).some((paths) =>
+    paths.some((path) => pathname.startsWith(path)),
+  );
+}
+
+async function getSession() {
   try {
-    const { nextUrl } = req;
-    const isPublicPath = publicPaths.includes(nextUrl.pathname);
-
-    // 公開パスの場合はそのまま通す
-    if (isPublicPath) return NextResponse.next();
-
-    // セッションの取得を試みる
+    const supabase = await createSupabaseServerClient();
     const {
       data: { session },
-      error: sessionError,
     } = await supabase.auth.getSession();
-
-    if (sessionError || !session) {
-      // セッションが存在しない場合はサインインページにリダイレクト
-      const signInUrl = new URL('/sign-in', nextUrl.origin);
-      signInUrl.searchParams.set('redirectTo', nextUrl.pathname);
-      return NextResponse.redirect(signInUrl);
-    }
-
-    return NextResponse.next();
+    return session;
   } catch (error) {
-    console.error('Middleware error:', error);
-    return NextResponse.redirect(new URL('/sign-in', req.url));
+    console.error('Session error:', error);
+    return null;
   }
+}
+
+function redirectToSignIn(url: URL): NextResponse {
+  const signInUrl = new URL('/sign-in', url.origin);
+  signInUrl.searchParams.set('redirectTo', url.pathname);
+  return NextResponse.redirect(signInUrl);
 }

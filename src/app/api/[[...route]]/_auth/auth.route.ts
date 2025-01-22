@@ -1,36 +1,31 @@
+import { createSupabaseServerClient } from '@/lib/supabase/supabase';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
-// import { GoogleAuthUsecase } from './google-auth.usecase';
 
 const auth = new Hono<HonoEnv>();
 
-// auth.post('/google/callback', async (c: Context<HonoEnv>) => {
-//   const { credential } = await c.req.json();
+auth.get('callback', async (c: Context<HonoEnv>) => {
+  const { searchParams, origin } = new URL(c.req.url);
+  const code = searchParams.get('code');
+  const next = searchParams.get('next') ?? '/';
 
-//   try {
-//     const result = await GoogleAuthUsecase.run({ db: c.var.db })({
-//       credential,
-//     });
+  if (code) {
+    const supabase = await createSupabaseServerClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      const forwardedHost = c.req.header('x-forwarded-host');
+      const isLocalEnv = process.env.NODE_ENV === 'development';
+      if (isLocalEnv) {
+        return c.redirect(`${origin}${next}`);
+      }
+      if (forwardedHost) {
+        return c.redirect(`https://${forwardedHost}${next}`);
+      }
+      return c.redirect(`${origin}${next}`);
+    }
+  }
 
-//     // セッションクッキーを設定
-//     c.cookie('session', result.token, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === 'production',
-//       sameSite: 'Lax',
-//       path: '/',
-//     });
-
-//     return c.json({
-//       userId: result.userId,
-//       nickname: result.nickname,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     if (error instanceof Error) {
-//       return c.json({ error: error.message }, 401);
-//     }
-//     return c.json({ error: '認証に失敗しました' }, 500);
-//   }
-// });
+  return c.redirect(`${origin}/auth/auth-code-error`);
+});
 
 export default auth;
