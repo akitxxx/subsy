@@ -29,7 +29,7 @@ export const useDashboard = () => {
 
       if (res.status === 500) {
         const data = await res.json();
-        setError(data.error.message);
+        setError(data.error.detail);
         return data;
       }
     } catch (err) {
