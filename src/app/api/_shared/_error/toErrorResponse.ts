@@ -40,6 +40,7 @@ const errorMappings: Record<string, ErrorMapping> = {
 };
 
 export const toErrorResponse = (error: Error): ErrorResponse => {
+  console.dir(error, { depth: null });
   const mapping = errorMappings[error.constructor.name] || {
     type: 'INTERNAL_ERROR',
     status: 500,
