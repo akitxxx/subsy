@@ -1,4 +1,4 @@
-import { NotFoundError } from '@/app/api/_shared/_error/_error';
+import { NotFoundError } from '@/app/api/_shared/_error';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import type { SelectUser } from '@/lib/db/schema';
 import { usersTable } from '@/lib/db/schema';

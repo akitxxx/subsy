@@ -39,7 +39,7 @@ const errorMappings: Record<string, ErrorMapping> = {
   },
 };
 
-export const handleError = (error: Error): ErrorResponse => {
+export const toErrorResponse = (error: Error): ErrorResponse => {
   const mapping = errorMappings[error.constructor.name] || {
     type: 'INTERNAL_ERROR',
     status: 500,

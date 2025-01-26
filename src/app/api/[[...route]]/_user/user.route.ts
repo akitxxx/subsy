@@ -1,4 +1,4 @@
-import { handleError } from '@/app/api/_shared/_error/handleError';
+import { handleError } from '@/app/api/_shared/_error/toErrorResponse';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
 import { GetCurrentUserUsecase } from './getCurrentUser.usecase';
