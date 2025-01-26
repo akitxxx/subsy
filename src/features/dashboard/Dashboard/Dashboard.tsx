@@ -40,7 +40,7 @@ export const Dashboard = () => {
                 >
                   <span className="font-semibold">{sub.name}</span>
                   <span className="font-medium">
-                    ¥{sub.amount.toLocaleString()} ({sub.nextBillingDate})
+                    ¥{Number(sub.price).toLocaleString()} ({sub.nextPaymentAt})
                   </span>
                 </li>
               ))}

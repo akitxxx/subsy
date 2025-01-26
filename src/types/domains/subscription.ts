@@ -1,7 +1,14 @@
 export type Subscription = {
-  id: number;
+  id: string;
   name: string;
-  amount: number;
+  price: string;
   cycle: string;
-  nextBillingDate: string;
+  startedAt: string;
+  nextPaymentAt: string;
+  description: string | null;
+  status: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
 };

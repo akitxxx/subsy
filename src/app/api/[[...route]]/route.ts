@@ -14,6 +14,16 @@ app.use(async (c: Context<HonoEnv>, next) => {
   await next();
 });
 
+// error handler
+app.onError((err, c) => {
+  console.error(err);
+  return c.json({ error: { message: 'サーバーエラーが発生しました' } }, 500);
+});
+
+app.notFound((c) => {
+  return c.json({ error: { message: 'ページが見つかりません' } }, 404);
+});
+
 // routing
 const route = app.route('/dashboard', dashboard).route('/auth', auth);
 

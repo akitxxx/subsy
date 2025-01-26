@@ -4,7 +4,7 @@ import { useState } from 'react';
 export const useSubscriptionList = (props: {
   subscriptions: Subscription[];
   onSave: (subscription: Subscription) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSubscription, setCurrentSubscription] =
@@ -14,11 +14,18 @@ export const useSubscriptionList = (props: {
   const handleOpenModal = (subscription?: Subscription) => {
     setCurrentSubscription(
       subscription || {
-        id: Date.now(),
+        id: crypto.randomUUID(),
         name: '',
-        amount: 0,
+        price: '0',
         cycle: '',
-        nextBillingDate: '',
+        startedAt: new Date().toISOString(),
+        nextPaymentAt: new Date().toISOString(),
+        description: null,
+        status: 'active',
+        userId: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deletedAt: null,
       },
     );
     setIsModalOpen(true);
@@ -34,7 +41,7 @@ export const useSubscriptionList = (props: {
     handleCloseModal();
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     props.onDelete(id);
     setIsDeleteDialogOpen(false);
   };

@@ -2,18 +2,16 @@ import { hono } from '@/lib/hono/hono';
 import type { Subscription } from '@/types/domains/subscription';
 import { useCallback, useEffect, useState } from 'react';
 
-type DashboardData = {
+type DashboardResponse = {
   subscriptions: Subscription[];
   totalThisMonth: number;
   upcomingSubscriptions: Subscription[];
 };
 
+type DashboardData = DashboardResponse;
+
 export const useDashboard = () => {
-  const [data, setData] = useState<DashboardData>({
-    subscriptions: [],
-    totalThisMonth: 0,
-    upcomingSubscriptions: [],
-  });
+  const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,17 +19,19 @@ export const useDashboard = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await hono.dashboard.dashboard.get();
+      const res = await hono.api.dashboard.$get();
 
-      if (!response.ok) {
-        const errorData = await response
-          .json()
-          .catch(() => ({ error: 'エラーが発生しました' }));
-        throw new Error(errorData.error || 'データの取得に失敗しました');
+      if (res.ok) {
+        const data = await res.json();
+        setData(data);
+        return data;
       }
 
-      const dashboardData = (await response.json()) as DashboardData;
-      setData(dashboardData);
+      if (res.status === 500) {
+        const data = await res.json();
+        setError(data.error.message);
+        return data;
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'エラーが発生しました');
       console.error('Dashboard data fetch error:', err);
@@ -49,23 +49,21 @@ export const useDashboard = () => {
     try {
       setError(null);
       // TODO: Implement API call for saving subscription
-      if (subscription.id) {
-        setData((prev) => ({
+      setData((prev) => {
+        if (!prev) return prev;
+        if (subscription.id) {
+          return {
+            ...prev,
+            subscriptions: prev.subscriptions.map((sub) =>
+              sub.id === subscription.id ? subscription : sub,
+            ),
+          };
+        }
+        return {
           ...prev,
-          subscriptions: prev.subscriptions.map((sub) =>
-            sub.id === subscription.id ? subscription : sub,
-          ),
-        }));
-      } else {
-        setData((prev) => ({
-          ...prev,
-          subscriptions: [
-            ...prev.subscriptions,
-            { ...subscription, id: Date.now() },
-          ],
-        }));
-      }
-      await fetchDashboardData();
+          subscriptions: [...prev.subscriptions, subscription],
+        };
+      });
     } catch (err) {
       setError(
         err instanceof Error
@@ -76,15 +74,17 @@ export const useDashboard = () => {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     try {
       setError(null);
       // TODO: Implement API call for deleting subscription
-      setData((prev) => ({
-        ...prev,
-        subscriptions: prev.subscriptions.filter((sub) => sub.id !== id),
-      }));
-      await fetchDashboardData();
+      setData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          subscriptions: prev.subscriptions.filter((sub) => sub.id !== id),
+        };
+      });
     } catch (err) {
       setError(
         err instanceof Error
@@ -96,7 +96,9 @@ export const useDashboard = () => {
   };
 
   return {
-    ...data,
+    subscriptions: data?.subscriptions ?? [],
+    totalThisMonth: data?.totalThisMonth ?? 0,
+    upcomingSubscriptions: data?.upcomingSubscriptions ?? [],
     isLoading,
     error,
     handleSaveSubscription,

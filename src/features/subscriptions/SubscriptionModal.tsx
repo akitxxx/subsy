@@ -15,15 +15,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import type { Subscription } from '@/types/domains/subscription';
 import { useEffect, useState } from 'react';
-
-type Subscription = {
-  id: number;
-  name: string;
-  amount: number;
-  cycle: string;
-  nextBillingDate: string;
-};
 
 type SubscriptionModalProps = {
   isOpen: boolean;
@@ -39,11 +32,18 @@ export function SubscriptionModal({
   subscription,
 }: SubscriptionModalProps) {
   const [formData, setFormData] = useState<Subscription>({
-    id: 0,
+    id: crypto.randomUUID(),
     name: '',
-    amount: 0,
+    price: '0',
     cycle: '',
-    nextBillingDate: '',
+    startedAt: new Date().toISOString(),
+    nextPaymentAt: new Date().toISOString(),
+    description: null,
+    status: 'active',
+    userId: '',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    deletedAt: null,
   });
 
   useEffect(() => {
@@ -51,11 +51,18 @@ export function SubscriptionModal({
       setFormData(subscription);
     } else {
       setFormData({
-        id: 0,
+        id: crypto.randomUUID(),
         name: '',
-        amount: 0,
+        price: '0',
         cycle: '',
-        nextBillingDate: '',
+        startedAt: new Date().toISOString(),
+        nextPaymentAt: new Date().toISOString(),
+        description: null,
+        status: 'active',
+        userId: '',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deletedAt: null,
       });
     }
   }, [subscription]);
@@ -96,19 +103,19 @@ export function SubscriptionModal({
             </div>
             <div className="grid gap-2 sm:grid-cols-8 sm:items-center sm:gap-4">
               <Label
-                htmlFor="amount"
+                htmlFor="price"
                 className="text-sm font-medium text-gray-700 sm:text-right sm:whitespace-nowrap sm:col-span-3"
               >
                 金額
               </Label>
               <div className="relative sm:col-span-5">
                 <Input
-                  id="amount"
+                  id="price"
                   type="number"
                   placeholder="1000"
-                  value={formData.amount}
+                  value={Number(formData.price)}
                   onChange={(e) =>
-                    setFormData({ ...formData, amount: Number(e.target.value) })
+                    setFormData({ ...formData, price: e.target.value })
                   }
                   className="w-full pl-7"
                 />
@@ -135,28 +142,28 @@ export function SubscriptionModal({
                     <SelectValue placeholder="選択してください" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="月額">月額</SelectItem>
-                    <SelectItem value="年額">年額</SelectItem>
+                    <SelectItem value="monthly">月額</SelectItem>
+                    <SelectItem value="yearly">年額</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="grid gap-2 sm:grid-cols-8 sm:items-center sm:gap-4">
               <Label
-                htmlFor="nextBillingDate"
+                htmlFor="nextPaymentAt"
                 className="text-sm font-medium text-gray-700 sm:text-right sm:whitespace-nowrap sm:col-span-3"
               >
                 次回支払い日
               </Label>
               <div className="sm:col-span-5">
                 <Input
-                  id="nextBillingDate"
+                  id="nextPaymentAt"
                   type="date"
-                  value={formData.nextBillingDate}
+                  value={formData.nextPaymentAt.split('T')[0]}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      nextBillingDate: e.target.value,
+                      nextPaymentAt: new Date(e.target.value).toISOString(),
                     })
                   }
                   className="w-full"

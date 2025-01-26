@@ -16,7 +16,7 @@ import { useSubscriptionList } from './useSubscriptionList';
 type Props = {
   subscriptions: Subscription[];
   onSave: (subscription: Subscription) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 };
 
 export const SubscriptionListCard = ({
@@ -59,9 +59,9 @@ export const SubscriptionListCard = ({
             {subscriptions.map((sub) => (
               <TableRow key={sub.id}>
                 <TableCell className="font-medium">{sub.name}</TableCell>
-                <TableCell>¥{sub.amount.toLocaleString()}</TableCell>
+                <TableCell>¥{Number(sub.price).toLocaleString()}</TableCell>
                 <TableCell>{sub.cycle}</TableCell>
-                <TableCell>{sub.nextBillingDate}</TableCell>
+                <TableCell>{sub.nextPaymentAt}</TableCell>
                 <TableCell>
                   <Button
                     onClick={() => handleOpenModal(sub)}
