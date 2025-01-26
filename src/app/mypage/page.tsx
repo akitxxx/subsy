@@ -26,7 +26,7 @@ export default function MyPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex items-center justify-center bg-background">
         <Card>
           <CardHeader>
             <CardTitle>ログアウトしました</CardTitle>
@@ -42,7 +42,7 @@ export default function MyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background pt-4">
       <Card>
         <CardHeader>
           <CardTitle>プロフィール設定</CardTitle>

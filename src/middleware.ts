@@ -3,7 +3,7 @@ import { createSupabaseServerClient } from './lib/supabase/supabase';
 
 // 認証をスキップするパス
 const PUBLIC_PATHS = {
-  pages: ['/', '/sign-in', '/auth'],
+  pages: ['/sign-in', '/auth'],
   api: ['/api/auth'],
   system: ['/_next', '/favicon.ico'],
 };
