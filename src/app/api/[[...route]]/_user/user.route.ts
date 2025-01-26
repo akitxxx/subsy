@@ -3,7 +3,7 @@ import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
 import { GetCurrentUserUsecase } from './getCurrentUser.usecase';
 
-const app = new Hono<HonoEnv>().basePath('/users');
+const app = new Hono<HonoEnv>();
 
 const route = app.get('/me', async (c: Context<HonoEnv>) => {
   const userId = '12345678-1234-1234-1234-123456789012';

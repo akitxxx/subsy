@@ -4,6 +4,7 @@ import { type Context, Hono } from 'hono';
 import { handle } from 'hono/vercel';
 import auth from './_auth/auth.route';
 import dashboard from './_dashboard/dashboard.route';
+import user from './_user/user.route';
 
 const app = new Hono<HonoEnv>().basePath('/api');
 
@@ -25,7 +26,10 @@ app.notFound((c) => {
 });
 
 // routing
-const route = app.route('/dashboard', dashboard).route('/auth', auth);
+const route = app
+  .route('/dashboard', dashboard)
+  .route('/auth', auth)
+  .route('/users', user);
 
 export const GET = handle(app);
 export const POST = handle(app);

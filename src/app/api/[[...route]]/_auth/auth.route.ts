@@ -2,7 +2,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/supabase';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
 
-const app = new Hono<HonoEnv>().basePath('/auth');
+const app = new Hono<HonoEnv>();
 
 // oauth callback
 const route = app.get('/callback', async (c: Context<HonoEnv>) => {

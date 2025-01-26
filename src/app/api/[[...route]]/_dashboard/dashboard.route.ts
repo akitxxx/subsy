@@ -2,7 +2,7 @@ import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
 import { GetDashboardUsecase } from './getDashboard.usecase';
 
-const app = new Hono<HonoEnv>().basePath('/dashboard');
+const app = new Hono<HonoEnv>();
 
 const route = app.get('/', async (c: Context<HonoEnv>) => {
   const userId = c.req.param('userId');
