@@ -1,4 +1,4 @@
-import { handleError } from '@/app/api/_shared/_error/toErrorResponse';
+import { toErrorResponse } from '@/app/api/_shared/_error';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
 import { GetCurrentUserUsecase } from './getCurrentUser.usecase';
@@ -15,7 +15,7 @@ const route = app.get('/me', async (c: Context<HonoEnv>) => {
     return c.json(result.user, 200);
   } catch (e: unknown) {
     if (e instanceof Error) {
-      const errorResponse = handleError(e);
+      const errorResponse = toErrorResponse(e);
       return c.json(errorResponse, errorResponse.error.status);
     }
     throw e;
