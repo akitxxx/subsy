@@ -1,3 +1,4 @@
+import { handleError } from '@/app/api/_shared/_error/handleError';
 import { getDrizzleClient } from '@/lib/db/drizzle';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
@@ -18,11 +19,13 @@ app.use(async (c: Context<HonoEnv>, next) => {
 // error handler
 app.onError((err, c) => {
   console.error(err);
-  return c.json({ error: { message: 'サーバーエラーが発生しました' } }, 500);
+  const errorResponse = handleError(err);
+  return c.json(errorResponse, errorResponse.error.status);
 });
 
 app.notFound((c) => {
-  return c.json({ error: { message: 'ページが見つかりません' } }, 404);
+  const errorResponse = handleError(new Error('ページが見つかりません'));
+  return c.json(errorResponse, errorResponse.error.status);
 });
 
 // routing

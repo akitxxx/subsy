@@ -1,4 +1,4 @@
-import { NotFoundError } from '@/app/api/_shared/error/error';
+import { NotFoundError } from '@/app/api/_shared/_error/_error';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import type { SelectUser } from '@/lib/db/schema';
 import { usersTable } from '@/lib/db/schema';
@@ -31,10 +31,7 @@ const run =
 
     if (!user) {
       console.error('ユーザーが見つかりません', { userId });
-      throw new NotFoundError({
-        message: 'ユーザーが見つかりません',
-        detail: { userId },
-      });
+      throw new NotFoundError(`ユーザー(ID: ${userId})が見つかりません`);
     }
 
     return { user };

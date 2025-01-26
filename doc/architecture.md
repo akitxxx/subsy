@@ -60,11 +60,21 @@ const res = await hono.XXX
 
 ## 5. エラー設計
 ```typescript
-// レスポンスフォーマット（RFC 7807ベース）
+// エラーレスポンスフォーマット
 {
-  type: 'user/not_found',
-  title: 'User Not Found',
-  status: 404
+  "error": {
+    "type": "INVALID_ARGUMENT",      // エラー種別
+    "title": "Invalid Parameter(s)", // 人間可読なエラーの概要
+    "status": 400,                   // HTTPステータスコード
+    "detail": "Request contains invalid parameters.", // エラーの詳細説明
+    "details": [                     // バリデーションエラーの詳細リスト
+      {
+        "field": "name",            // エラーが発生したフィールド
+        "reason": "required",       // エラーの理由
+        "message": "The 'name' field is required." // エラーメッセージ
+      }
+    ]
+  }
 }
 ```
 
