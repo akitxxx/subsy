@@ -1,3 +1,4 @@
+import { hono } from '@/lib/hono/hono';
 import type { Subscription } from '@/types/domains/subscription';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -20,7 +21,7 @@ export const useDashboard = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const response = await fetch('/api/dashboard');
+      const response = await hono.dashboard.dashboard.get();
 
       if (!response.ok) {
         const errorData = await response
