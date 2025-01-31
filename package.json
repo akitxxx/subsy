@@ -19,7 +19,8 @@
     "db:reset:test": "dotenv -e .env.test tsx drizzle/reset.ts",
     "test:front": "vitest run --dir src/app",
     "test:back": "vitest run --dir src/app/api",
-    "test": "vitest run --config=vitest.config.ts"
+    "test": "vitest run --config=vitest.config.ts",
+    "db:up": "supabase start"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.2",
