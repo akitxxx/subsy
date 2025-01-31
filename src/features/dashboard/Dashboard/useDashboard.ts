@@ -1,4 +1,4 @@
-import { hono } from '@/lib/hono/hono';
+import { honoClient } from '@/lib/hono/hono';
 import type { Subscription } from '@/types/domains/subscription';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -19,7 +19,7 @@ export const useDashboard = () => {
     try {
       setIsLoading(true);
       setError(null);
-      const res = await hono.api.dashboard.$get();
+      const res = await honoClient.api.dashboard.$get();
 
       if (res.ok) {
         const data = await res.json();

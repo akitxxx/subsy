@@ -1,6 +1,6 @@
 import type { AppType } from '@/app/api/[[...route]]/route';
 import { hc } from 'hono/client';
 
-export const hono = hc<AppType>('/');
+export const honoClient = hc<AppType>('/');
 
-export type HonoClient = typeof hono;
+export type HonoClient = typeof honoClient;

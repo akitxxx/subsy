@@ -1,9 +1,9 @@
-import { hono } from '@/lib/hono/hono';
+import { honoClient } from '@/lib/hono/hono';
 import useSWR from 'swr';
 import type { CurrentUser, UseCurrentUserReturn } from '../types/user';
 
 const fetchCurrentUser = async (): Promise<CurrentUser> => {
-  const response = await hono.api.users.me.$get();
+  const response = await honoClient.api.users.me.$get();
   if (!response.ok) {
     throw new Error('ユーザー情報の取得に失敗しました');
   }
