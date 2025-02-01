@@ -36,7 +36,7 @@ const MyMenu = () => {
           className="relative h-8 w-8 rounded-full focus-visible:ring-0 focus-visible:ring-offset-0"
         >
           <Avatar className="h-8 w-8 border-2 border-primary-foreground">
-            <AvatarImage src="/avatars/01.png" alt="@username" />
+            <AvatarImage src="" alt="@username" />
             <AvatarFallback>UN</AvatarFallback>
           </Avatar>
         </Button>

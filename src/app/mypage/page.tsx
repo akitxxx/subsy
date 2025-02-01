@@ -1,73 +1,58 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useState } from 'react';
+import { ProfileForm } from '@/features/user/components/ProfileForm';
+import type { CurrentUser } from '@/features/user/types/user';
+import { honoClient } from '@/lib/hono/hono';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
 
-export default function MyPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [user, setUser] = useState({
-    name: 'ユーザー名',
-    email: 'user@example.com',
-  });
+async function getUser(): Promise<CurrentUser> {
+  const cookieStore = await cookies();
+  const response = await honoClient.api.users.me.$get(
+    {},
+    {
+      headers: { cookie: cookieStore.toString() },
+    },
+  );
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    // ここに実際のログアウト処理を追加
-  };
+  if (!response.ok) {
+    const errorData = await response.json();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // ここにプロフィール更新の処理を追加
-    alert('プロフィールが更新されました');
-  };
-
-  if (!isLoggedIn) {
-    return (
-      <div className="flex items-center justify-center bg-background">
-        <Card>
-          <CardHeader>
-            <CardTitle>ログアウトしました</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => setIsLoggedIn(true)}>
-              ログインページへ
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    switch (response.status) {
+      case 401: {
+        redirect('/sign-in');
+        break;
+      }
+      default: {
+        throw new Error(
+          errorData.error.detail || '予期せぬエラーが発生しました',
+        );
+      }
+    }
   }
 
+  const userData = await response.json();
+  return {
+    ...userData,
+    createdAt: new Date(userData.createdAt),
+    updatedAt: new Date(userData.updatedAt),
+  } as CurrentUser;
+}
+
+export default async function MyPage() {
+  const user = await getUser();
+
   return (
-    <div className="bg-background pt-4">
-      <Card>
+    <div className="container mx-auto py-6">
+      <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>プロフィール設定</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <Label htmlFor="name">名前</Label>
-              <Input
-                id="name"
-                value={user.name}
-                onChange={(e) => setUser({ ...user, name: e.target.value })}
-              />
-            </div>
-            <div>
-              <Label htmlFor="email">メールアドレス</Label>
-              <Input
-                id="email"
-                type="email"
-                value={user.email}
-                onChange={(e) => setUser({ ...user, email: e.target.value })}
-              />
-            </div>
-            <Button type="submit">更新</Button>
-          </form>
+          <Suspense fallback={<div>読み込み中...</div>}>
+            <ProfileForm user={user} />
+          </Suspense>
         </CardContent>
       </Card>
     </div>
