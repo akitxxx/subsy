@@ -3,15 +3,6 @@ import { createSupabaseServerClient } from '@/lib/supabase/supabase';
 import { redirect } from 'next/navigation';
 
 export default async function SignInPage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    redirect('/dashboard');
-  }
-
   return (
     <div className="flex min-h-screen items-start justify-center pt-32">
       <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-md">
