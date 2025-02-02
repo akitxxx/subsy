@@ -1,4 +1,7 @@
-import { ConflictError } from '@/app/api/_shared/_error/errors';
+import {
+  ConflictError,
+  UnauthorizedError,
+} from '@/app/api/_shared/_error/errors';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { type SelectUser, userAuthsTable, usersTable } from '@/lib/db/schema';
 import { ProviderEnum } from '@/types/enums/provider.enum';
@@ -7,7 +10,7 @@ import { eq } from 'drizzle-orm';
 
 type Inject = {
   db: DrizzleClient;
-  authUser: User;
+  authUser: User | null;
 };
 
 type Input = {
@@ -32,6 +35,8 @@ if (!JWT_SECRET) {
 const run =
   ({ db, authUser }: Inject) =>
   async ({ nickname }: Input): Promise<Output> => {
+    if (!authUser) throw new UnauthorizedError('ユーザーが見つかりません');
+
     const user = await db
       .select({
         id: usersTable.id,
@@ -66,4 +71,4 @@ const run =
     return { user: newUser };
   };
 
-export const GoogleAuthUsecase = { run };
+export const SignUpWithGoogleUsecase = { run };
