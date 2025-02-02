@@ -1,5 +1,3 @@
-'use client';
-
 import { Button } from '@/components/ui/button';
 import { honoClient } from '@/lib/hono/hono';
 import { useRouter } from 'next/navigation';

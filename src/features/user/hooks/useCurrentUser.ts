@@ -77,7 +77,7 @@ export const useCurrentUserSuspense = (): Omit<
   });
 
   return {
-    user: user as CurrentUser, // Suspenseモードでは必ずデータが存在する
+    user,
     error,
     refresh: () => mutate(),
   };
