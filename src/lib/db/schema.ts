@@ -32,6 +32,7 @@ export const userAuthsTable = pgTable(
       .notNull()
       .references(() => usersTable.id),
     provider: varchar('provider', { length: 255 }).notNull(),
+    // providerのuser id
     providerId: varchar('provider_id', { length: 255 }).notNull(),
 
     createdAt: timestamp('created_at')
