@@ -22,12 +22,14 @@ export async function middleware(req: NextRequest) {
   // 認証チェック
   const session = await getSession();
   if (!session) {
-    return redirectToSignIn(req.nextUrl);
+    return NextResponse.redirect(new URL('/sign-in', req.nextUrl.origin));
   }
 
   // ユーザーレコードの存在チェック
   const userExists = await checkUserExists(req.headers.get('cookie') || '');
-  if (!userExists) return redirectToSignUp(req.nextUrl);
+  if (!userExists) {
+    return NextResponse.redirect(new URL('/sign-up', req.nextUrl.origin));
+  }
 
   return NextResponse.next();
 }
@@ -54,12 +56,6 @@ async function getSession() {
   }
 }
 
-function redirectToSignIn(url: URL): NextResponse {
-  const signInUrl = new URL('/sign-in', url.origin);
-  signInUrl.searchParams.set('redirectTo', url.pathname);
-  return NextResponse.redirect(signInUrl);
-}
-
 async function checkUserExists(cookie: string): Promise<boolean> {
   try {
     const res = await honoClient.api.users.me.$get({ headers: { cookie } });
@@ -72,10 +68,4 @@ async function checkUserExists(cookie: string): Promise<boolean> {
     console.error('User check error:', error);
     return false;
   }
-}
-
-function redirectToSignUp(url: URL): NextResponse {
-  const signUpUrl = new URL('/sign-up', url.origin);
-  signUpUrl.searchParams.set('redirectTo', url.pathname);
-  return NextResponse.redirect(signUpUrl);
 }
