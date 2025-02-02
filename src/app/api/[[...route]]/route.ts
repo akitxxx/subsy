@@ -1,6 +1,9 @@
 import { NotFoundError, toErrorResponse } from '@/app/api/_shared/_error';
 import { getDrizzleClient } from '@/lib/db/drizzle';
-import { createSupabaseServerClient } from '@/lib/supabase/supabase';
+import {
+  createSupabaseHono,
+  createSupabaseServerClient,
+} from '@/lib/supabase/supabase';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
 import { handle } from 'hono/vercel';
@@ -17,7 +20,9 @@ app.use(async (c: Context<HonoEnv>, next) => {
   c.set('db', db);
 
   // Supabase
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createSupabaseHono(c);
+  c.set('supabase', supabase);
+  // auth user
   const user = (await supabase.auth.getUser()).data.user;
   c.set('authUser', user);
 

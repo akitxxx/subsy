@@ -1,4 +1,8 @@
+import type { HonoEnv } from '@/types/api/hono';
 import { createBrowserClient, createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
+import { type Context, Next } from 'hono';
+import { deleteCookie, getCookie, setCookie } from 'hono/cookie';
 import { cookies } from 'next/headers';
 
 // 環境変数の取得
@@ -39,6 +43,31 @@ export async function createSupabaseServerClient() {
           // The `setAll` method was called from a Server Component.
           // This can be ignored if you have middleware refreshing
           // user sessions.
+        }
+      },
+    },
+  });
+}
+
+export async function createSupabaseHono(c: Context<HonoEnv>) {
+  const cookie = getCookie(c);
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
+    cookieOptions: {
+      secure: true,
+      httpOnly: true,
+    },
+    cookies: {
+      getAll() {
+        return Object.entries(cookie).map(([name, value]) => ({ name, value }));
+      },
+      setAll(cookiesToSet) {
+        for (const { name, value, options } of cookiesToSet) {
+          setCookie(c, name, value, {
+            ...options,
+            // TOOD: 要確認
+            sameSite: 'strict',
+            priority: 'High',
+          });
         }
       },
     },
