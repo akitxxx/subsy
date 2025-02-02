@@ -1,18 +1,11 @@
 import { createSupabaseServerClient } from '@/lib/supabase/supabase';
 import type { HonoEnv } from '@/types/api/hono';
 import { zValidator } from '@hono/zod-validator';
-import { type Context, Hono } from 'hono';
+import { Hono } from 'hono';
 import { z } from 'zod';
 import { SignUpWithGoogleUsecase } from './signUpWithGoogle.usecase';
 
 const app = new Hono<HonoEnv>();
-
-const signUpSchema = z.object({
-  nickname: z
-    .string()
-    .min(1, 'ニックネームは必須です')
-    .max(10, 'ニックネームは10文字以内で入力してください'),
-});
 
 // oauth callback
 const route = app
@@ -39,16 +32,28 @@ const route = app
 
     return c.redirect(`${origin}/auth/auth-code-error`);
   })
-  .post('/sign-up', zValidator('json', signUpSchema), async (c) => {
-    const db = c.get('db');
-    const authUser = c.get('authUser');
+  .post(
+    '/sign-up',
+    zValidator(
+      'json',
+      z.object({
+        nickname: z
+          .string()
+          .min(1, 'ニックネームは必須です')
+          .max(10, 'ニックネームは10文字以内で入力してください'),
+      }),
+    ),
+    async (c) => {
+      const db = c.get('db');
+      const authUser = c.get('authUser');
 
-    const { nickname } = c.req.valid('json');
-    const output = await SignUpWithGoogleUsecase.run({ db, authUser })({
-      nickname,
-    });
+      const { nickname } = c.req.valid('json');
+      const output = await SignUpWithGoogleUsecase.run({ db, authUser })({
+        nickname,
+      });
 
-    return c.json(output);
-  });
+      return c.json(output);
+    },
+  );
 
 export default route;

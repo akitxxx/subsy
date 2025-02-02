@@ -1,15 +1,13 @@
-import { NotFoundError } from '@/app/api/_shared/_error';
+import { NotFoundError, UnauthorizedError } from '@/app/api/_shared/_error';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import type { SelectUser } from '@/lib/db/schema';
-import { usersTable } from '@/lib/db/schema';
+import { userAuthsTable, usersTable } from '@/lib/db/schema';
+import type { User } from '@supabase/supabase-js';
 import { and, eq, isNull } from 'drizzle-orm';
 
 type Inject = {
   db: DrizzleClient;
-};
-
-type Input = {
-  userId: string;
+  authUser: User | null;
 };
 
 type Output = {
@@ -17,8 +15,8 @@ type Output = {
 };
 
 const run =
-  ({ db }: Inject) =>
-  async ({ userId }: Input): Promise<Output> => {
+  ({ db, authUser }: Inject) =>
+  async (): Promise<Output> => {
     const [user] = await db
       .select({
         id: usersTable.id,
@@ -27,11 +25,18 @@ const run =
         updatedAt: usersTable.updatedAt,
       })
       .from(usersTable)
-      .where(and(eq(usersTable.id, userId), isNull(usersTable.deletedAt)));
+      .innerJoin(userAuthsTable, eq(usersTable.id, userAuthsTable.userId))
+      .where(
+        and(
+          eq(userAuthsTable.providerId, authUser?.id || ''),
+          isNull(usersTable.deletedAt),
+        ),
+      )
+      .limit(1);
 
     if (!user) {
-      console.error('ユーザーが見つかりません', { userId });
-      throw new NotFoundError(`ユーザー(ID: ${userId})が見つかりません`);
+      console.error('ユーザーが見つかりません', { authUserId: authUser?.id });
+      throw new NotFoundError('ユーザーが見つかりません');
     }
 
     return { user };
