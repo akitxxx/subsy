@@ -1,13 +1,28 @@
 'use client';
 
+import { Button } from '@/components/ui/button';
 import { honoClient } from '@/lib/hono/hono';
-import { createSupabaseBrowserClient } from '@/lib/supabase/supabase';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { z } from 'zod';
+
+const signUpSchema = z.object({
+  nickname: z
+    .string()
+    .min(2, 'ニックネームは2文字以上で入力してください')
+    .max(20, 'ニックネームは20文字以下で入力してください')
+    .regex(
+      /^[a-zA-Z0-9ぁ-んァ-ン一-龥ー]+$/,
+      '使用できない文字が含まれています',
+    ),
+});
+
+type SignUpSchema = z.infer<typeof signUpSchema>;
 
 export default function SignUpPage() {
   const [nickname, setNickname] = useState('');
   const [error, setError] = useState('');
+  const [validationError, setValidationError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -15,14 +30,23 @@ export default function SignUpPage() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setValidationError('');
 
     try {
-      const user = await honoClient.api.auth.sign;
+      // zodによるバリデーション
+      const validatedData = signUpSchema.parse({ nickname });
+
+      // APIリクエスト
+      await honoClient.api.auth['sign-up'].$post({ json: validatedData });
 
       router.push('/dashboard');
     } catch (err) {
-      setError('ニックネームの登録に失敗しました。もう一度お試しください。');
-      console.error('Error:', err);
+      if (err instanceof z.ZodError) {
+        setValidationError(err.errors[0].message);
+      } else {
+        setError('ユーザー登録に失敗しました。もう一度お試しください。');
+        console.error('Error:', err);
+      }
     } finally {
       setLoading(false);
     }
@@ -57,8 +81,11 @@ export default function SignUpPage() {
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-                placeholder="ニックネームを入力"
+                placeholder="2〜20文字で入力してください"
               />
+              {validationError && (
+                <p className="mt-1 text-sm text-red-600">{validationError}</p>
+              )}
             </div>
           </div>
 
@@ -68,13 +95,16 @@ export default function SignUpPage() {
             </div>
           )}
 
-          <button
+          <Button
             type="submit"
             disabled={loading || !nickname}
-            className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:bg-gray-300"
+            variant="default"
+            className="w-full"
           >
-            {loading ? '登録中...' : '登録する'}
-          </button>
+            <span className="font-bold">
+              {loading ? '登録中...' : '登録する'}
+            </span>
+          </Button>
         </form>
       </div>
     </div>
