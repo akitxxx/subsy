@@ -1,109 +1,62 @@
-// import type { DrizzleClient } from '@/lib/db/drizzle';
-// import { userAuthsTable, usersTable } from '@/lib/db/schema';
-// import { and, eq } from 'drizzle-orm';
-// import { jwtVerify, SignJWT } from 'jose';
-// import { OAuth2Client } from 'google-auth-library';
+import { ConflictError } from '@/app/api/_shared/_error/errors';
+import type { DrizzleClient } from '@/lib/db/drizzle';
+import { type SelectUser, userAuthsTable, usersTable } from '@/lib/db/schema';
+import type { User } from '@supabase/supabase-js';
+import { eq } from 'drizzle-orm';
 
-// type Inject = {
-//   db: DrizzleClient;
-// };
+type Inject = {
+  db: DrizzleClient;
+  authUser: User;
+};
 
-// type Input = {
-//   credential: string;
-// };
+type Input = {
+  idToken: string;
+};
 
-// type Output = {
-//   userId: string;
-//   token: string;
-//   nickname: string;
-// };
+type Output = {
+  user: SelectUser;
+};
 
-// const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-// const JWT_SECRET = process.env.JWT_SECRET;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const JWT_SECRET = process.env.JWT_SECRET;
 
-// if (!GOOGLE_CLIENT_ID) {
-//   throw new Error('GOOGLE_CLIENT_ID is not defined');
-// }
+if (!GOOGLE_CLIENT_ID) {
+  throw new Error('GOOGLE_CLIENT_ID is not defined');
+}
 
-// if (!JWT_SECRET) {
-//   throw new Error('JWT_SECRET is not defined');
-// }
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET is not defined');
+}
 
-// const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+const run =
+  ({ db, authUser }: Inject) =>
+  async ({ idToken }: Input): Promise<Output> => {
+    const user = await db
+      .select({
+        id: usersTable.id,
+        nickname: usersTable.nickname,
+      })
+      .from(userAuthsTable)
+      .innerJoin(usersTable, eq(userAuthsTable.userId, usersTable.id))
+      .where(eq(userAuthsTable.providerId, authUser.id))
+      .then((rows) => rows[0]);
 
-// const run =
-//   ({ db }: Inject) =>
-//   async ({ credential }: Input): Promise<Output> => {
-//     // Google IDトークンの検証
-//     const ticket = await client.verifyIdToken({
-//       idToken: credential,
-//       audience: GOOGLE_CLIENT_ID,
-//     });
+    if (user) {
+      throw new ConflictError('すでにユーザー登録済みです');
+    }
 
-//     const payload = ticket.getPayload();
-//     if (!payload) {
-//       throw new Error('Invalid credential');
-//     }
+    const newUser = await db
+      .insert(usersTable)
+      .values({
+        nickname:
+          authUser.user_metadata.full_name ||
+          authUser.email?.split('@')[0] ||
+          'Anonymous User',
+      })
+      .returning()
+      .then((rows) => rows[0]);
 
-//     const { sub: googleId, name } = payload;
-//     if (!name) {
-//       throw new Error('Required fields are missing');
-//     }
+    return { user: newUser };
+  };
 
-//     // ユーザー認証情報の取得
-//     const userAuth = await db
-//       .select({
-//         user: usersTable,
-//         auth: userAuthsTable,
-//       })
-//       .from(userAuthsTable)
-//       .innerJoin(usersTable, eq(userAuthsTable.userId, usersTable.id))
-//       .where(
-//         and(
-//           eq(userAuthsTable.provider, 'google'),
-//           eq(userAuthsTable.providerId, googleId),
-//         ),
-//       )
-//       .then((rows) => rows[0]);
-
-//     let userId: string;
-//     let nickname: string;
-
-//     if (!userAuth) {
-//       // 新規ユーザーの作成
-//       const [user] = await db
-//         .insert(usersTable)
-//         .values({
-//           nickname: name,
-//         })
-//         .returning();
-
-//       // 認証情報の作成
-//       await db.insert(userAuthsTable).values({
-//         userId: user.id,
-//         provider: 'google',
-//         providerId: googleId,
-//       });
-
-//       userId = user.id;
-//       nickname = user.nickname;
-//     } else {
-//       userId = userAuth.user.id;
-//       nickname = userAuth.user.nickname;
-//     }
-
-//     // JWTトークンの生成
-//     const token = await new SignJWT({ userId })
-//       .setProtectedHeader({ alg: 'HS256' })
-//       .setIssuedAt()
-//       .setExpirationTime('24h')
-//       .sign(new TextEncoder().encode(JWT_SECRET));
-
-//     return {
-//       userId,
-//       token,
-//       nickname,
-//     };
-//   };
-
-// export const GoogleAuthUsecase = { run };
+export const GoogleAuthUsecase = { run };

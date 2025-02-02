@@ -46,6 +46,12 @@ export class ForbiddenError extends AppError {
   }
 }
 
+export class ConflictError extends AppError {
+  constructor(message = 'Resource already exists') {
+    super('CONFLICT', 'Resource Already Exists', 409, message);
+  }
+}
+
 export class InternalServerError extends AppError {
   constructor(message = 'Internal server error') {
     super('INTERNAL_ERROR', 'Internal Server Error', 500, message);

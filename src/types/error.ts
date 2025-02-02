@@ -21,7 +21,8 @@ export type ErrorType =
   | 'UNAUTHORIZED'
   | 'FORBIDDEN'
   | 'NOT_FOUND'
+  | 'CONFLICT'
   | 'INTERNAL_ERROR';
 
 // ステータスコードの型定義
-export type StatusCode = 400 | 401 | 403 | 404 | 500;
+export type StatusCode = 400 | 401 | 403 | 404 | 409 | 500;
