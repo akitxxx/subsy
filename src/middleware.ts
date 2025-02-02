@@ -60,7 +60,10 @@ async function checkUserExists(cookie: string): Promise<boolean> {
   try {
     const res = await honoClient.api.users.me.$get({ headers: { cookie } });
 
-    if (!res.ok) return false;
+    // リダイレクトやエラーレスポンスの場合はfalseを返す
+    if (!res.ok || res.headers.get('content-type')?.includes('text/html')) {
+      return false;
+    }
 
     const data = await res.json();
     return !!data;
