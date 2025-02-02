@@ -65,7 +65,7 @@ export const SignUpForm = memo(function SignUpForm() {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
-            placeholder="2〜20文字で入力してください"
+            placeholder="20文字以内で入力してください"
           />
           {validationError && (
             <p className="mt-1 text-sm text-red-600">{validationError}</p>
