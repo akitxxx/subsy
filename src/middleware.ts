@@ -5,7 +5,6 @@ import { type NextRequest, NextResponse } from 'next/server';
 // 認証をスキップするパス
 const PUBLIC_PATHS = {
   pages: ['/sign-in'],
-  api: ['/api'], // apiはhono側のmiddlewareにて処理を行うため対象外とする
   system: ['/_next', '/favicon.ico'],
 };
 
@@ -15,6 +14,9 @@ export const config = {
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  // apiはhono側のmiddlewareにて処理を行うため対象外とする
+  if (pathname.startsWith('/api')) return NextResponse.next();
 
   // 認証チェック
   const session = await getSession();
