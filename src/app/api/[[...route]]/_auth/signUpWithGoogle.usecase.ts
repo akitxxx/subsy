@@ -21,17 +21,6 @@ type Output = {
   user: SelectUser;
 };
 
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!GOOGLE_CLIENT_ID) {
-  throw new Error('GOOGLE_CLIENT_ID is not defined');
-}
-
-if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET is not defined');
-}
-
 const run =
   ({ db, authUser }: Inject) =>
   async ({ nickname }: Input): Promise<Output> => {
