@@ -9,7 +9,7 @@ import { z } from 'zod';
 const signUpSchema = z.object({
   nickname: z
     .string()
-    .min(2, 'ニックネームは2文字以上で入力してください')
+    .min(1, 'ニックネームは必須です')
     .max(20, 'ニックネームは20文字以下で入力してください')
     .regex(
       /^[a-zA-Z0-9ぁ-んァ-ン一-龥ー]+$/,
@@ -80,7 +80,7 @@ export default function SignUpPage() {
                 required
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+                className="block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-primary sm:text-sm"
                 placeholder="2〜20文字で入力してください"
               />
               {validationError && (
