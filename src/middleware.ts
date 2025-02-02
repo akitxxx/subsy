@@ -16,22 +16,27 @@ export const config = {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // 公開パスはスキップ
-  if (isPublicPath(pathname)) return NextResponse.next();
-
   // 認証チェック
   const session = await getSession();
+  // 認証必須なパスは/sign-inへリダイレクト
   if (!session) {
+    //  公開パスはそのまま
+    if (isPublicPath(pathname)) return NextResponse.next();
     return NextResponse.redirect(new URL('/sign-in', req.nextUrl.origin));
   }
 
   // ユーザーレコードの存在チェック
   const userExists = await checkUserExists();
+  // ユーザーレコードが存在しない場合は/sign-upへリダイレクト
   if (!userExists) {
-    // すでに/sign-upページにいる場合はリダイレクトしない。無限ループになるため
+    // すでに/sign-upにいる場合はリダイレクトしない。無限ループになるため
     if (pathname === '/sign-up') return NextResponse.next();
-    // ユーザーレコードが存在しない場合は/sign-upページへリダイレクト
     return NextResponse.redirect(new URL('/sign-up', req.nextUrl.origin));
+  }
+
+  // ユーザーレコードが存在して、sign-inページの場合は/へリダイレクト
+  if (pathname === '/sign-in') {
+    return NextResponse.redirect(new URL('/dashboard', req.nextUrl.origin));
   }
 
   return NextResponse.next();
