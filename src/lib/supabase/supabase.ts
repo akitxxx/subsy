@@ -18,7 +18,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 // ブラウザ用Supabaseクライアントの生成
 export function createSupabaseBrowserClient() {
-  return createBrowserClient(supabaseUrl, supabaseAnonKey);
+  return createBrowserClient(supabaseUrl, supabaseAnonKey, {
+    cookieOptions: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      sameSite: 'lax',
+    },
+  });
 }
 
 // サーバー用Supabaseクライアントの生成
@@ -29,6 +35,7 @@ export async function createSupabaseServerClient() {
     cookieOptions: {
       secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
+      sameSite: 'lax',
     },
     cookies: {
       getAll() {
@@ -65,7 +72,7 @@ export async function createSupabaseHono(c: Context<HonoEnv>) {
           setCookie(c, name, value, {
             ...options,
             // TOOD: 要確認
-            sameSite: 'strict',
+            sameSite: 'lax',
             priority: 'High',
           });
         }
