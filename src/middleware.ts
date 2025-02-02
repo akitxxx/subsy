@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 // 認証をスキップするパス
 const PUBLIC_PATHS = {
-  pages: ['/sign-in', '/auth'],
+  pages: ['/sign-in'],
   api: ['/api'], // apiはhono側のmiddlewareにて処理を行うため対象外とする
   system: ['/_next', '/favicon.ico'],
 };
