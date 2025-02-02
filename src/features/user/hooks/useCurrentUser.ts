@@ -4,6 +4,7 @@ import type { CurrentUser, UseCurrentUserReturn } from '../types/user';
 
 const fetchCurrentUser = async (): Promise<CurrentUser> => {
   const response = await honoClient.api.users.me.$get();
+
   if (!response.ok) {
     throw new Error('ユーザー情報の取得に失敗しました');
   }

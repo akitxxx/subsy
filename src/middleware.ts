@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 
 // 認証をスキップするパス
 const PUBLIC_PATHS = {
-  pages: ['/sign-in', '/sign-up', '/auth'],
+  pages: ['/sign-in', '/auth'],
   api: ['/api/auth'],
   system: ['/_next', '/favicon.ico'],
 };
@@ -26,8 +26,11 @@ export async function middleware(req: NextRequest) {
   }
 
   // ユーザーレコードの存在チェック
-  const userExists = await checkUserExists(req.headers.get('cookie') || '');
+  const userExists = await checkUserExists();
   if (!userExists) {
+    // すでに/sign-upページにいる場合はリダイレクトしない。無限ループになるため
+    if (pathname === '/sign-up') return NextResponse.next();
+    // ユーザーレコードが存在しない場合は/sign-upページへリダイレクト
     return NextResponse.redirect(new URL('/sign-up', req.nextUrl.origin));
   }
 
@@ -56,9 +59,9 @@ async function getSession() {
   }
 }
 
-async function checkUserExists(cookie: string): Promise<boolean> {
+async function checkUserExists(): Promise<boolean> {
   try {
-    const res = await honoClient.api.users.me.$get({ headers: { cookie } });
+    const res = await honoClient.api.users.me.$get();
 
     // リダイレクトやエラーレスポンスの場合はfalseを返す
     if (!res.ok || res.headers.get('content-type')?.includes('text/html')) {
