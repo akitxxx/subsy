@@ -1,7 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
   index,
-  integer,
   numeric,
   pgTable,
   primaryKey,
