@@ -40,11 +40,13 @@ const route = app
     return c.redirect(`${origin}/auth/auth-code-error`);
   })
   .post('/sign-up', zValidator('json', signUpSchema), async (c) => {
+    const db = c.get('db');
+    const authUser = c.get('authUser');
+
     const { nickname } = c.req.valid('json');
-    const output = await SignUpWithGoogleUsecase.run({
-      db: c.get('db'),
-      authUser: c.get('authUser'),
-    })({ nickname });
+    const output = await SignUpWithGoogleUsecase.run({ db, authUser })({
+      nickname,
+    });
 
     return c.json(output);
   });
