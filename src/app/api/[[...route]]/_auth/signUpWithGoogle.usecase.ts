@@ -1,6 +1,7 @@
 import { ConflictError } from '@/app/api/_shared/_error/errors';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { type SelectUser, userAuthsTable, usersTable } from '@/lib/db/schema';
+import { ProviderEnum } from '@/types/enums/provider.enum';
 import type { User } from '@supabase/supabase-js';
 import { eq } from 'drizzle-orm';
 
@@ -10,7 +11,7 @@ type Inject = {
 };
 
 type Input = {
-  idToken: string;
+  nickname: string;
 };
 
 type Output = {
@@ -30,7 +31,7 @@ if (!JWT_SECRET) {
 
 const run =
   ({ db, authUser }: Inject) =>
-  async ({ idToken }: Input): Promise<Output> => {
+  async ({ nickname }: Input): Promise<Output> => {
     const user = await db
       .select({
         id: usersTable.id,
@@ -45,16 +46,22 @@ const run =
       throw new ConflictError('すでにユーザー登録済みです');
     }
 
-    const newUser = await db
-      .insert(usersTable)
-      .values({
-        nickname:
-          authUser.user_metadata.full_name ||
-          authUser.email?.split('@')[0] ||
-          'Anonymous User',
-      })
-      .returning()
-      .then((rows) => rows[0]);
+    const newUser = await db.transaction(async (tx) => {
+      const [user] = await tx
+        .insert(usersTable)
+        .values({
+          nickname,
+        })
+        .returning();
+
+      await tx.insert(userAuthsTable).values({
+        userId: user.id,
+        provider: ProviderEnum.Google,
+        providerId: authUser.id,
+      });
+
+      return user;
+    });
 
     return { user: newUser };
   };
