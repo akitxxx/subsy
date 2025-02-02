@@ -60,8 +60,9 @@ export async function createSupabaseHono(c: Context<HonoEnv>) {
   const cookie = getCookie(c);
   return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookieOptions: {
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       httpOnly: true,
+      sameSite: 'lax',
     },
     cookies: {
       getAll() {
