@@ -6,13 +6,13 @@ import { useEffect } from 'react';
 import { SignUpForm } from './SignUpForm';
 
 export const SignUpContainer = () => {
-  const { user } = useCurrentUser();
+  // const { user } = useCurrentUser();
 
-  useEffect(() => {
-    if (user) {
-      redirect('/');
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) {
+  //     redirect('/');
+  //   }
+  // }, [user]);
 
   return (
     <div className="flex min-h-screen items-start justify-center pt-32">
