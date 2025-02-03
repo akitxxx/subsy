@@ -15,7 +15,7 @@ const route = app
     const next = searchParams.get('next') ?? '/';
 
     if (code) {
-      const supabase = await createSupabaseServerClient();
+      const supabase = c.var.supabase;
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (!error) {
         const forwardedHost = c.req.header('x-forwarded-host');
