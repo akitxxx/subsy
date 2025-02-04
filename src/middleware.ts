@@ -1,4 +1,3 @@
-import { honoClient } from '@/lib/hono/hono';
 import { createSupabaseServerClient } from '@/lib/supabase/supabase';
 import { type NextRequest, NextResponse } from 'next/server';
 
@@ -27,20 +26,6 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/sign-in', req.nextUrl.origin));
   }
 
-  // ユーザーレコードの存在チェック
-  const userExists = await checkUserExists();
-  // ユーザーレコードが存在しない場合は/sign-upへリダイレクト
-  if (!userExists) {
-    // すでに/sign-upにいる場合はリダイレクトしない。無限ループになるため
-    if (pathname === '/sign-up') return NextResponse.next();
-    return NextResponse.redirect(new URL('/sign-up', req.nextUrl.origin));
-  }
-
-  // ユーザーレコードが存在して、sign-inページの場合は/へリダイレクト
-  if (pathname === '/sign-in') {
-    return NextResponse.redirect(new URL('/dashboard', req.nextUrl.origin));
-  }
-
   return NextResponse.next();
 }
 
@@ -63,22 +48,5 @@ async function getSession() {
   } catch (error) {
     console.error('Session error:', error);
     return null;
-  }
-}
-
-async function checkUserExists(): Promise<boolean> {
-  try {
-    const res = await honoClient.api.users.me.$get();
-
-    // リダイレクトやエラーレスポンスの場合はfalseを返す
-    if (!res.ok || res.headers.get('content-type')?.includes('text/html')) {
-      return false;
-    }
-
-    const data = await res.json();
-    return !!data;
-  } catch (error) {
-    console.error('User check error:', error);
-    return false;
   }
 }
