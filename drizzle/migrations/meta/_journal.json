@@ -15,6 +15,13 @@
       "when": 1737188510132,
       "tag": "0001_silky_iron_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1738799318067,
+      "tag": "0002_hard_sue_storm",
+      "breakpoints": true
     }
   ]
 }
