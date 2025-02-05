@@ -29,7 +29,10 @@ export const userAuthsTable = pgTable(
   {
     userId: uuid('user_id')
       .notNull()
-      .references(() => usersTable.id),
+      .references(() => usersTable.id, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade',
+      }),
     provider: varchar('provider', { length: 255 }).notNull(),
     // providerのuser id
     providerId: varchar('provider_id', { length: 255 }).notNull(),
