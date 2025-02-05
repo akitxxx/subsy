@@ -40,9 +40,7 @@ export async function middleware(req: NextRequest) {
       .join('; ');
     const res = await honoClient.api.users.me.$get({
       // MEMO: ⭕header ❌headers
-      header: {
-        cookie: parsedCookies,
-      },
+      header: { cookie: parsedCookies },
     });
     if (res.status !== 200) {
       if (!pathname.startsWith('/sign-up')) {
