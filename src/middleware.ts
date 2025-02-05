@@ -34,9 +34,15 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // MEMO: header: { cookie: 'xx' } の形式だと乗らないので注意。めっちゃはまった。
+    const parsedCookies = req.cookies
+      .getAll()
+      .map((cookie) => `${cookie.name}=${cookie.value}`)
+      .join('; ');
     const res = await honoClient.api.users.me.$get({
-      cookie: req.cookies.getAll(),
+      // MEMO: ⭕header ❌headers
+      header: {
+        cookie: parsedCookies,
+      },
     });
     if (res.status !== 200) {
       if (!pathname.startsWith('/sign-up')) {
