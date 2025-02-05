@@ -1,5 +1,10 @@
-import { createSupabaseServerClient } from '@/lib/supabase/supabase';
+import {
+  createSupabaseServerClient,
+  updateSession,
+} from '@/lib/supabase/supabase';
+import type { User } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
+import { honoClient } from './lib/hono/hono';
 
 // 認証をスキップするパス
 const PUBLIC_PATHS = {
@@ -17,16 +22,31 @@ export async function middleware(req: NextRequest) {
   // apiはhono側のmiddlewareにて処理を行うため対象外とする
   if (pathname.startsWith('/api')) return NextResponse.next();
 
-  // 認証チェック
-  const session = await getSession();
-  // 認証必須なパスは/sign-inへリダイレクト
-  if (!session) {
-    //  公開パスはそのまま
-    if (isPublicPath(pathname)) return NextResponse.next();
-    return NextResponse.redirect(new URL('/sign-in', req.nextUrl.origin));
-  }
+  // 公開パスはスキップ
+  if (isPublicPath(pathname)) return NextResponse.next();
 
-  return NextResponse.next();
+  const onAfterGetSessionUser = async ({
+    sessionUser,
+  }: { sessionUser: User | null }) => {
+    if (!sessionUser) {
+      const url = req.nextUrl.clone();
+      url.pathname = '/sign-in';
+      return NextResponse.redirect(url);
+    }
+
+    const res = await honoClient.api.users.me.$get({
+      cookie: req.cookies.getAll(),
+    });
+    if (res.status !== 200) {
+      if (!pathname.startsWith('/sign-up')) {
+        return NextResponse.redirect(new URL('/sign-up', req.url));
+      }
+    }
+
+    return undefined;
+  };
+
+  return await updateSession({ request: req, onAfterGetSessionUser });
 }
 
 // ========== private ==========
@@ -36,17 +56,4 @@ function isPublicPath(pathname: string): boolean {
   return Object.values(PUBLIC_PATHS).some((paths) =>
     paths.some((path) => pathname.startsWith(path)),
   );
-}
-
-async function getSession() {
-  try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    return session;
-  } catch (error) {
-    console.error('Session error:', error);
-    return null;
-  }
 }
