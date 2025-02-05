@@ -56,6 +56,7 @@ export async function createSupabaseServerClient() {
   });
 }
 
+// Hono用Supabaseクライアントの生成
 export async function createSupabaseHono(c: Context<HonoEnv>) {
   const cookie = getCookie(c);
   return createServerClient(supabaseUrl, supabaseAnonKey, {
