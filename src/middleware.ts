@@ -34,6 +34,7 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(url);
     }
 
+    // MEMO: header: { cookie: 'xx' } の形式だと乗らないので注意。めっちゃはまった。
     const res = await honoClient.api.users.me.$get({
       cookie: req.cookies.getAll(),
     });
