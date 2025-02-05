@@ -28,12 +28,14 @@ export async function middleware(req: NextRequest) {
   const onAfterGetSessionUser = async ({
     sessionUser,
   }: { sessionUser: User | null }) => {
+    // session userが取得できない場合はsign-inにリダイレクト
     if (!sessionUser) {
       const url = req.nextUrl.clone();
       url.pathname = '/sign-in';
       return NextResponse.redirect(url);
     }
 
+    // DB userを取得
     const parsedCookies = req.cookies
       .getAll()
       .map((cookie) => `${cookie.name}=${cookie.value}`)
@@ -42,9 +44,16 @@ export async function middleware(req: NextRequest) {
       // MEMO: ⭕header ❌headers
       header: { cookie: parsedCookies },
     });
+    // DB userが存在しない場合はsign-upにリダイレクト
     if (res.status !== 200) {
       if (!pathname.startsWith('/sign-up')) {
         return NextResponse.redirect(new URL('/sign-up', req.url));
+      }
+    }
+    // DB userが存在し、現在のパスがsign-upの場合はrootにリダイレクト
+    if (res.ok) {
+      if (pathname.startsWith('/sign-up')) {
+        return NextResponse.redirect(new URL('/', req.url));
       }
     }
 
