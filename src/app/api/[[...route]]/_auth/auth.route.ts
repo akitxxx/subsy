@@ -19,13 +19,14 @@ const route = app
       if (!error) {
         const forwardedHost = c.req.header('x-forwarded-host');
         const isLocalEnv = process.env.NODE_ENV === 'development';
-        if (isLocalEnv) {
-          return c.redirect(`${origin}${next}`);
-        }
-        if (forwardedHost) {
-          return c.redirect(`https://${forwardedHost}${next}`);
-        }
-        return c.redirect(`${origin}${next}`);
+        return c.redirect('https://example.com');
+        // if (isLocalEnv) {
+        //   return c.redirect(`${origin}${next}`);
+        // }
+        // if (forwardedHost) {
+        //   return c.redirect(`https://${forwardedHost}${next}`);
+        // }
+        // return c.redirect(`${origin}${next}`);
       }
     }
 
