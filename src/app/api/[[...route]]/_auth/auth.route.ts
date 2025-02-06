@@ -17,15 +17,16 @@ const route = app
       const supabase = c.var.supabase;
       const { error } = await supabase.auth.exchangeCodeForSession(code);
       if (!error) {
-        const forwardedHost = c.req.header('x-forwarded-host');
-        const isLocalEnv = process.env.NODE_ENV === 'development';
-        if (isLocalEnv) {
-          return c.redirect(`${origin}${next}`);
-        }
-        if (forwardedHost) {
-          return c.redirect(`https://${forwardedHost}${next}`);
-        }
-        return c.redirect(`${origin}${next}`);
+        return c.redirect(`https://subsy.vercel.app/${next}`);
+        // const forwardedHost = c.req.header('x-forwarded-host');
+        // const isLocalEnv = process.env.NODE_ENV === 'development';
+        // if (isLocalEnv) {
+        //   return c.redirect(`${origin}${next}`);
+        // }
+        // if (forwardedHost) {
+        //   return c.redirect(`https://${forwardedHost}${next}`);
+        // }
+        // return c.redirect(`${origin}${next}`);
       }
     }
 
