@@ -60,6 +60,7 @@ export async function middleware(req: NextRequest) {
     return undefined;
   };
 
+  // セッションの更新
   return await updateSession({ request: req, onAfterGetSessionUser });
 }
 
