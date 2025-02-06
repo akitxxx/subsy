@@ -12,7 +12,7 @@ export async function signInWithGoogle() {
   } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_API_HOST}/api/auth/callback`,
+      redirectTo: 'http://localhost:4000/api/auth/callback',
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
