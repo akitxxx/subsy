@@ -20,7 +20,6 @@ const route = app
       if (!error) {
         const forwardedHost = c.req.header('x-forwarded-host');
         const isLocalEnv = process.env.NODE_ENV === 'development';
-        console.log(forwardedHost, origin, next);
         if (isLocalEnv) {
           return c.redirect(`${origin}${next}`);
         }
