@@ -1,4 +1,3 @@
-import { createSupabaseServerClient } from '@/lib/supabase/supabase';
 import type { HonoEnv } from '@/types/api/hono';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
