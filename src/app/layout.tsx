@@ -33,7 +33,12 @@ export default async function RootLayout({
   return (
     <html lang="ja">
       <head>
-        <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />
+        {process.env.NEXT_PUBLIC_APP_ENV === 'development' && (
+          <script
+            src="https://unpkg.com/react-scan/dist/auto.global.js"
+            async
+          />
+        )}
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
