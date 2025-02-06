@@ -13,7 +13,10 @@ const route = app
     const code = searchParams.get('code');
     const next = searchParams.get('next') ?? '/';
 
-    if (!code) return c.redirect(`${origin}/auth/auth-code-error`);
+    if (!code) {
+      console.error('auth callback error: no code');
+      return c.redirect(`${origin}/auth/auth-code-error`);
+    }
 
     const supabase = c.var.supabase;
     const { error } = await supabase.auth.exchangeCodeForSession(code);
