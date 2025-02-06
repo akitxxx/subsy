@@ -13,23 +13,21 @@ const route = app
     const code = searchParams.get('code');
     const next = searchParams.get('next') ?? '/';
 
-    if (code) {
-      const supabase = c.var.supabase;
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (!error) {
-        const forwardedHost = c.req.header('x-forwarded-host');
-        const isLocalEnv = process.env.NODE_ENV === 'development';
-        if (isLocalEnv) {
-          return c.redirect(`${origin}${next}`);
-        }
-        if (forwardedHost) {
-          return c.redirect(`https://${forwardedHost}${next}`);
-        }
-        return c.redirect(`${origin}${next}`);
-      }
+    if (!code) return c.redirect(`${origin}/auth/auth-code-error`);
+
+    const supabase = c.var.supabase;
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const forwardedHost = c.req.header('x-forwarded-host');
+    const isLocalEnv = process.env.NODE_ENV === 'development';
+
+    if (error) {
+      console.error({ 'auth callback error': error });
+      return c.redirect(`${origin}/auth/auth-code-error`);
     }
 
-    return c.redirect(`${origin}/auth/auth-code-error`);
+    if (isLocalEnv) return c.redirect(`${origin}${next}`);
+    if (forwardedHost) return c.redirect(`https://${forwardedHost}${next}`);
+    return c.redirect(`${origin}${next}`);
   })
   .post(
     '/sign-up',
