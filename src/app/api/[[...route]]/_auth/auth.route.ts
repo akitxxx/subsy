@@ -29,7 +29,9 @@ const route = app
     }
 
     if (isLocalEnv) return c.redirect(`${origin}${next}`);
+    console.log('auth callback error: no isLocalEnv');
     if (forwardedHost) return c.redirect(`https://${forwardedHost}${next}`);
+    console.log('auth callback error: no origin or forwardedHost');
     return c.redirect(`${origin}${next}`);
   })
   .post(
