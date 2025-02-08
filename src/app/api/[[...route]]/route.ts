@@ -1,9 +1,6 @@
 import { NotFoundError, toErrorResponse } from '@/app/api/_shared/_error';
 import { getDrizzleClient } from '@/lib/db/drizzle';
-import {
-  createSupabaseHono,
-  createSupabaseServerClient,
-} from '@/lib/supabase/supabase';
+import { createSupabaseHono, createSupabaseServerClient } from '@/lib/supabase/supabase';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
 import { handle } from 'hono/vercel';
@@ -37,21 +34,17 @@ app.onError((err, c) => {
 });
 
 app.notFound((c) => {
-  const errorResponse = toErrorResponse(
-    new NotFoundError('ページが見つかりません'),
-  );
+  const errorResponse = toErrorResponse(new NotFoundError('ページが見つかりません'));
   return c.json(errorResponse, errorResponse.error.status);
 });
 
 // routing
-const route = app
-  .route('/dashboard', dashboard)
-  .route('/auth', auth)
-  .route('/users', user);
+const route = app.route('/dashboard', dashboard).route('/auth', auth).route('/users', user);
 
 export const GET = handle(app);
 export const POST = handle(app);
 export const PUT = handle(app);
+export const PATCH = handle(app);
 export const DELETE = handle(app);
 
 export type AppType = typeof route;
