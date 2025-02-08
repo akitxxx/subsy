@@ -13,6 +13,8 @@ const route = app
     const code = searchParams.get('code');
     const next = searchParams.get('next') ?? '/';
 
+    console.log(code, origin, next);
+
     if (!code) {
       console.error('auth callback error: no code');
       return c.redirect(`${origin}/auth/auth-code-error`);
@@ -22,6 +24,8 @@ const route = app
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     const forwardedHost = c.req.header('x-forwarded-host');
     const isLocalEnv = process.env.NODE_ENV === 'development';
+
+    console.log(supabase, error, forwardedHost, isLocalEnv);
 
     if (error) {
       console.error({ 'auth callback error': error });
