@@ -40,7 +40,7 @@ const run =
           .returning();
         await tx.insert(userAuthsTable).values({
           userId: user.id,
-          provider: ProviderEnum.Google,
+          provider: ProviderEnum.Google, // TODO: 他のプロバイダーに対応する
           providerId: data.user.id,
         });
       });
