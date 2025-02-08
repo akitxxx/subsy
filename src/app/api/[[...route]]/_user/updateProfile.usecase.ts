@@ -10,31 +10,36 @@ type Inject = {
   authUser: User;
 };
 
+type Input = {
+  nickname: string;
+};
+
 type Output = {
   user: Omit<SelectUser, 'deletedAt'>;
 };
 
 const run =
   ({ db, authUser }: Inject) =>
-  async (): Promise<Output> => {
-    const [user] = await db
-      .select({
+  async ({ nickname }: Input): Promise<Output> => {
+    const [updatedUser] = await db
+      .update(usersTable)
+      .set({
+        nickname,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(usersTable.id, authUser.id), isNull(usersTable.deletedAt)))
+      .returning({
         id: usersTable.id,
         nickname: usersTable.nickname,
         createdAt: usersTable.createdAt,
         updatedAt: usersTable.updatedAt,
-      })
-      .from(usersTable)
-      .innerJoin(userAuthsTable, eq(usersTable.id, userAuthsTable.userId))
-      .where(and(eq(userAuthsTable.providerId, authUser?.id || ''), isNull(usersTable.deletedAt)))
-      .limit(1);
+      });
 
-    if (!user) {
-      console.error('ユーザーが見つかりません', { authUserId: authUser?.id });
+    if (!updatedUser) {
       throw new NotFoundError('ユーザーが見つかりません');
     }
 
-    return { user };
+    return { user: updatedUser };
   };
 
-export const GetCurrentUserUsecase = { run };
+export const UpdateProfileUsecase = { run };
