@@ -4,9 +4,7 @@ type Input = {
   nickname: string;
 };
 export const updateProfile = async ({ nickname }: Input) => {
-  const res = await honoClient.api.users.me.$patch({
-    nickname,
-  });
+  const res = await honoClient.api.users.me.$patch({ json: { nickname } });
 
   if (!res.ok) {
     const errorResponse = await res.json();

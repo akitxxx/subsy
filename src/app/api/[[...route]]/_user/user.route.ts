@@ -1,6 +1,8 @@
 import { toErrorResponse } from '@/app/api/_shared/_error';
 import type { HonoEnv } from '@/types/api/hono';
+import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
+import { z } from 'zod';
 import { checkAuth } from '../../_shared/_lib/_utils/checkAuth';
 import { GetCurrentUserUsecase } from './getCurrentUser.usecase';
 import { UpdateProfileUsecase } from './updateProfile.usecase';
@@ -10,7 +12,6 @@ const app = new Hono<HonoEnv>();
 const route = app
   .get('/me', async (c) => {
     const authUser = checkAuth(c.var.authUser);
-
     const db = c.var.db;
 
     try {
@@ -24,9 +25,8 @@ const route = app
       throw e;
     }
   })
-  .patch('/me', async (c) => {
+  .patch('/me', zValidator('json', z.object({ nickname: z.string() })), async (c) => {
     const authUser = checkAuth(c.var.authUser);
-
     const db = c.var.db;
     const { nickname } = await c.req.json<{ nickname: string }>();
 
