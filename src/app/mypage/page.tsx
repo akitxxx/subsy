@@ -9,14 +9,12 @@ import { Suspense } from 'react';
 
 async function getUser(): Promise<CurrentUser> {
   const cookieStore = await cookies();
-  console.time('getUser');
   const response = await honoClient.api.users.me.$get(
     {},
     {
       headers: { cookie: cookieStore.toString() },
     },
   );
-  console.timeEnd('getUser');
   if (!response.ok) {
     const errorData = await response.json();
 
