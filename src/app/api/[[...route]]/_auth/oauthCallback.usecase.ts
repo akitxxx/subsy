@@ -35,7 +35,7 @@ const run =
         const [user] = await tx
           .insert(usersTable)
           .values({
-            nickname: data.user.email ?? '',
+            nickname: data.user.user_metadata.name,
           })
           .returning();
         await tx.insert(userAuthsTable).values({
