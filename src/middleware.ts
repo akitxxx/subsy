@@ -1,7 +1,4 @@
-import {
-  createSupabaseServerClient,
-  updateSession,
-} from '@/lib/supabase/supabase';
+import { createSupabaseServerClient, updateSession } from '@/lib/supabase/supabase';
 import type { User } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
 import { honoClient } from './lib/hono/hono';
@@ -25,38 +22,12 @@ export async function middleware(req: NextRequest) {
   // 公開パスはスキップ
   if (isPublicPath(pathname)) return NextResponse.next();
 
-  const onAfterGetSessionUser = async ({
-    sessionUser,
-  }: { sessionUser: User | null }) => {
+  const onAfterGetSessionUser = async ({ sessionUser }: { sessionUser: User | null }) => {
     // session userが取得できない場合はsign-inにリダイレクト
     if (!sessionUser) {
       const url = req.nextUrl.clone();
       url.pathname = '/sign-in';
       return NextResponse.redirect(url);
-    }
-
-    // DB userを取得
-    const parsedCookies = req.cookies
-      .getAll()
-      .map((cookie) => `${cookie.name}=${cookie.value}`)
-      .join('; ');
-    console.time('user/me');
-    const res = await honoClient.api.users.me.$get({
-      // MEMO: ⭕header ❌headers
-      header: { cookie: parsedCookies },
-    });
-    console.timeEnd('user/me');
-    // DB userが存在しない場合はsign-upにリダイレクト
-    if (res.status !== 200) {
-      if (!pathname.startsWith('/sign-up')) {
-        return NextResponse.redirect(new URL('/sign-up', req.url));
-      }
-    }
-    // DB userが存在し、現在のパスがsign-upの場合はrootにリダイレクト
-    if (res.ok) {
-      if (pathname.startsWith('/sign-up')) {
-        return NextResponse.redirect(new URL('/', req.url));
-      }
     }
 
     return undefined;
@@ -70,7 +41,5 @@ export async function middleware(req: NextRequest) {
 
 // ヘルパー関数
 function isPublicPath(pathname: string): boolean {
-  return Object.values(PUBLIC_PATHS).some((paths) =>
-    paths.some((path) => pathname.startsWith(path)),
-  );
+  return Object.values(PUBLIC_PATHS).some((paths) => paths.some((path) => pathname.startsWith(path)));
 }

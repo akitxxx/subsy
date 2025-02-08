@@ -12,9 +12,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
 // 環境変数の存在チェック
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Required environment variables NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set',
-  );
+  throw new Error('Required environment variables NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY must be set');
 }
 
 // ブラウザ用Supabaseクライアントの生成
@@ -63,9 +61,7 @@ export async function updateSession({
   onAfterGetSessionUser,
 }: {
   request: NextRequest;
-  onAfterGetSessionUser: ({
-    sessionUser,
-  }: { sessionUser: User | null }) => Promise<NextResponse | undefined>;
+  onAfterGetSessionUser: ({ sessionUser }: { sessionUser: User | null }) => Promise<NextResponse | undefined>;
 }) {
   let response = NextResponse.next({
     request: { headers: request.headers },
@@ -94,11 +90,9 @@ export async function updateSession({
 
   // 重要: auth.getUser()を削除しないでください
 
-  console.time('getUser');
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  console.timeEnd('getUser');
 
   const res = await onAfterGetSessionUser({ sessionUser: user });
   if (res) return res;
