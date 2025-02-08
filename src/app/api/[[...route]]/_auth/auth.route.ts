@@ -13,6 +13,8 @@ const route = app
     const code = searchParams.get('code');
     const next = searchParams.get('next') ?? '/';
 
+    console.log(code, next, origin);
+
     if (!code) {
       console.error('auth callback error: no code');
       return c.redirect(`${origin}/auth/auth-code-error`);
