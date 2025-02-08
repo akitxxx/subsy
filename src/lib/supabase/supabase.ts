@@ -94,9 +94,11 @@ export async function updateSession({
 
   // 重要: auth.getUser()を削除しないでください
 
+  console.time('getUser');
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  console.timeEnd('getUser');
 
   const res = await onAfterGetSessionUser({ sessionUser: user });
   if (res) return res;

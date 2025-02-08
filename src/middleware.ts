@@ -40,10 +40,12 @@ export async function middleware(req: NextRequest) {
       .getAll()
       .map((cookie) => `${cookie.name}=${cookie.value}`)
       .join('; ');
+    console.time('user/me');
     const res = await honoClient.api.users.me.$get({
       // MEMO: ⭕header ❌headers
       header: { cookie: parsedCookies },
     });
+    console.timeEnd('user/me');
     // DB userが存在しない場合はsign-upにリダイレクト
     if (res.status !== 200) {
       if (!pathname.startsWith('/sign-up')) {
