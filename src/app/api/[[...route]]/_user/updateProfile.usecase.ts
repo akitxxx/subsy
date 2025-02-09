@@ -1,3 +1,4 @@
+import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import { NotFoundError, UnauthorizedError } from '@/app/api/_shared/lib/error';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import type { SelectUser } from '@/lib/db/schema';
@@ -6,8 +7,9 @@ import type { User } from '@supabase/supabase-js';
 import { and, eq, isNull } from 'drizzle-orm';
 
 type Inject = {
-  db: DrizzleClient;
   authUser: User;
+  db: DrizzleClient;
+  userRepository: UserRepository;
 };
 
 type Input = {
@@ -19,21 +21,16 @@ type Output = {
 };
 
 const run =
-  ({ db, authUser }: Inject) =>
+  ({ db, authUser, userRepository }: Inject) =>
   async ({ nickname }: Input): Promise<Output> => {
-    const [user] = await db
-      .select()
-      .from(usersTable)
-      .innerJoin(userAuthsTable, eq(usersTable.id, userAuthsTable.userId))
-      .where(and(eq(userAuthsTable.providerId, authUser.id), isNull(usersTable.deletedAt)))
-      .limit(1);
+    const user = await userRepository.findCurrentUserByAuthProviderId({ authProviderId: authUser.id });
 
     if (!user) throw new NotFoundError('ユーザーが見つかりません');
 
     const [updatedUser] = await db
       .update(usersTable)
       .set({ nickname, updatedAt: new Date() })
-      .where(and(eq(usersTable.id, user.users.id), isNull(usersTable.deletedAt)))
+      .where(and(eq(usersTable.id, user.id), isNull(usersTable.deletedAt)))
       .returning();
 
     return { user: updatedUser };

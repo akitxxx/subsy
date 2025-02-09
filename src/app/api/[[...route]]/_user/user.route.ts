@@ -29,10 +29,10 @@ const route = app
   .patch('/me', zValidator('json', z.object({ nickname: z.string() })), async (c) => {
     const authUser = checkAuth(c);
     const db = c.var.db;
-    const { nickname } = await c.req.json<{ nickname: string }>();
+    const input = await c.req.json<{ nickname: string }>();
 
     try {
-      const output = await UpdateProfileUsecase.run({ db, authUser })({ nickname });
+      const output = await UpdateProfileUsecase.run({ db, authUser, userRepository: UserRepository({ db }) })(input);
       return c.json(output.user, 200);
     } catch (e: unknown) {
       if (e instanceof Error) {
