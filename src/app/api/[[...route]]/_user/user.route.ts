@@ -1,9 +1,10 @@
-import { toErrorResponse } from '@/app/api/_shared/_error';
+import { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
+import { toErrorResponse } from '@/app/api/_shared/lib/error';
 import type { HonoEnv } from '@/types/api/hono';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { checkAuth } from '../../_shared/_lib/_utils/checkAuth';
+import { checkAuth } from '../../_shared/lib/utils/checkAuth';
 import { GetCurrentUserUsecase } from './getCurrentUser.usecase';
 import { UpdateProfileUsecase } from './updateProfile.usecase';
 
@@ -11,11 +12,11 @@ const app = new Hono<HonoEnv>();
 
 const route = app
   .get('/me', async (c) => {
-    const authUser = checkAuth(c.var.authUser);
+    const authUser = checkAuth(c);
     const db = c.var.db;
 
     try {
-      const result = await GetCurrentUserUsecase.run({ db, authUser })();
+      const result = await GetCurrentUserUsecase.run({ db, authUser, userRepository: UserRepository({ db }) })();
       return c.json(result.user, 200);
     } catch (e: unknown) {
       if (e instanceof Error) {
@@ -26,7 +27,7 @@ const route = app
     }
   })
   .patch('/me', zValidator('json', z.object({ nickname: z.string() })), async (c) => {
-    const authUser = checkAuth(c.var.authUser);
+    const authUser = checkAuth(c);
     const db = c.var.db;
     const { nickname } = await c.req.json<{ nickname: string }>();
 

@@ -26,10 +26,7 @@ export class NotFoundError extends AppError {
 }
 
 export class ValidationError extends AppError {
-  constructor(
-    message: string,
-    details: Array<{ field: string; reason: string; message: string }>,
-  ) {
+  constructor(message: string, details: Array<{ field: string; reason: string; message: string }>) {
     super('INVALID_ARGUMENT', 'Invalid Parameter(s)', 400, message, details);
   }
 }

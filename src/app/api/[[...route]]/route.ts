@@ -1,4 +1,4 @@
-import { NotFoundError, toErrorResponse } from '@/app/api/_shared/_error';
+import { NotFoundError, toErrorResponse } from '@/app/api/_shared/lib/error';
 import { getDrizzleClient } from '@/lib/db/drizzle';
 import { createSupabaseHono, createSupabaseServerClient } from '@/lib/supabase/supabase';
 import type { HonoEnv } from '@/types/api/hono';

@@ -1,14 +1,13 @@
+import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import type { DrizzleClient } from '@/lib/db/drizzle';
-import { subscriptionsTable } from '@/lib/db/schema';
-import type { SelectSubscription } from '@/lib/db/schema';
+import { type SelectSubscription, subscriptionsTable } from '@/lib/db/schema';
+import type { User } from '@supabase/supabase-js';
 import { and, eq, isNull } from 'drizzle-orm';
 
 type Inject = {
+  authUser: User;
   db: DrizzleClient;
-};
-
-type Input = {
-  userId: string;
+  userRepository: UserRepository;
 };
 
 type Output = {
@@ -17,41 +16,39 @@ type Output = {
   upcomingSubscriptions: SelectSubscription[];
 };
 
-const findManySubscriptions = async (
-  db: DrizzleClient,
-  userId: string,
-): Promise<SelectSubscription[]> => {
+const findManySubscriptions = async (db: DrizzleClient, userId: string): Promise<SelectSubscription[]> => {
   return db
-    .select()
+    .select({
+      id: subscriptionsTable.id,
+      name: subscriptionsTable.name,
+      createdAt: subscriptionsTable.createdAt,
+      updatedAt: subscriptionsTable.updatedAt,
+      deletedAt: subscriptionsTable.deletedAt,
+      description: subscriptionsTable.description,
+      userId: subscriptionsTable.userId,
+      price: subscriptionsTable.price,
+      cycle: subscriptionsTable.cycle,
+      startedAt: subscriptionsTable.startedAt,
+      nextPaymentAt: subscriptionsTable.nextPaymentAt,
+      status: subscriptionsTable.status,
+    })
     .from(subscriptionsTable)
-    .where(
-      and(
-        eq(subscriptionsTable.userId, userId),
-        isNull(subscriptionsTable.deletedAt),
-      ),
-    );
+    .where(and(eq(subscriptionsTable.userId, userId), isNull(subscriptionsTable.deletedAt)));
 };
 
 const calculateTotalAmount = (subscriptions: SelectSubscription[]): number => {
   return subscriptions.reduce((total, sub) => total + Number(sub.price), 0);
 };
 
-const getUpcomingSubscriptions = (
-  subscriptions: SelectSubscription[],
-): SelectSubscription[] => {
-  return [...subscriptions]
-    .sort(
-      (a, b) =>
-        new Date(a.nextPaymentAt).getTime() -
-        new Date(b.nextPaymentAt).getTime(),
-    )
-    .slice(0, 2);
+const getUpcomingSubscriptions = (subscriptions: SelectSubscription[]): SelectSubscription[] => {
+  return [...subscriptions].sort((a, b) => new Date(a.nextPaymentAt).getTime() - new Date(b.nextPaymentAt).getTime()).slice(0, 2);
 };
 
 const run =
-  ({ db }: Inject) =>
-  async ({ userId }: Input): Promise<Output> => {
-    const subscriptions = await findManySubscriptions(db, userId);
+  ({ authUser, db, userRepository }: Inject) =>
+  async (): Promise<Output> => {
+    const user = await userRepository.findCurrentUserByAuthProviderId({ authProviderId: authUser.id });
+    const subscriptions = await findManySubscriptions(db, user.id);
     const totalThisMonth = calculateTotalAmount(subscriptions);
     const upcomingSubscriptions = getUpcomingSubscriptions(subscriptions);
 
