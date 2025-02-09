@@ -3,9 +3,11 @@ import { userAuthsTable, usersTable } from '@/lib/db/schema';
 import { and, eq, isNull } from 'drizzle-orm';
 import type { UserEntity } from './user.entity';
 
-export const UserRepository = (inject: Inject) => ({
-  findCurrentUserByAuthProviderId: findCurrentUserByAuthProviderId(inject),
-});
+type Inject = {
+  db: DrizzleClient;
+};
+
+export type UserRepository = ReturnType<typeof UserRepository>;
 
 const findCurrentUserByAuthProviderId =
   ({ db }: Inject) =>
@@ -25,8 +27,6 @@ const findCurrentUserByAuthProviderId =
     return user;
   };
 
-type Inject = {
-  db: DrizzleClient;
-};
-
-export type UserRepository = ReturnType<typeof UserRepository>;
+export const UserRepository = (inject: Inject) => ({
+  findCurrentUserByAuthProviderId: findCurrentUserByAuthProviderId(inject),
+});
