@@ -1,11 +1,11 @@
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { type SelectSubscription, subscriptionsTable } from '@/lib/db/schema';
-import type { User } from '@supabase/supabase-js';
+import type { SessionUser } from '@/types/api/sessionUser';
 import { and, eq, isNull } from 'drizzle-orm';
 
 type Inject = {
-  authUser: User;
+  authUser: SessionUser;
   db: DrizzleClient;
   userRepository: UserRepository;
 };

@@ -1,3 +1,4 @@
+import { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import type { HonoEnv } from '@/types/api/hono';
 import { Hono } from 'hono';
 import { OAuthCallbackUsecase } from './oauthCallback.usecase';
@@ -15,7 +16,15 @@ const route = app.get('/callback', async (c) => {
     return c.redirect(`${origin}/auth/auth-code-error`);
   }
 
-  const { error } = await OAuthCallbackUsecase.run({ db: c.get('db'), supabase: c.get('supabase'), authCode: code })();
+  const db = c.get('db');
+  const supabase = c.get('supabase');
+
+  const { error } = await OAuthCallbackUsecase.run({
+    db,
+    supabase,
+    authCode: code,
+    userRepository: UserRepository({ db }),
+  })();
 
   if (error) {
     console.error({ 'auth callback error': error });

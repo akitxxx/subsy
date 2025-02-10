@@ -1,5 +1,5 @@
 import type { DrizzleClient } from '@/lib/db/drizzle';
-import type { SelectUserAuth } from '@/lib/db/schema';
+import type { InsertUserAuth, SelectUserAuth } from '@/lib/db/schema';
 import { userAuthsTable, usersTable } from '@/lib/db/schema';
 import type { Tx } from '@/types/api/tx';
 import { and, eq, isNull } from 'drizzle-orm';
@@ -33,7 +33,7 @@ const findCurrentUserByAuthProviderId =
 
 const create =
   ({ db }: Inject) =>
-  async ({ tx, user }: { tx?: Tx; user: UserEntity & { userAuth: SelectUserAuth } }): Promise<void> => {
+  async ({ tx, user }: { tx?: Tx; user: UserEntity & { userAuth: InsertUserAuth } }): Promise<void> => {
     const fCreate = async (tx: Tx) => {
       const [createdUser] = await tx
         .insert(usersTable)

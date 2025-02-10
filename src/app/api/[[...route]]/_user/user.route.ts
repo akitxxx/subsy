@@ -32,7 +32,7 @@ const route = app
     const input = await c.req.json<{ nickname: string }>();
 
     try {
-      const output = await UpdateProfileUsecase.run({ db, authUser, userRepository: UserRepository({ db }) })(input);
+      const output = await UpdateProfileUsecase.run({ authUser, userRepository: UserRepository({ db }) })(input);
       return c.json(output.user, 200);
     } catch (e: unknown) {
       if (e instanceof Error) {

@@ -23,7 +23,7 @@ const run =
     const user = await userRepository.findCurrentUserByAuthProviderId({ authProviderId: authUser.id });
     if (!user) throw new NotFoundError('ユーザーが見つかりません');
 
-    const updatedUser = User(user).updateProfile({ nickname });
+    const updatedUser = User.updateProfile(user)({ nickname });
 
     await userRepository.update({ user: updatedUser });
 

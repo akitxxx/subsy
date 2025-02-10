@@ -2,10 +2,10 @@ import type { UserEntity } from '@/app/api/_shared/domain/user/user.entity';
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import { NotFoundError, UnauthorizedError } from '@/app/api/_shared/lib/error';
 import type { DrizzleClient } from '@/lib/db/drizzle';
-import type { User } from '@supabase/supabase-js';
+import type { SessionUser } from '@/types/api/sessionUser';
 
 type Inject = {
-  authUser: User;
+  authUser: SessionUser;
   db: DrizzleClient;
   userRepository: UserRepository;
 };

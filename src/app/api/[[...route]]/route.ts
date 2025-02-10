@@ -1,6 +1,6 @@
 import { NotFoundError, toErrorResponse } from '@/app/api/_shared/lib/error';
 import { getDrizzleClient } from '@/lib/db/drizzle';
-import { createSupabaseHono, createSupabaseServerClient } from '@/lib/supabase/supabase';
+import { createSupabaseHono } from '@/lib/supabase/supabase';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
 import { handle } from 'hono/vercel';

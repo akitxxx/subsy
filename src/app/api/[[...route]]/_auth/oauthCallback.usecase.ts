@@ -1,13 +1,16 @@
+import { User } from '@/app/api/_shared/domain/user/user.entity';
+import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { userAuthsTable, usersTable } from '@/lib/db/schema';
 import { ProviderEnum } from '@/types/enums/provider.enum';
-import type { SupabaseClient, User } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { eq } from 'drizzle-orm';
 
 type Inject = {
-  db: DrizzleClient;
   supabase: SupabaseClient;
   authCode: string;
+  db: DrizzleClient;
+  userRepository: UserRepository;
 };
 
 type Output = {
@@ -15,7 +18,7 @@ type Output = {
 };
 
 const run =
-  ({ db, supabase, authCode }: Inject) =>
+  ({ db, supabase, authCode, userRepository }: Inject) =>
   async (): Promise<Output> => {
     const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
 
@@ -31,19 +34,15 @@ const run =
 
     // DBにUserレコードがなければ作成する
     if (!user) {
-      await db.transaction(async (tx) => {
-        const [user] = await tx
-          .insert(usersTable)
-          .values({
-            nickname: data.user.user_metadata.name,
-          })
-          .returning();
-        await tx.insert(userAuthsTable).values({
-          userId: user.id,
-          provider: ProviderEnum.Google, // TODO: 他のプロバイダーに対応する
+      const newUser = User.newUser({
+        nickname: data.user.user_metadata.name,
+        userAuth: {
+          provider: ProviderEnum.Google, // TODO: プロバイダーによって変える
           providerId: data.user.id,
-        });
+        },
       });
+
+      await userRepository.create({ user: newUser });
     }
 
     return { error: null };
