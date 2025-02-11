@@ -1,6 +1,6 @@
 import type { DrizzleClient } from '@/lib/db/drizzle';
-import type { InsertUser, InsertUserAuth } from '@/lib/db/schema';
-import { userAuthsTable, usersTable } from '@/lib/db/schema';
+import type { InsertSubscription, InsertUser, InsertUserAuth } from '@/lib/db/schema';
+import { subscriptionsTable, userAuthsTable, usersTable } from '@/lib/db/schema';
 import { ProviderEnum } from '@/types/enums/provider.enum';
 
 export const createActiveUser = (db: DrizzleClient) => async (p?: Partial<InsertUser> & { userAuth: Partial<InsertUserAuth> }) => {
@@ -18,4 +18,20 @@ export const createActiveUser = (db: DrizzleClient) => async (p?: Partial<Insert
     ...p?.userAuth,
   });
   return user;
+};
+
+export const createSubscription = (db: DrizzleClient) => async (p: Partial<InsertSubscription> & { userId: string }) => {
+  const [subscription] = await db
+    .insert(subscriptionsTable)
+    .values({
+      name: 'Test Subscription',
+      price: '1000',
+      cycle: 'monthly',
+      startedAt: new Date(),
+      nextPaymentAt: new Date(),
+      status: 'active',
+      ...p,
+    })
+    .returning();
+  return subscription;
 };
