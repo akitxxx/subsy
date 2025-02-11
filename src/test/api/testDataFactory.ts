@@ -1,7 +1,7 @@
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import type { InsertSubscription, InsertUser, InsertUserAuth } from '@/lib/db/schema';
 import { subscriptionsTable, userAuthsTable, usersTable } from '@/lib/db/schema';
-import { ProviderEnum } from '@/types/enums/provider.enum';
+import { ProviderEnum } from '@/types/enums/user-auth/provider.enum';
 
 export const createActiveUser = (db: DrizzleClient) => async (p?: Partial<InsertUser> & { userAuth: Partial<InsertUserAuth> }) => {
   const [user] = await db

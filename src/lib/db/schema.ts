@@ -46,8 +46,8 @@ export const userAuthsTable = pgTable(
     // providerのuser id
     providerId: varchar('provider_id', { length: 255 }).notNull(),
 
-    createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
-    updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.provider] }),
@@ -72,14 +72,14 @@ export const subscriptionsTable = pgTable(
     name: varchar('name', { length: 255 }).notNull(),
     price: numeric('price', { precision: 10, scale: 2 }).notNull(),
     cycle: varchar('cycle', { length: 255 }).notNull(),
-    startedAt: timestamp('started_at').notNull(),
-    nextPaymentAt: timestamp('next_payment_at').notNull(),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
+    nextPaymentAt: timestamp('next_payment_at', { withTimezone: true }).notNull(),
     description: text('description'),
     status: varchar('status', { length: 255 }).notNull(),
 
-    createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
-    updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
-    deletedAt: timestamp('deleted_at'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
+    deletedAt: timestamp('deleted_at', { withTimezone: true }),
   },
   // index
   (table) => ({
