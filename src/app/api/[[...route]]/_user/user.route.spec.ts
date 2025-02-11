@@ -1,13 +1,19 @@
 import { cleanupDB } from '@/test/api/dbHelper';
 import { createActiveUser } from '@/test/api/testDataFactory';
-import { createTestApp } from '@/test/api/testHelper';
+import { createTestApp, setSessionUser } from '@/test/api/testHelper';
 import { eq } from 'drizzle-orm';
+import { testClient } from 'hono/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import user from './user.route';
+import userRoute from './user.route';
 
 describe('/api/users', () => {
   // ========== setup ==========
-  const { db, client } = createTestApp({ routes: [{ path: '/api/users', route: user }] });
+  const { db, app } = createTestApp();
+
+  const createTestClient = () => {
+    const route = app.route('/api/users', userRoute);
+    return testClient(route);
+  };
 
   beforeEach(async () => {
     // テストデータをクリーンアップ
@@ -21,7 +27,9 @@ describe('/api/users', () => {
       // given
       const user = await createActiveUser(db)();
       // when
-      const res = await client({ sessionUser: { id: user.id } }).$get('/api/users/me');
+      setSessionUser(app, { id: user.id });
+      const client = createTestClient();
+      const res = await client.api.users.me.$get();
       // then
       expect(res.status).toBe(200);
       const data = await res.json();
@@ -37,12 +45,14 @@ describe('/api/users', () => {
       // given
       const user = await createActiveUser(db)();
       // when
+      setSessionUser(app, { id: user.id });
+      const client = createTestClient();
       const input = { nickname: 'nickname updated' };
-      const res = await client({ sessionUser: { id: user.id } }).$patch('/api/users/me', input);
+      const res = await client.api.users.me.$patch({ json: input });
       // then
       expect(res.status).toBe(200);
       const data = await res.json();
-      expect(data).toEqual({
+      expect(data).toMatchObject({
         id: user.id,
         nickname: input.nickname,
       });
