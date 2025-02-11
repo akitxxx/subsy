@@ -36,6 +36,25 @@ async function getUser(): Promise<CurrentUser> {
   } as CurrentUser;
 }
 
+async function updateProfile(nickname: string) {
+  'use server';
+
+  const cookieStore = await cookies();
+  const res = await honoClient.api.users.me.$patch(
+    { json: { nickname } },
+    {
+      headers: {
+        cookie: cookieStore.toString(),
+      },
+    },
+  );
+
+  if (!res.ok) {
+    console.error(await res.json());
+    throw new Error('プロフィールの更新に失敗しました');
+  }
+}
+
 export default async function MyPage() {
   const user = await getUser();
 
@@ -47,7 +66,7 @@ export default async function MyPage() {
         </CardHeader>
         <CardContent>
           <Suspense fallback={<div>読み込み中...</div>}>
-            <ProfileForm user={user} />
+            <ProfileForm user={user} onSubmit={updateProfile} />
           </Suspense>
         </CardContent>
       </Card>
