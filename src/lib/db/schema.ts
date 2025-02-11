@@ -1,8 +1,17 @@
 import { relations, sql } from 'drizzle-orm';
 import { index, numeric, pgTable, primaryKey, text, timestamp, unique, uuid, varchar } from 'drizzle-orm/pg-core';
 
+/**
+ * データベースのテーブル名を定義
+ */
+export const TABLE_NAMES = {
+  User: 'users',
+  UserAuth: 'user_auths',
+  Subscription: 'subscriptions',
+} as const;
+
 // usersテーブル
-export const usersTable = pgTable('users', {
+export const usersTable = pgTable(TABLE_NAMES.User, {
   id: uuid('id').primaryKey().defaultRandom(),
   nickname: varchar('nickname', { length: 255 }).notNull(),
 
@@ -19,7 +28,7 @@ export type InsertUser = typeof usersTable.$inferInsert;
 
 // user_authsテーブル
 export const userAuthsTable = pgTable(
-  'user_auths',
+  TABLE_NAMES.UserAuth,
   {
     userId: uuid('user_id')
       .notNull()
@@ -48,7 +57,7 @@ export type InsertUserAuth = typeof userAuthsTable.$inferInsert;
 
 // subscriptionsテーブル
 export const subscriptionsTable = pgTable(
-  'subscriptions',
+  TABLE_NAMES.Subscription,
   {
     id: uuid('id').primaryKey().defaultRandom(),
     userId: uuid('user_id')

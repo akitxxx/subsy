@@ -1,29 +1,16 @@
 import { getDrizzleClient } from '@/lib/db/drizzle';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import type { HonoEnv } from '@/types/api/hono';
+import { sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 
 export type TestClient = {
-  $get: (
-    path: string,
-    query?: unknown,
-    options?: { env?: { Variables: HonoEnv['Variables'] } },
-  ) => Promise<Response>;
-  $post: (
-    path: string,
-    body?: unknown,
-    options?: { env?: { Variables: HonoEnv['Variables'] } },
-  ) => Promise<Response>;
-  $put: (
-    path: string,
-    body?: unknown,
-    options?: { env?: { Variables: HonoEnv['Variables'] } },
-  ) => Promise<Response>;
-  $delete: (
-    path: string,
-    options?: { env?: { Variables: HonoEnv['Variables'] } },
-  ) => Promise<Response>;
+  $get: (path: string, query?: unknown, options?: { env?: { Variables: HonoEnv['Variables'] } }) => Promise<Response>;
+  $post: (path: string, body?: unknown, options?: { env?: { Variables: HonoEnv['Variables'] } }) => Promise<Response>;
+  $put: (path: string, body?: unknown, options?: { env?: { Variables: HonoEnv['Variables'] } }) => Promise<Response>;
+  $patch: (path: string, body?: unknown, options?: { env?: { Variables: HonoEnv['Variables'] } }) => Promise<Response>;
+  $delete: (path: string, options?: { env?: { Variables: HonoEnv['Variables'] } }) => Promise<Response>;
 };
 
 export const createTestApp = (route: Hono<HonoEnv>) => {
@@ -42,10 +29,7 @@ export const createTestApp = (route: Hono<HonoEnv>) => {
   };
 };
 
-export const createMockApp = (
-  route: Hono<HonoEnv>,
-  mockDb: Partial<DrizzleClient>,
-) => {
+export const createMockApp = (route: Hono<HonoEnv>, mockDb: Partial<DrizzleClient>) => {
   const app = new Hono<HonoEnv>();
   const db = getDrizzleClient();
   app.use(async (c, next) => {
@@ -61,4 +45,8 @@ export const createMockApp = (
     app,
     client: testClient(app) as TestClient,
   };
+};
+
+export const cleanupDB = async (db: DrizzleClient) => {
+  await db.execute(sql`TRUNCATE TABLE subscriptions, user_auths, users CASCADE;`);
 };
