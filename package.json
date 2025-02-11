@@ -20,7 +20,8 @@
     "test:front": "vitest run --dir src/app",
     "test:back": "vitest run --dir src/app/api",
     "test": "vitest run --config=./vitest.config.ts",
-    "db:up": "supabase start"
+    "db:up": "supabase start",
+    "db:down": "supabase stop"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.2",
