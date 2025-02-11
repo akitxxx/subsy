@@ -47,7 +47,7 @@ describe('/api/users', () => {
     });
   });
 
-  describe('PATCH /me', () => {
+  describe('PATCH /api/users/me', () => {
     it('ニックネームを更新できる', async () => {
       // given
       const user = await createActiveUser(db)();
