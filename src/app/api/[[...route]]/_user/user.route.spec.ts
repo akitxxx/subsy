@@ -1,7 +1,6 @@
-import { getDrizzleClient } from '@/lib/db/drizzle';
+import { type DrizzleClient, getDrizzleClient } from '@/lib/db/drizzle';
 import { cleanupDB } from '@/test/api/dbHelper';
 import { createActiveUser } from '@/test/api/testDataFactory';
-import { createTestApp, setSessionUser } from '@/test/api/testHelper';
 import type { HonoEnv } from '@/types/api/hono';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
@@ -13,7 +12,7 @@ describe('/api/users', () => {
   // ========== setup ==========
   const db = getDrizzleClient();
 
-  const createTestClient = ({ sessionUser }: { sessionUser?: { id: string } }) => {
+  const createTestClient = ({ db, sessionUser }: { db: DrizzleClient; sessionUser?: { id: string } }) => {
     const app = new Hono<HonoEnv>();
     app.use(async (c, next) => {
       c.set('db', db);
@@ -36,7 +35,7 @@ describe('/api/users', () => {
       // given
       const user = await createActiveUser(db)();
       // when
-      const client = createTestClient({ sessionUser: { id: user.id } });
+      const client = createTestClient({ db, sessionUser: { id: user.id } });
       const res = await client.api.users.me.$get();
       // then
       expect(res.status).toBe(200);
@@ -54,7 +53,7 @@ describe('/api/users', () => {
       const user = await createActiveUser(db)();
       // when
       const input = { nickname: 'nickname updated' };
-      const client = createTestClient({ sessionUser: { id: user.id } });
+      const client = createTestClient({ db, sessionUser: { id: user.id } });
       const res = await client.api.users.me.$patch({ json: input });
       // then
       expect(res.status).toBe(200);
