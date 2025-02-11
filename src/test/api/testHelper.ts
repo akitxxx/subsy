@@ -17,6 +17,7 @@ export type RouteConfig = {
   route: Hono<HonoEnv>;
 };
 
+// hono appを作成
 export const createTestApp = ({ routes }: { routes: RouteConfig[] }) => {
   const app = new Hono<HonoEnv>();
   const db = getDrizzleClient();
@@ -39,18 +40,20 @@ export const createTestApp = ({ routes }: { routes: RouteConfig[] }) => {
   };
 };
 
-const setAuthUser = (app: Hono<HonoEnv>, authUser: Pick<SessionUser, 'id'>) => {
+// contextのsessionUserをセット
+const setSessionUser = (app: Hono<HonoEnv>, sessionUser: SessionUser) => {
   app.use(async (c, next) => {
-    c.set('sessionUser', authUser as SessionUser);
+    c.set('sessionUser', sessionUser);
     await next();
   });
 };
 
+// hono test clientを作成
 const createClient =
   (app: Hono<HonoEnv>) =>
-  (p: { authUser?: Pick<SessionUser, 'id'> }): TestClient => {
-    if (p.authUser) {
-      setAuthUser(app, p.authUser);
+  (p: { sessionUser?: SessionUser }): TestClient => {
+    if (p.sessionUser) {
+      setSessionUser(app, p.sessionUser);
     }
     return testClient(app) as TestClient;
   };
