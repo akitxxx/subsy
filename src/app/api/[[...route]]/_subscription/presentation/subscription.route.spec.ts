@@ -60,6 +60,8 @@ describe('/api/subscriptions', () => {
       expect(subscriptions.length).toBe(1);
       expect(subscriptions[0]).toMatchObject({
         ...input,
+        startedAt: new Date(input.startedAt),
+        nextPaymentAt: new Date(input.nextPaymentAt),
       });
     });
   });

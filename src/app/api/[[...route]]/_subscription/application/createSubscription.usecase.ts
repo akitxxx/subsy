@@ -6,8 +6,8 @@ import type { SelectSubscription } from '@/lib/db/schema';
 import type { SessionUser } from '@/types/api/sessionUser';
 import type { SubscriptionCycleEnum } from '@/types/enums/subscription/subscriptionCycle.enum';
 import type { SubscriptionStatusEnum } from '@/types/enums/subscription/subscriptionStatus.enum';
-import { Subscription } from '../../_shared/domain/subscription/subscription.entity';
-import { SubscriptionRepository } from '../../_shared/domain/subscription/subscription.repository';
+import { Subscription } from '../../../_shared/domain/subscription/subscription.entity';
+import { SubscriptionRepository } from '../../../_shared/domain/subscription/subscription.repository';
 
 type Inject = {
   db: DrizzleClient;
@@ -46,6 +46,7 @@ const run =
       status: input.status,
     });
     await SubscriptionRepository({ db }).create({ entity: newSubscription });
+
     return { subscription: newSubscription };
   };
 
