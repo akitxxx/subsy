@@ -1,7 +1,6 @@
 import { getDrizzleClient } from '@/lib/db/drizzle';
-import type { DrizzleClient } from '@/lib/db/drizzle';
 import type { HonoEnv } from '@/types/api/hono';
-import { sql } from 'drizzle-orm';
+import type { SessionUser } from '@/types/api/sessionUser';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 
@@ -13,40 +12,45 @@ export type TestClient = {
   $delete: (path: string, options?: { env?: { Variables: HonoEnv['Variables'] } }) => Promise<Response>;
 };
 
-export const createTestApp = (route: Hono<HonoEnv>) => {
+export type RouteConfig = {
+  path: string;
+  route: Hono<HonoEnv>;
+};
+
+export const createTestApp = ({ routes }: { routes: RouteConfig[] }) => {
   const app = new Hono<HonoEnv>();
   const db = getDrizzleClient();
   app.use(async (c, next) => {
     c.set('db', db);
     await next();
   });
-  app.route('/', route);
+
+  // 指定されたルートを登録
+  if (routes) {
+    for (const { path, route } of routes) {
+      app.route(path, route);
+    }
+  }
 
   return {
     app,
     db,
-    client: testClient(app) as TestClient,
+    client: createClient(app),
   };
 };
 
-export const createMockApp = (route: Hono<HonoEnv>, mockDb: Partial<DrizzleClient>) => {
-  const app = new Hono<HonoEnv>();
-  const db = getDrizzleClient();
+const setAuthUser = (app: Hono<HonoEnv>, authUser: Pick<SessionUser, 'id'>) => {
   app.use(async (c, next) => {
-    c.set('db', {
-      ...db,
-      ...mockDb,
-    } as unknown as DrizzleClient);
+    c.set('sessionUser', authUser as SessionUser);
     await next();
   });
-  app.route('/', route);
+};
 
-  return {
-    app,
-    client: testClient(app) as TestClient,
+const createClient =
+  (app: Hono<HonoEnv>) =>
+  (p: { authUser?: Pick<SessionUser, 'id'> }): TestClient => {
+    if (p.authUser) {
+      setAuthUser(app, p.authUser);
+    }
+    return testClient(app) as TestClient;
   };
-};
-
-export const cleanupDB = async (db: DrizzleClient) => {
-  await db.execute(sql`TRUNCATE TABLE subscriptions, user_auths, users CASCADE;`);
-};

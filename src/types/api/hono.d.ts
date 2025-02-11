@@ -6,6 +6,6 @@ export type HonoEnv = {
   Variables: {
     db: DrizzleClient;
     supabase: SupabaseClient;
-    authUser: SessionUser | null;
+    sessionUser: SessionUser | null;
   };
 };

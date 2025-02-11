@@ -21,7 +21,7 @@ app.use(async (c: Context<HonoEnv>, next) => {
   c.set('supabase', supabase);
   // auth user
   const user = (await supabase.auth.getUser()).data.user;
-  c.set('authUser', user);
+  c.set('sessionUser', user);
 
   await next();
 });

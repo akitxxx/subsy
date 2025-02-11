@@ -10,6 +10,12 @@ export const TABLE_NAMES = {
   Subscription: 'subscriptions',
 } as const;
 
+/**
+ * テーブル名の配列
+ * truncateなどの一括操作で使用
+ */
+export const ALL_TABLES = Object.values(TABLE_NAMES);
+
 // usersテーブル
 export const usersTable = pgTable(TABLE_NAMES.User, {
   id: uuid('id').primaryKey().defaultRandom(),
