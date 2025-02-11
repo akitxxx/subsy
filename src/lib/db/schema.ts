@@ -21,9 +21,9 @@ export const usersTable = pgTable(TABLE_NAMES.User, {
   id: uuid('id').primaryKey().defaultRandom(),
   nickname: varchar('nickname', { length: 255 }).notNull(),
 
-  createdAt: timestamp('created_at').notNull().default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: timestamp('updated_at').notNull().default(sql`CURRENT_TIMESTAMP`),
-  deletedAt: timestamp('deleted_at'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
+  deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });
 export const usersRelations = relations(usersTable, ({ one, many }) => ({
   userAuth: one(userAuthsTable, { fields: [usersTable.id], references: [userAuthsTable.userId] }),
