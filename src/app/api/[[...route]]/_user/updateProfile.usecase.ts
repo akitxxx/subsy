@@ -5,7 +5,7 @@ import type { SelectUser } from '@/lib/db/schema';
 import type { SessionUser } from '@/types/api/sessionUser';
 
 type Inject = {
-  authUser: SessionUser;
+  sessionUser: SessionUser;
   userRepository: UserRepository;
 };
 
@@ -18,9 +18,9 @@ type Output = {
 };
 
 const run =
-  ({ authUser, userRepository }: Inject) =>
+  ({ sessionUser, userRepository }: Inject) =>
   async ({ nickname }: Input): Promise<Output> => {
-    const user = await userRepository.findCurrentUserByAuthProviderId({ authProviderId: authUser.id });
+    const user = await userRepository.findCurrentUserById({ id: sessionUser.id });
     if (!user) throw new NotFoundError('ユーザーが見つかりません');
 
     const updatedUser = User.updateProfile(user)({ nickname });

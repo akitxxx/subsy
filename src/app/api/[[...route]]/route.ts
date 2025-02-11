@@ -1,7 +1,9 @@
 import { NotFoundError, toErrorResponse } from '@/app/api/_shared/lib/error';
 import { getDrizzleClient } from '@/lib/db/drizzle';
+import { userAuthsTable, usersTable } from '@/lib/db/schema';
 import { createSupabaseHono } from '@/lib/supabase/supabase';
 import type { HonoEnv } from '@/types/api/hono';
+import { eq } from 'drizzle-orm';
 import { type Context, Hono } from 'hono';
 import { handle } from 'hono/vercel';
 import auth from './_auth/auth.route';
@@ -19,9 +21,19 @@ app.use(async (c: Context<HonoEnv>, next) => {
   // Supabase
   const supabase = await createSupabaseHono(c);
   c.set('supabase', supabase);
-  // auth user
-  const user = (await supabase.auth.getUser()).data.user;
-  c.set('sessionUser', user);
+
+  // session user
+  const authUser = (await supabase.auth.getUser()).data.user;
+  if (authUser) {
+    // DB userレコードを取得
+    const [user] = await db
+      .select({ id: usersTable.id })
+      .from(usersTable)
+      .innerJoin(userAuthsTable, eq(usersTable.id, userAuthsTable.userId))
+      .where(eq(userAuthsTable.providerId, authUser.id))
+      .limit(1);
+    c.set('sessionUser', user || null);
+  }
 
   await next();
 });

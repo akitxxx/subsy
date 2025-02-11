@@ -5,8 +5,8 @@ import type { SessionUser } from '@/types/api/sessionUser';
 import { and, eq, isNull } from 'drizzle-orm';
 
 type Inject = {
-  authUser: SessionUser;
   db: DrizzleClient;
+  sessionUser: SessionUser;
   userRepository: UserRepository;
 };
 
@@ -45,9 +45,9 @@ const getUpcomingSubscriptions = (subscriptions: SelectSubscription[]): SelectSu
 };
 
 const run =
-  ({ authUser, db, userRepository }: Inject) =>
+  ({ sessionUser, db, userRepository }: Inject) =>
   async (): Promise<Output> => {
-    const user = await userRepository.findCurrentUserByAuthProviderId({ authProviderId: authUser.id });
+    const user = await userRepository.findCurrentUserById({ id: sessionUser.id });
     const subscriptions = await findManySubscriptions(db, user.id);
     const totalThisMonth = calculateTotalAmount(subscriptions);
     const upcomingSubscriptions = getUpcomingSubscriptions(subscriptions);

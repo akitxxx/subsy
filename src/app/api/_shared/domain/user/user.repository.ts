@@ -11,9 +11,9 @@ type Inject = {
 
 export type UserRepository = ReturnType<typeof UserRepository>;
 
-const findCurrentUserByAuthProviderId =
+const findCurrentUserById =
   ({ db }: Inject) =>
-  async ({ tx, authProviderId }: { tx?: Tx; authProviderId: string }): Promise<UserEntity> => {
+  async ({ tx, id }: { tx?: Tx; id: string }): Promise<UserEntity> => {
     const dbClient = tx ?? db;
 
     const [user] = await dbClient
@@ -24,8 +24,7 @@ const findCurrentUserByAuthProviderId =
         updatedAt: usersTable.updatedAt,
       })
       .from(usersTable)
-      .innerJoin(userAuthsTable, eq(usersTable.id, userAuthsTable.userId))
-      .where(and(eq(userAuthsTable.providerId, authProviderId), isNull(usersTable.deletedAt)))
+      .where(eq(usersTable.id, id))
       .limit(1);
 
     return user;
@@ -69,7 +68,7 @@ const update =
   };
 
 export const UserRepository = (inject: Inject) => ({
-  findCurrentUserByAuthProviderId: findCurrentUserByAuthProviderId(inject),
+  findCurrentUserById: findCurrentUserById(inject),
   create: create(inject),
   update: update(inject),
 });

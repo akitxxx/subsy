@@ -4,7 +4,7 @@ import type { HonoEnv } from '@/types/api/hono';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { checkAuth } from '../../_shared/lib/utils/checkAuth';
+import { checkSessionUser } from '../../_shared/lib/utils/checkSessionUser';
 import { GetCurrentUserUsecase } from './getCurrentUser.usecase';
 import { UpdateProfileUsecase } from './updateProfile.usecase';
 
@@ -12,11 +12,11 @@ const app = new Hono<HonoEnv>();
 
 const route = app
   .get('/me', async (c) => {
-    const authUser = checkAuth(c);
+    const sessionUser = checkSessionUser(c);
     const db = c.var.db;
 
     try {
-      const result = await GetCurrentUserUsecase.run({ db, authUser, userRepository: UserRepository({ db }) })();
+      const result = await GetCurrentUserUsecase.run({ db, sessionUser, userRepository: UserRepository({ db }) })();
       return c.json(result.user, 200);
     } catch (e: unknown) {
       if (e instanceof Error) {
@@ -27,12 +27,12 @@ const route = app
     }
   })
   .patch('/me', zValidator('json', z.object({ nickname: z.string() })), async (c) => {
-    const authUser = checkAuth(c);
+    const sessionUser = checkSessionUser(c);
     const db = c.var.db;
     const input = await c.req.json<{ nickname: string }>();
 
     try {
-      const output = await UpdateProfileUsecase.run({ authUser, userRepository: UserRepository({ db }) })(input);
+      const output = await UpdateProfileUsecase.run({ sessionUser, userRepository: UserRepository({ db }) })(input);
       return c.json(output.user, 200);
     } catch (e: unknown) {
       if (e instanceof Error) {

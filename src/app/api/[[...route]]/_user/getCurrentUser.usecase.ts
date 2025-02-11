@@ -5,7 +5,7 @@ import type { DrizzleClient } from '@/lib/db/drizzle';
 import type { SessionUser } from '@/types/api/sessionUser';
 
 type Inject = {
-  authUser: SessionUser;
+  sessionUser: SessionUser;
   db: DrizzleClient;
   userRepository: UserRepository;
 };
@@ -15,12 +15,12 @@ type Output = {
 };
 
 const run =
-  ({ authUser, db, userRepository }: Inject) =>
+  ({ sessionUser, db, userRepository }: Inject) =>
   async (): Promise<Output> => {
-    const user = await userRepository.findCurrentUserByAuthProviderId({ authProviderId: authUser.id });
+    const user = await userRepository.findCurrentUserById({ id: sessionUser.id });
 
     if (!user) {
-      console.error('ユーザーが見つかりません', { authUserId: authUser?.id });
+      console.error('ユーザーが見つかりません', { sessionUserId: sessionUser.id });
       throw new NotFoundError('ユーザーが見つかりません');
     }
 
