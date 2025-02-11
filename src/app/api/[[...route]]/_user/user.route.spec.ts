@@ -21,7 +21,7 @@ describe('/api/users', () => {
       // given
       const user = await createActiveUser(db)();
       // when
-      const res = await client({ authUser: { id: user.id } }).$get('/api/users/me');
+      const res = await client({ sessionUser: { id: user.id } }).$get('/api/users/me');
       // then
       expect(res.status).toBe(200);
       const data = await res.json();
@@ -38,7 +38,7 @@ describe('/api/users', () => {
       const user = await createActiveUser(db)();
       // when
       const input = { nickname: 'nickname updated' };
-      const res = await client({ authUser: { id: user.id } }).$patch('/api/users/me', input);
+      const res = await client({ sessionUser: { id: user.id } }).$patch('/api/users/me', input);
       // then
       expect(res.status).toBe(200);
       const data = await res.json();
