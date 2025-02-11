@@ -1,7 +1,7 @@
 import { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import type { HonoEnv } from '@/types/api/hono';
 import { Hono } from 'hono';
-import { OAuthCallbackUsecase } from './oauthCallback.usecase';
+import { OAuthCallbackUsecase } from '../application/oauthCallback.usecase';
 
 const app = new Hono<HonoEnv>();
 

@@ -6,9 +6,9 @@ import type { HonoEnv } from '@/types/api/hono';
 import { eq } from 'drizzle-orm';
 import { type Context, Hono } from 'hono';
 import { handle } from 'hono/vercel';
-import auth from './_auth/auth.route';
+import auth from './_auth/presentation/auth.route';
 import dashboard from './_dashboard/dashboard.route';
-import user from './_user/user.route';
+import user from './_user/presentation/user.route';
 
 const app = new Hono<HonoEnv>().basePath('/api');
 

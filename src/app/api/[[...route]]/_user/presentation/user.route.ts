@@ -4,9 +4,9 @@ import type { HonoEnv } from '@/types/api/hono';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { checkSessionUser } from '../../_shared/lib/utils/checkSessionUser';
-import { GetCurrentUserUsecase } from './getCurrentUser.usecase';
-import { UpdateProfileUsecase } from './updateProfile.usecase';
+import { checkSessionUser } from '../../../_shared/lib/utils/checkSessionUser';
+import { GetCurrentUserUsecase } from '../application/getCurrentUser.usecase';
+import { UpdateProfileUsecase } from '../application/updateProfile.usecase';
 
 const app = new Hono<HonoEnv>();
 

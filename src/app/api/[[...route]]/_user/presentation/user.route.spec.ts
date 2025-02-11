@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import userRoute from './user.route';
+import userRoute from '../presentation/user.route';
 
 describe('/api/users', () => {
   // ========== setup ==========
