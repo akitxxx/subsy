@@ -2,8 +2,8 @@ import { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import { toErrorResponse } from '@/app/api/_shared/lib/error';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
-import { checkSessionUser } from '../../_shared/lib/utils/checkSessionUser';
-import { GetDashboardUsecase } from './getDashboard.usecase';
+import { checkSessionUser } from '../../../_shared/lib/utils/checkSessionUser';
+import { GetDashboardUsecase } from '../application/getDashboard.usecase';
 
 const app = new Hono<HonoEnv>();
 
