@@ -80,7 +80,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
         isEdit={isEditModal}
         onClose={handleCloseModal}
         onCreate={onCreate}
-        onSave={handleCreateSubscription}
+        onUpdate={handleUpdateSubscription}
         subscription={currentSubscription}
       />
 
