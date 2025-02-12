@@ -15,6 +15,7 @@
     "format": "biome format ./src/**/* --write",
     "db:generate": "drizzle-kit generate --config=./drizzle/drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config=./drizzle/drizzle.config.ts",
+    "db:migrate:test": "dotenv -e .env.test pnpm run db:migrate",
     "db:reset": "tsx drizzle/reset.ts",
     "db:reset:test": "dotenv -e .env.test tsx drizzle/reset.ts",
     "test:front": "vitest run --dir src/app",
