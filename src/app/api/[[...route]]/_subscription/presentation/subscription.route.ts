@@ -10,11 +10,11 @@ import { createSubscriptionSchema } from './input/createSubscription.input';
 const app = new Hono<HonoEnv>();
 
 const route = app.post('/', zValidator('json', createSubscriptionSchema), async (c: Context<HonoEnv>) => {
-  const sessionUser = checkSessionUser(c);
-  const db = c.var.db;
-  const input = createSubscriptionSchema.parse(await c.req.json());
-
   try {
+    const sessionUser = checkSessionUser(c);
+    const db = c.var.db;
+    const input = createSubscriptionSchema.parse(await c.req.json());
+
     const result = await CreateSubscriptionUsecase.run({ db, sessionUser, userRepository: UserRepository({ db }) })(input);
     return c.json(result, 201);
   } catch (e) {

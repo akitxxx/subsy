@@ -8,10 +8,10 @@ import { GetDashboardUsecase } from '../application/getDashboard.usecase';
 const app = new Hono<HonoEnv>();
 
 const route = app.get('/', async (c: Context<HonoEnv>) => {
-  const sessionUser = checkSessionUser(c);
-  const db = c.var.db;
-
   try {
+    const sessionUser = checkSessionUser(c);
+    const db = c.var.db;
+
     const result = await GetDashboardUsecase.run({ db, sessionUser, userRepository: UserRepository({ db }) })();
     return c.json(result, 200);
   } catch (e) {

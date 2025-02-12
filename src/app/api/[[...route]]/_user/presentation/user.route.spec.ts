@@ -62,7 +62,6 @@ describe('/api/users', () => {
         id: user.id,
         nickname: input.nickname,
       });
-
       // DBが更新されていることを確認
       const updatedUser = await db.query.usersTable.findFirst({
         where: (users) => eq(users.id, user.id),
