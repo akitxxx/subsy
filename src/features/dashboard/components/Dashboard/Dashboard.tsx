@@ -1,17 +1,11 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { SubscriptionListCard } from '@/features/subscriptions/SubscriptionListCard';
+import { SubscriptionListCard } from '@/features/subscriptions/components/SubscriptionListCard';
 import { useDashboard } from './useDashboard';
 
 export const Dashboard = () => {
-  const {
-    subscriptions,
-    totalThisMonth,
-    upcomingSubscriptions,
-    handleSaveSubscription,
-    handleDelete,
-  } = useDashboard();
+  const { dashboard, subscriptions, handleCreateSubscription, handleUpdateSubscription, handleDeleteSubscription } = useDashboard();
 
   return (
     <div className="container mx-auto p-4 min-h-screen">
@@ -21,9 +15,7 @@ export const Dashboard = () => {
             <CardTitle>今月の合計</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold">
-              ¥{totalThisMonth.toLocaleString()}
-            </p>
+            <p className="text-4xl font-bold">¥{dashboard.data.totalThisMonth.toLocaleString()}</p>
           </CardContent>
         </Card>
 
@@ -33,11 +25,8 @@ export const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <ul className="space-y-3">
-              {upcomingSubscriptions.map((sub) => (
-                <li
-                  key={sub.id}
-                  className="flex justify-between items-center p-3 rounded-lg bg-secondary"
-                >
+              {dashboard.data.upcomingSubscriptions.map((sub) => (
+                <li key={sub.id} className="flex justify-between items-center p-3 rounded-lg bg-secondary">
                   <span className="font-semibold">{sub.name}</span>
                   <span className="font-medium">
                     ¥{Number(sub.price).toLocaleString()} ({sub.nextPaymentAt})
@@ -49,9 +38,10 @@ export const Dashboard = () => {
         </Card>
 
         <SubscriptionListCard
-          subscriptions={subscriptions}
-          onSave={handleSaveSubscription}
-          onDelete={handleDelete}
+          subscriptions={subscriptions.data}
+          onCreate={handleCreateSubscription}
+          onUpdate={handleUpdateSubscription}
+          onDelete={handleDeleteSubscription}
         />
       </div>
     </div>

@@ -1,12 +1,5 @@
 import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 type DeleteConfirmDialogProps = {
   isOpen: boolean;
@@ -15,12 +8,7 @@ type DeleteConfirmDialogProps = {
   subscriptionName: string | undefined;
 };
 
-export function DeleteConfirmDialog({
-  isOpen,
-  onClose,
-  onConfirm,
-  subscriptionName,
-}: DeleteConfirmDialogProps) {
+export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, subscriptionName }: DeleteConfirmDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>

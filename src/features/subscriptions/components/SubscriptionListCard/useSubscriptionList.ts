@@ -3,15 +3,16 @@ import { useState } from 'react';
 
 export const useSubscriptionList = (props: {
   subscriptions: Subscription[];
-  onSave: (subscription: Subscription) => void;
+  onCreate: (subscription: Subscription) => void;
+  onUpdate: (subscription: Subscription) => void;
   onDelete: (id: string) => void;
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentSubscription, setCurrentSubscription] =
-    useState<Subscription | null>(null);
+  const [isEditModal, setIsEditModal] = useState(false);
+  const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const handleOpenModal = (subscription?: Subscription) => {
+  const handleOpenModal = ({ isEdit, subscription }: { isEdit: boolean; subscription?: Subscription }) => {
     setCurrentSubscription(
       subscription || {
         id: crypto.randomUUID(),
@@ -28,6 +29,7 @@ export const useSubscriptionList = (props: {
         deletedAt: null,
       },
     );
+    setIsEditModal(isEdit);
     setIsModalOpen(true);
   };
 
@@ -36,25 +38,32 @@ export const useSubscriptionList = (props: {
     setCurrentSubscription(null);
   };
 
-  const handleSaveSubscription = (subscription: Subscription) => {
-    props.onSave(subscription);
+  const handleCreateSubscription = (subscription: Subscription) => {
+    props.onCreate(subscription);
     handleCloseModal();
   };
 
-  const handleDelete = (id: string) => {
+  const handleUpdateSubscription = (subscription: Subscription) => {
+    props.onUpdate(subscription);
+    handleCloseModal();
+  };
+
+  const handleDeleteSubscription = (id: string) => {
     props.onDelete(id);
     setIsDeleteDialogOpen(false);
   };
 
   return {
     isModalOpen,
+    isEditModal,
     currentSubscription,
     isDeleteDialogOpen,
     handleOpenModal,
     handleCloseModal,
-    handleSaveSubscription,
-    handleDelete,
     setIsDeleteDialogOpen,
     setCurrentSubscription,
+    handleCreateSubscription,
+    handleUpdateSubscription,
+    handleDeleteSubscription,
   };
 };

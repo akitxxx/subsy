@@ -8,6 +8,7 @@ import { type Context, Hono } from 'hono';
 import { handle } from 'hono/vercel';
 import auth from './_auth/presentation/auth.route';
 import dashboard from './_dashboard/presentation/dashboard.route';
+import subscription from './_subscription/presentation/subscription.route';
 import user from './_user/presentation/user.route';
 
 const app = new Hono<HonoEnv>().basePath('/api');
@@ -51,7 +52,7 @@ app.notFound((c) => {
 });
 
 // routing
-const route = app.route('/dashboard', dashboard).route('/auth', auth).route('/users', user);
+const route = app.route('/dashboard', dashboard).route('/auth', auth).route('/users', user).route('/subscriptions', subscription);
 
 export const GET = handle(app);
 export const POST = handle(app);
