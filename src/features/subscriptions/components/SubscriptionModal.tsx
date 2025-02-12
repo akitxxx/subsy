@@ -11,11 +11,11 @@ type SubscriptionModalProps = {
   isEdit: boolean;
   onClose: () => void;
   onCreate: (subscription: Subscription) => void;
-  onSave: (subscription: Subscription) => void;
+  onUpdate: (subscription: Subscription) => void;
   subscription: Subscription | null;
 };
 
-export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onSave, subscription }: SubscriptionModalProps) {
+export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate, subscription }: SubscriptionModalProps) {
   const [formData, setFormData] = useState<Subscription>({
     id: crypto.randomUUID(),
     name: '',
@@ -55,7 +55,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onSave, s
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isEdit) {
-      onSave(formData);
+      onUpdate(formData);
       return;
     }
     onCreate(formData);
