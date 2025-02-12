@@ -9,8 +9,6 @@ type Inject = {
   db: DrizzleClient;
 };
 
-export type UserRepository = ReturnType<typeof UserRepository>;
-
 const findCurrentUserById =
   ({ db }: Inject) =>
   async ({ tx, id }: { tx?: Tx; id: string }): Promise<UserEntity> => {
@@ -72,3 +70,5 @@ export const UserRepository = (inject: Inject) => ({
   create: create(inject),
   update: update(inject),
 });
+
+export type UserRepository = ReturnType<typeof UserRepository>;

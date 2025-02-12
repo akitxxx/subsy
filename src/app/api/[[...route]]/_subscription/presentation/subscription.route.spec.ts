@@ -1,6 +1,6 @@
 import { type DrizzleClient, getDrizzleClient } from '@/lib/db/drizzle';
 import { cleanupDB } from '@/test/api/dbHelper';
-import { createActiveUser } from '@/test/api/testDataFactory';
+import { createActiveUser, createSubscription } from '@/test/api/testDataFactory';
 import type { HonoEnv } from '@/types/api/hono';
 import { SubscriptionCycleEnum } from '@/types/enums/subscription/subscriptionCycle.enum';
 import { SubscriptionStatusEnum } from '@/types/enums/subscription/subscriptionStatus.enum';
@@ -29,6 +29,42 @@ describe('/api/subscriptions', () => {
   });
 
   // ========== test ==========
+
+  describe('GET /', () => {
+    it('サブスクリプションを取得できること', async () => {
+      // given
+      const user = await createActiveUser(db)();
+      const subscription1 = await createSubscription(db)({
+        userId: user.id,
+        name: 'Test Subscription',
+        price: '1980.00',
+        cycle: SubscriptionCycleEnum.OneMonth,
+        startedAt: new Date(),
+        nextPaymentAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        status: SubscriptionStatusEnum.Active,
+      });
+      const subscription2 = await createSubscription(db)({
+        userId: user.id,
+        name: 'Test Subscription 2',
+        price: '1980.00',
+        cycle: SubscriptionCycleEnum.OneMonth,
+        startedAt: new Date(),
+        nextPaymentAt: new Date(Date.now() + 29 * 24 * 60 * 60 * 1000),
+        status: SubscriptionStatusEnum.Canceled,
+      });
+      // when
+      const client = createTestClient({ db, sessionUser: { id: user.id } });
+      const res = await client.api.subscriptions.$get();
+      // then
+      expect(res.status).toBe(200);
+      // output
+      const output = await res.json();
+      expect(output).toMatchObject({
+        // 次回支払日が新しい順
+        subscriptions: [JSON.parse(JSON.stringify(subscription2)), JSON.parse(JSON.stringify(subscription1))],
+      });
+    });
+  });
 
   describe('POST /', () => {
     it('サブスクリプションを作成できること', async () => {

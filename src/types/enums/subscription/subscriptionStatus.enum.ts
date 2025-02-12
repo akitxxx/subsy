@@ -4,3 +4,5 @@ export const SubscriptionStatusEnum = {
   Expired: 'Expired',
 } as const;
 export type SubscriptionStatusEnum = (typeof SubscriptionStatusEnum)[keyof typeof SubscriptionStatusEnum];
+
+export const IN_USE_SUBSCRIPTION_STATUS = [SubscriptionStatusEnum.Active, SubscriptionStatusEnum.Canceled];

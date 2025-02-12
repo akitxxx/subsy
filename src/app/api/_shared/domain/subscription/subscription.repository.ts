@@ -1,14 +1,23 @@
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { subscriptionsTable } from '@/lib/db/schema';
 import type { Tx } from '@/types/api/tx';
-import { eq } from 'drizzle-orm';
+import { IN_USE_SUBSCRIPTION_STATUS } from '@/types/enums/subscription/subscriptionStatus.enum';
+import { and, asc, desc, eq, inArray } from 'drizzle-orm';
 import type { SubscriptionEntity } from './subscription.entity';
 
 type Inject = {
   db: DrizzleClient;
 };
 
-export type SubscriptionRepository = ReturnType<typeof SubscriptionRepository>;
+const findManyInUse =
+  ({ db }: Inject) =>
+  async (p: { userId: string }) => {
+    const subscriptions = await db.query.subscriptionsTable.findMany({
+      where: and(inArray(subscriptionsTable.status, IN_USE_SUBSCRIPTION_STATUS), eq(subscriptionsTable.userId, p.userId)),
+      orderBy: [asc(subscriptionsTable.nextPaymentAt)],
+    });
+    return subscriptions;
+  };
 
 const create =
   ({ db }: Inject) =>
@@ -35,4 +44,7 @@ const update =
 export const SubscriptionRepository = (inject: Inject) => ({
   create: create(inject),
   update: update(inject),
+  findManyInUse: findManyInUse(inject),
 });
+
+export type SubscriptionRepository = ReturnType<typeof SubscriptionRepository>;
