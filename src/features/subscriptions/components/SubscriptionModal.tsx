@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Subscription } from '@/types/domains/subscription';
+import { SubscriptionCycleEnum } from '@/types/enums/subscription/subscriptionCycle.enum';
+import { SubscriptionStatusEnum } from '@/types/enums/subscription/subscriptionStatus.enum';
 import { useEffect, useState } from 'react';
 
 type SubscriptionModalProps = {
@@ -16,16 +18,14 @@ type SubscriptionModalProps = {
 };
 
 export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate, subscription }: SubscriptionModalProps) {
-  const [formData, setFormData] = useState<Subscription>({
-    id: crypto.randomUUID(),
+  const [formData, setFormData] = useState<Partial<Subscription>>({
     name: '',
-    price: '0',
-    cycle: '',
+    price: '',
+    cycle: SubscriptionCycleEnum.OneMonth,
     startedAt: new Date().toISOString(),
     nextPaymentAt: new Date().toISOString(),
     description: null,
-    status: 'active',
-    userId: '',
+    status: SubscriptionStatusEnum.Active,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     deletedAt: null,

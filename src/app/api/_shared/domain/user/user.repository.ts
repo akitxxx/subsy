@@ -34,15 +34,9 @@ const create =
     const fCreate = async (tx: Tx) => {
       const [createdUser] = await tx
         .insert(usersTable)
-        .values({
-          nickname: user.nickname,
-        })
+        .values({ ...user })
         .returning();
-      await tx.insert(userAuthsTable).values({
-        userId: user.id,
-        provider: user.userAuth.provider,
-        providerId: user.userAuth.providerId,
-      });
+      await tx.insert(userAuthsTable).values({ ...user.userAuth });
       return createdUser;
     };
 
@@ -55,10 +49,7 @@ const update =
     const fUpdate = async (tx: Tx) => {
       await tx
         .update(usersTable)
-        .set({
-          nickname: user.nickname,
-          updatedAt: new Date(),
-        })
+        .set({ ...user })
         .where(eq(usersTable.id, user.id));
     };
 
