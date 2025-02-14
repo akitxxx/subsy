@@ -11,7 +11,7 @@ const newSubscription = (p: SubscriptionCreateProps): SubscriptionEntity => {
     price: p.price,
     cycle: p.cycle,
     startedAt: p.startedAt,
-    nextPaymentAt: p.nextPaymentAt,
+    expiredAt: p.expiredAt,
     description: p.description ?? null,
     status: p.status,
     createdAt: now,

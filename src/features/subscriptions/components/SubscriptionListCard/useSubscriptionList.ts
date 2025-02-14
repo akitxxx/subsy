@@ -20,7 +20,7 @@ export const useSubscriptionList = (props: {
         price: '0',
         cycle: '',
         startedAt: new Date().toISOString(),
-        nextPaymentAt: new Date().toISOString(),
+        expiredAt: new Date().toISOString(),
         description: null,
         status: 'active',
         userId: '',

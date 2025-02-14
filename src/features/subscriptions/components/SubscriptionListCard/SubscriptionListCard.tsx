@@ -53,7 +53,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                 <TableCell className="font-medium">{sub.name}</TableCell>
                 <TableCell>¥{Number(sub.price).toLocaleString()}</TableCell>
                 <TableCell>{sub.cycle}</TableCell>
-                <TableCell>{sub.nextPaymentAt}</TableCell>
+                <TableCell>{sub.expiredAt}</TableCell>
                 <TableCell>
                   <Button onClick={() => handleOpenModal({ isEdit: true, subscription: sub })} variant="outline" size="sm" className="mr-2">
                     編集

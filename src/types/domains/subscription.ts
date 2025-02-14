@@ -4,7 +4,7 @@ export type Subscription = {
   price: string;
   cycle: string;
   startedAt: string;
-  nextPaymentAt: string;
+  expiredAt: string;
   description: string | null;
   status: string;
   userId: string;

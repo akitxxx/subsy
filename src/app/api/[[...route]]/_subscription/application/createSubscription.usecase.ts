@@ -1,7 +1,6 @@
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import { NotFoundError } from '@/app/api/_shared/lib/error';
 import type { DrizzleClient } from '@/lib/db/drizzle';
-import { subscriptionsTable } from '@/lib/db/schema';
 import type { SelectSubscription } from '@/lib/db/schema';
 import type { SessionUser } from '@/types/api/sessionUser';
 import type { SubscriptionCycleEnum } from '@/types/enums/subscription/subscriptionCycle.enum';
@@ -20,7 +19,7 @@ type Input = {
   price: string;
   cycle: SubscriptionCycleEnum;
   startedAt: Date;
-  nextPaymentAt: Date;
+  expiredAt: Date;
   description?: string;
   status: SubscriptionStatusEnum;
 };
@@ -41,7 +40,7 @@ const run =
       price: input.price,
       cycle: input.cycle,
       startedAt: input.startedAt,
-      nextPaymentAt: input.nextPaymentAt,
+      expiredAt: input.expiredAt,
       description: input.description,
       status: input.status,
     });

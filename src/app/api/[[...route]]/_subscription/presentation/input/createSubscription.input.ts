@@ -7,7 +7,7 @@ export const createSubscriptionSchema = z.object({
   price: z.string(),
   cycle: z.nativeEnum(SubscriptionCycleEnum),
   startedAt: z.coerce.date(),
-  nextPaymentAt: z.coerce.date(),
+  expiredAt: z.coerce.date(),
   description: z.string().optional(),
   status: z.nativeEnum(SubscriptionStatusEnum),
 });

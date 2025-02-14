@@ -40,7 +40,7 @@ describe('/api/subscriptions', () => {
         price: '1980.00',
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date(),
-        nextPaymentAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         status: SubscriptionStatusEnum.Active,
       });
       const subscription2 = await createSubscription(db)({
@@ -49,7 +49,7 @@ describe('/api/subscriptions', () => {
         price: '1980.00',
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date(),
-        nextPaymentAt: new Date(Date.now() + 29 * 24 * 60 * 60 * 1000),
+        expiredAt: new Date(Date.now() + 29 * 24 * 60 * 60 * 1000),
         status: SubscriptionStatusEnum.Canceled,
       });
       // when

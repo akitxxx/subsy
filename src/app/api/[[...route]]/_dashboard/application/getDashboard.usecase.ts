@@ -29,7 +29,7 @@ const findManySubscriptions = async (db: DrizzleClient, userId: string): Promise
       price: subscriptionsTable.price,
       cycle: subscriptionsTable.cycle,
       startedAt: subscriptionsTable.startedAt,
-      nextPaymentAt: subscriptionsTable.nextPaymentAt,
+      expiredAt: subscriptionsTable.expiredAt,
       status: subscriptionsTable.status,
     })
     .from(subscriptionsTable)
@@ -41,7 +41,7 @@ const calculateTotalAmount = (subscriptions: SelectSubscription[]): number => {
 };
 
 const getUpcomingSubscriptions = (subscriptions: SelectSubscription[]): SelectSubscription[] => {
-  return [...subscriptions].sort((a, b) => new Date(a.nextPaymentAt).getTime() - new Date(b.nextPaymentAt).getTime()).slice(0, 2);
+  return [...subscriptions].sort((a, b) => new Date(a.expiredAt).getTime() - new Date(b.expiredAt).getTime()).slice(0, 2);
 };
 
 const run =

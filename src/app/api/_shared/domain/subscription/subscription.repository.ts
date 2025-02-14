@@ -14,7 +14,7 @@ const findManyInUse =
   async (p: { userId: string }) => {
     const subscriptions = await db.query.subscriptionsTable.findMany({
       where: and(inArray(subscriptionsTable.status, IN_USE_SUBSCRIPTION_STATUS), eq(subscriptionsTable.userId, p.userId)),
-      orderBy: [asc(subscriptionsTable.nextPaymentAt)],
+      orderBy: [asc(subscriptionsTable.expiredAt)],
     });
     return subscriptions;
   };

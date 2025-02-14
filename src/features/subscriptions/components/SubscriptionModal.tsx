@@ -23,7 +23,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
     price: '',
     cycle: SubscriptionCycleEnum.OneMonth,
     startedAt: new Date().toISOString(),
-    nextPaymentAt: new Date().toISOString(),
+    expiredAt: new Date().toISOString(),
     description: null,
     status: SubscriptionStatusEnum.Active,
     createdAt: new Date().toISOString(),
@@ -41,7 +41,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
         price: '0',
         cycle: '',
         startedAt: new Date().toISOString(),
-        nextPaymentAt: new Date().toISOString(),
+        expiredAt: new Date().toISOString(),
         description: null,
         status: 'active',
         userId: '',
@@ -116,18 +116,18 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
               </div>
             </div>
             <div className="grid gap-2 sm:grid-cols-8 sm:items-center sm:gap-4">
-              <Label htmlFor="nextPaymentAt" className="text-sm font-medium text-gray-700 sm:text-right sm:whitespace-nowrap sm:col-span-3">
+              <Label htmlFor="expiredAt" className="text-sm font-medium text-gray-700 sm:text-right sm:whitespace-nowrap sm:col-span-3">
                 次回支払い日
               </Label>
               <div className="sm:col-span-5">
                 <Input
-                  id="nextPaymentAt"
+                  id="expiredAt"
                   type="date"
-                  value={formData.nextPaymentAt.split('T')[0]}
+                  value={formData.expiredAt?.split('T')[0]}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      nextPaymentAt: new Date(e.target.value).toISOString(),
+                      expiredAt: new Date(e.target.value).toISOString(),
                     })
                   }
                   className="w-full"

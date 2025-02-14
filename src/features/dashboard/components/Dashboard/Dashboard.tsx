@@ -29,7 +29,7 @@ export const Dashboard = () => {
                 <li key={sub.id} className="flex justify-between items-center p-3 rounded-lg bg-secondary">
                   <span className="font-semibold">{sub.name}</span>
                   <span className="font-medium">
-                    ¥{Number(sub.price).toLocaleString()} ({sub.nextPaymentAt})
+                    ¥{Number(sub.price).toLocaleString()} ({sub.expiredAt})
                   </span>
                 </li>
               ))}
