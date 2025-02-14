@@ -29,6 +29,13 @@
       "when": 1739316588352,
       "tag": "0003_shallow_spyke",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1739574400363,
+      "tag": "0004_lucky_franklin_richards",
+      "breakpoints": true
     }
   ]
 }
