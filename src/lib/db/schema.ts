@@ -70,11 +70,11 @@ export const subscriptionsTable = pgTable(
       .notNull()
       .references(() => usersTable.id),
     name: varchar('name', { length: 255 }).notNull(),
+    status: varchar('status', { length: 255 }).notNull(),
     price: numeric('price', { precision: 10, scale: 2 }).notNull(),
     cycle: varchar('cycle', { length: 255 }).notNull(),
     startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
     expiredAt: timestamp('expired_at', { withTimezone: true }).notNull(),
-    status: varchar('status', { length: 255 }).notNull(),
     description: text('description'),
 
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
