@@ -74,6 +74,7 @@ export const subscriptionsTable = pgTable(
     price: numeric('price', { precision: 10, scale: 2 }).notNull(),
     cycle: varchar('cycle', { length: 255 }).notNull(),
     startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
+    cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
     expiredAt: timestamp('expired_at', { withTimezone: true }).notNull(),
     description: text('description'),
 
