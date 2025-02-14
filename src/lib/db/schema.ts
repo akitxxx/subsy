@@ -73,9 +73,9 @@ export const subscriptionsTable = pgTable(
     price: numeric('price', { precision: 10, scale: 2 }).notNull(),
     cycle: varchar('cycle', { length: 255 }).notNull(),
     startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
-    nextPaymentAt: timestamp('next_payment_at', { withTimezone: true }).notNull(),
-    description: text('description'),
+    expiredAt: timestamp('expired_at', { withTimezone: true }).notNull(),
     status: varchar('status', { length: 255 }).notNull(),
+    description: text('description'),
 
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -84,7 +84,7 @@ export const subscriptionsTable = pgTable(
   // index
   (table) => ({
     userIdIdx: index('subscriptions_user_id_idx').on(table.userId),
-    nextPaymentAtIdx: index('subscriptions_next_payment_at_idx').on(table.nextPaymentAt),
+    expiredAtIdx: index('subscriptions_expired_at_idx').on(table.expiredAt),
     statusIdx: index('subscriptions_status_idx').on(table.status),
   }),
 );
