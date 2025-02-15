@@ -3,7 +3,7 @@ import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.
 import { z } from 'zod';
 
 // ViewModel
-const subscriptionViewModelSchema = subscriptionModelBaseSchema.extend({
+export const subscriptionViewModelSchema = subscriptionModelBaseSchema.extend({
   status: z.nativeEnum(SubscriptionStatusEnum),
   isInUse: z.boolean(),
   isCancelled: z.boolean(),
@@ -12,7 +12,7 @@ const subscriptionViewModelSchema = subscriptionModelBaseSchema.extend({
 
 export type SubscriptionViewModel = z.infer<typeof subscriptionViewModelSchema>;
 
-// CreateModel
+// ForCreateModel
 const subscriptionCreateModelSchema = subscriptionModelBaseSchema.pick({
   name: true,
   price: true,

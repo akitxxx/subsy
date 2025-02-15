@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Subscription, SubscriptionCreateProps } from '@/domain/subscription/subscription.viewModel';
+import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
 import { useEffect, useState } from 'react';
 
@@ -11,51 +11,57 @@ type SubscriptionModalProps = {
   isOpen: boolean;
   isEdit: boolean;
   onClose: () => void;
-  onCreate: (subscription: SubscriptionCreateProps) => void;
-  onUpdate: (subscription: Subscription) => void;
-  subscription: Subscription | null;
+  onCreate: (subscription: SubscriptionCreateModel) => void;
+  onUpdate: (subscription: SubscriptionViewModel) => void;
+  subscription: SubscriptionViewModel | null;
+};
+
+type TFormData = {
+  name: string;
+  price: string;
+  currency: 'JPY' | 'USD';
+  cycle: SubscriptionCycleEnum;
+  startedAt: Date;
+  cancelledAt: Date | null;
+  expiredAt: Date;
+  description: string | null;
 };
 
 export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate, subscription }: SubscriptionModalProps) {
-  const [formData, setFormData] = useState<Partial<Subscription>>({
-    name: '',
-    price: '',
-    cycle: SubscriptionCycleEnum.OneMonth,
-    startedAt: new Date(),
-    expiredAt: new Date(),
-    description: null,
-    cancelledAt: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+  const [formData, setFormData] = useState<TFormData>({
+    name: subscription?.name ?? '',
+    price: subscription?.price ?? '',
+    currency: subscription?.currency ?? 'JPY',
+    cycle: subscription?.cycle ?? SubscriptionCycleEnum.OneMonth,
+    startedAt: subscription?.startedAt ?? new Date(),
+    cancelledAt: subscription?.cancelledAt ?? null,
+    expiredAt: subscription?.expiredAt ?? new Date(),
+    description: subscription?.description ?? null,
   });
 
   useEffect(() => {
     if (subscription) {
       setFormData(subscription);
-    } else {
-      setFormData({
-        id: crypto.randomUUID(),
-        name: '',
-        price: '0',
-        cycle: SubscriptionCycleEnum.OneMonth,
-        startedAt: new Date(),
-        expiredAt: new Date(),
-        description: null,
-        cancelledAt: null,
-        userId: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      });
     }
   }, [subscription]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isEdit) {
-      onUpdate(formData);
+      if (!subscription) return;
+      onUpdate({
+        ...subscription,
+        ...formData,
+      });
       return;
     }
-    onCreate(formData);
+    onCreate({
+      ...formData,
+    });
+  };
+
+  const formatDateForInput = (date: Date) => {
+    return date.toISOString().split('T')[0];
   };
 
   return (
@@ -101,13 +107,13 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                 支払いサイクル
               </Label>
               <div className="sm:col-span-5">
-                <Select value={formData.cycle} onValueChange={(value) => setFormData({ ...formData, cycle: value })}>
+                <Select value={formData.cycle} onValueChange={(value: SubscriptionCycleEnum) => setFormData({ ...formData, cycle: value })}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="選択してください" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="monthly">月額</SelectItem>
-                    <SelectItem value="yearly">年額</SelectItem>
+                    <SelectItem value={SubscriptionCycleEnum.OneMonth}>月額</SelectItem>
+                    <SelectItem value={SubscriptionCycleEnum.OneYear}>年額</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -120,11 +126,11 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                 <Input
                   id="expiredAt"
                   type="date"
-                  value={formData.expiredAt?.split('T')[0]}
+                  value={formatDateForInput(formData.expiredAt)}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      expiredAt: new Date(e.target.value).toISOString(),
+                      expiredAt: new Date(e.target.value),
                     })
                   }
                   className="w-full"

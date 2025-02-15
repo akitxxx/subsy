@@ -1,3 +1,5 @@
+import type { SubscriptionEntity } from '@/app/api/_shared/domain/subscription/subscription.entity';
+import { Subscription } from '@/app/api/_shared/domain/subscription/subscription.logic';
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { type SelectSubscription, subscriptionsTable } from '@/lib/db/schema';
@@ -11,36 +13,23 @@ type Inject = {
 };
 
 type Output = {
-  subscriptions: SelectSubscription[];
   totalThisMonth: number;
-  upcomingSubscriptions: SelectSubscription[];
+  upcomingSubscriptions: SubscriptionEntity[];
 };
 
-const findManySubscriptions = async (db: DrizzleClient, userId: string): Promise<SelectSubscription[]> => {
-  return db
-    .select({
-      id: subscriptionsTable.id,
-      name: subscriptionsTable.name,
-      userId: subscriptionsTable.userId,
-      price: subscriptionsTable.price,
-      cycle: subscriptionsTable.cycle,
-      startedAt: subscriptionsTable.startedAt,
-      cancelledAt: subscriptionsTable.cancelledAt,
-      expiredAt: subscriptionsTable.expiredAt,
-      description: subscriptionsTable.description,
-      createdAt: subscriptionsTable.createdAt,
-      updatedAt: subscriptionsTable.updatedAt,
-      deletedAt: subscriptionsTable.deletedAt,
-    })
+const findManySubscriptions = async (db: DrizzleClient, userId: string): Promise<SubscriptionEntity[]> => {
+  const res = await db
+    .select()
     .from(subscriptionsTable)
     .where(and(eq(subscriptionsTable.userId, userId), isNull(subscriptionsTable.deletedAt)));
+  return res.map(Subscription.parseEntity);
 };
 
-const calculateTotalAmount = (subscriptions: SelectSubscription[]): number => {
+const calculateTotalAmount = (subscriptions: SubscriptionEntity[]): number => {
   return subscriptions.reduce((total, sub) => total + Number(sub.price), 0);
 };
 
-const getUpcomingSubscriptions = (subscriptions: SelectSubscription[]): SelectSubscription[] => {
+const getUpcomingSubscriptions = (subscriptions: SubscriptionEntity[]): SubscriptionEntity[] => {
   return [...subscriptions].sort((a, b) => new Date(a.expiredAt).getTime() - new Date(b.expiredAt).getTime()).slice(0, 2);
 };
 
@@ -53,7 +42,6 @@ const run =
     const upcomingSubscriptions = getUpcomingSubscriptions(subscriptions);
 
     return {
-      subscriptions,
       totalThisMonth,
       upcomingSubscriptions,
     };

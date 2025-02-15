@@ -42,7 +42,7 @@ const run =
         },
       });
 
-      await userRepository.create({ user: newUser });
+      await userRepository.create({ entity: newUser });
     }
 
     return { error: null };

@@ -11,7 +11,7 @@ import { type Context, Hono } from 'hono';
 import { checkSessionUser } from '../../../_shared/lib/utils/checkSessionUser';
 import { CreateSubscriptionUsecase } from '../application/createSubscription.usecase';
 import { GetSubscriptionsUsecase } from '../application/getSubscriptions.usecase';
-import { createSubscriptionSchema } from './input/createSubscription.input';
+import { createSubscriptionInputSchema } from './input/createSubscription.input';
 
 const app = new Hono<HonoEnv>();
 
@@ -30,11 +30,11 @@ const route = app
       throw e;
     }
   })
-  .post('/', zValidator('json', createSubscriptionSchema), async (c: Context<HonoEnv>) => {
+  .post('/', zValidator('json', createSubscriptionInputSchema), async (c: Context<HonoEnv>) => {
     try {
       const sessionUser = checkSessionUser(c);
       const db = c.var.db;
-      const input = createSubscriptionSchema.parse(await c.req.json());
+      const input = createSubscriptionInputSchema.parse(await c.req.json());
 
       const result = await CreateSubscriptionUsecase.run({ db, sessionUser, userRepository: UserRepository({ db }) })(input);
       return c.json(parseSubscriptionViewModel(result.subscription), 201);

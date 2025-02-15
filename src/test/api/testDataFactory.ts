@@ -1,3 +1,5 @@
+import { CurrencyEnum } from '@/enums/currency.enum';
+import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
 import { ProviderEnum } from '@/enums/user-auth/provider.enum';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import type { InsertSubscription, InsertUser, InsertUserAuth } from '@/lib/db/schema';
@@ -21,14 +23,16 @@ export const createActiveUser = (db: DrizzleClient) => async (p?: Partial<Insert
 };
 
 export const createSubscription = (db: DrizzleClient) => async (p: Partial<InsertSubscription> & { userId: string }) => {
+  const now = new Date();
   const [subscription] = await db
     .insert(subscriptionsTable)
     .values({
       name: 'Test Subscription',
       price: '1000',
-      cycle: 'monthly',
-      startedAt: new Date(),
-      expiredAt: new Date(),
+      currency: CurrencyEnum.JPY,
+      cycle: SubscriptionCycleEnum.OneMonth,
+      startedAt: now,
+      expiredAt: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000),
       ...p,
     })
     .returning();

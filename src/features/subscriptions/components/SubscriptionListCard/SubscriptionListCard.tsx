@@ -1,15 +1,15 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { Subscription } from '@/domain/subscription/subscription.viewModel';
+import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
 import { DeleteConfirmDialog } from '@/features/subscriptions/components/DeleteConfirmDialog';
 import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
 import { useSubscriptionList } from './useSubscriptionList';
 
 type Props = {
-  subscriptions: Subscription[];
-  onCreate: (subscription: Subscription) => void;
-  onUpdate: (subscription: Subscription) => void;
+  subscriptions: SubscriptionViewModel[];
+  onCreate: (subscription: SubscriptionCreateModel) => void;
+  onUpdate: (subscription: SubscriptionViewModel) => void;
   onDelete: (id: string) => void;
 };
 
@@ -32,7 +32,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
     <Card className="mb-8">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>サブスクリプション</CardTitle>
-        <Button onClick={() => handleOpenModal({ isEdit: false })} className="font-bold">
+        <Button onClick={() => handleOpenModal()} className="font-bold">
           追加
         </Button>
       </CardHeader>
@@ -55,7 +55,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                 <TableCell>{sub.cycle}</TableCell>
                 <TableCell>{sub.expiredAt.toLocaleDateString()}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenModal({ isEdit: true, subscription: sub })} variant="outline" size="sm" className="mr-2">
+                  <Button onClick={() => handleOpenModal(sub)} variant="outline" size="sm" className="mr-2">
                     編集
                   </Button>
                   <Button

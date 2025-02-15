@@ -1,4 +1,6 @@
+import { subscriptionViewModelSchema } from '@/domain/subscription/subscription.viewModel';
 import { honoClient } from '@/lib/hono/hono';
+import { useMemo } from 'react';
 import useSWR from 'swr';
 
 const fetcher = async () => {
@@ -13,5 +15,9 @@ const fetcher = async () => {
 export const useGetSubscriptions = () => {
   const { data, error, isLoading } = useSWR('/api/subscriptions', fetcher);
 
-  return { data, error, isLoading };
+  const parsedData = useMemo(() => {
+    return data?.subscriptions.map((d) => subscriptionViewModelSchema.parse(d)) ?? [];
+  }, [data]);
+
+  return { data: parsedData, error, isLoading };
 };

@@ -1,15 +1,16 @@
-import type { Subscription } from '@/domain/subscription/subscription.viewModel';
+import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
 import { useCreateSubscription } from '@/features/subscriptions/hooks/useCreateSubscription';
 import { useGetSubscriptions } from '@/features/subscriptions/hooks/useGetSubscriptions';
 import { honoClient } from '@/lib/hono/hono';
+import { Subscription } from '@supabase/supabase-js';
 import { handle } from 'hono/vercel';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGetDashboard } from '../../hooks/useGetDashboard';
 
 type DashboardResponse = {
-  subscriptions: Subscription[];
+  subscriptions: SubscriptionViewModel[];
   totalThisMonth: number;
-  upcomingSubscriptions: Subscription[];
+  upcomingSubscriptions: SubscriptionViewModel[];
 };
 
 type DashboardData = DashboardResponse;
@@ -22,19 +23,18 @@ export const useDashboard = () => {
 
   const dashboard = useMemo(() => {
     return {
-      subscriptions: subscriptionsData?.subscriptions ?? [],
       totalThisMonth: dashboardData?.totalThisMonth ?? 0,
       upcomingSubscriptions: dashboardData?.upcomingSubscriptions ?? [],
     };
-  }, [dashboardData, subscriptionsData]);
+  }, [dashboardData]);
 
-  const subscriptions = useMemo(() => {
-    return subscriptionsData?.subscriptions ?? [];
+  const subscriptions: SubscriptionViewModel[] = useMemo(() => {
+    return subscriptionsData ?? [];
   }, [subscriptionsData]);
 
   const { createSubscription } = useCreateSubscription();
 
-  const handleCreateSubscription = async (subscription: Subscription) => {
+  const handleCreateSubscription = async (subscription: SubscriptionCreateModel) => {
     try {
       await createSubscription({ subscription });
     } catch (error) {
@@ -42,7 +42,7 @@ export const useDashboard = () => {
     }
   };
 
-  const handleUpdateSubscription = async (subscription: Subscription) => {
+  const handleUpdateSubscription = async (subscription: SubscriptionViewModel) => {
     // try {
     //   await updateSubscription({ subscription });
     // } catch (error) {
