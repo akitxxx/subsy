@@ -22,7 +22,7 @@ type Input = {
   startedAt: Date;
   cancelledAt?: Date;
   expiredAt: Date;
-  description?: string;
+  description?: string | null;
 };
 
 type Output = {
