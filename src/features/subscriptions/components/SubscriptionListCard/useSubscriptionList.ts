@@ -1,6 +1,4 @@
 import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
-import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
-import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
 import { useState } from 'react';
 
 export const useSubscriptionList = (props: {

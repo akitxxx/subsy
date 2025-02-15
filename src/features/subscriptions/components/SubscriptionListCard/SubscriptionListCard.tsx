@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
 import { DeleteConfirmDialog } from '@/features/subscriptions/components/DeleteConfirmDialog';
 import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
+import { MoreHorizontal } from 'lucide-react';
 import { useSubscriptionList } from './useSubscriptionList';
 
 type Props = {
@@ -55,19 +57,26 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                 <TableCell>{sub.cycle}</TableCell>
                 <TableCell>{sub.expiredAt.toLocaleDateString()}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleOpenModal(sub)} variant="outline" size="sm" className="mr-2">
-                    編集
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => {
-                      setCurrentSubscription(sub);
-                      setIsDeleteDialogOpen(true);
-                    }}
-                  >
-                    削除
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="hover:bg-muted">
+                        <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                        <span className="sr-only">メニューを開く</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleOpenModal(sub)}>編集</DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="text-destructive"
+                        onClick={() => {
+                          setCurrentSubscription(sub);
+                          setIsDeleteDialogOpen(true);
+                        }}
+                      >
+                        削除
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
             ))}
@@ -79,7 +88,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
         isOpen={isModalOpen}
         isEdit={isEditModal}
         onClose={handleCloseModal}
-        onCreate={onCreate}
+        onCreate={handleCreateSubscription}
         onUpdate={handleUpdateSubscription}
         subscription={currentSubscription}
       />
