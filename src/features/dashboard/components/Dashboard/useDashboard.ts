@@ -1,6 +1,7 @@
 import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
 import { useCreateSubscription } from '@/features/subscriptions/hooks/useCreateSubscription';
 import { useGetSubscriptions } from '@/features/subscriptions/hooks/useGetSubscriptions';
+import { useUpdateSubscription } from '@/features/subscriptions/hooks/useUpdateSubscription';
 import { honoClient } from '@/lib/hono/hono';
 import { Subscription } from '@supabase/supabase-js';
 import { handle } from 'hono/vercel';
@@ -42,12 +43,14 @@ export const useDashboard = () => {
     }
   };
 
+  const { updateSubscription } = useUpdateSubscription();
+
   const handleUpdateSubscription = async (subscription: SubscriptionViewModel) => {
-    // try {
-    //   await updateSubscription({ subscription });
-    // } catch (error) {
-    //   setError(error instanceof Error ? error.message : 'サブスクリプションの更新に失敗しました');
-    // }
+    try {
+      await updateSubscription({ subscription });
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'サブスクリプションの更新に失敗しました');
+    }
   };
 
   const handleDeleteSubscription = async (id: string) => {
