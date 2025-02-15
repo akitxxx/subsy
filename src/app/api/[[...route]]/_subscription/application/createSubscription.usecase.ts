@@ -1,12 +1,12 @@
+import type { SubscriptionEntity } from '@/app/api/_shared/domain/subscription/subscription.entity';
+import { Subscription } from '@/app/api/_shared/domain/subscription/subscription.logic';
+import { SubscriptionRepository } from '@/app/api/_shared/domain/subscription/subscription.repository';
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import { NotFoundError } from '@/app/api/_shared/lib/error';
+import type { CurrencyEnum } from '@/enums/currency.enum';
 import type { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
-import type { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
 import type { DrizzleClient } from '@/lib/db/drizzle';
-import type { SelectSubscription } from '@/lib/db/schema';
 import type { SessionUser } from '@/types/api/sessionUser';
-import { SubscriptionModel } from '../../../_shared/domain/subscription/subscription.entity';
-import { SubscriptionRepository } from '../../../_shared/domain/subscription/subscription.repository';
 
 type Inject = {
   db: DrizzleClient;
@@ -18,14 +18,15 @@ type Input = {
   name: string;
   price: string;
   cycle: SubscriptionCycleEnum;
+  currency: CurrencyEnum;
   startedAt: Date;
+  cancelledAt?: Date;
   expiredAt: Date;
   description?: string;
-  status: SubscriptionStatusEnum;
 };
 
 type Output = {
-  subscription: SelectSubscription;
+  subscription: SubscriptionEntity;
 };
 
 const run =
@@ -38,10 +39,12 @@ const run =
       userId: user.id,
       name: input.name,
       price: input.price,
+      currency: input.currency,
       cycle: input.cycle,
       startedAt: input.startedAt,
+      cancelledAt: input.cancelledAt ?? null,
       expiredAt: input.expiredAt,
-      description: input.description,
+      description: input.description ?? null,
     });
     await SubscriptionRepository({ db }).create({ entity: newSubscription });
 

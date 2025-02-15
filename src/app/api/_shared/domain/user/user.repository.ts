@@ -4,6 +4,7 @@ import { userAuthsTable, usersTable } from '@/lib/db/schema';
 import type { Tx } from '@/types/api/tx';
 import { and, eq, isNull } from 'drizzle-orm';
 import type { UserEntity } from './user.entity';
+import { User } from './user.logic';
 
 type Inject = {
   db: DrizzleClient;
@@ -15,28 +16,23 @@ const findCurrentUserById =
     const dbClient = tx ?? db;
 
     const [user] = await dbClient
-      .select({
-        id: usersTable.id,
-        nickname: usersTable.nickname,
-        createdAt: usersTable.createdAt,
-        updatedAt: usersTable.updatedAt,
-      })
+      .select()
       .from(usersTable)
-      .where(eq(usersTable.id, id))
+      .where(and(eq(usersTable.id, id), isNull(usersTable.deletedAt)))
       .limit(1);
 
-    return user;
+    return User.parseEntity(user);
   };
 
 const create =
   ({ db }: Inject) =>
-  async ({ tx, user }: { tx?: Tx; user: UserEntity & { userAuth: InsertUserAuth } }): Promise<void> => {
+  async ({ tx, entity }: { tx?: Tx; entity: UserEntity & { userAuth: InsertUserAuth } }): Promise<void> => {
     const fCreate = async (tx: Tx) => {
       const [createdUser] = await tx
         .insert(usersTable)
-        .values({ ...user })
+        .values({ ...entity })
         .returning();
-      await tx.insert(userAuthsTable).values({ ...user.userAuth });
+      await tx.insert(userAuthsTable).values({ ...entity.userAuth });
       return createdUser;
     };
 
@@ -45,12 +41,12 @@ const create =
 
 const update =
   ({ db }: Inject) =>
-  async ({ tx, user }: { tx?: Tx; user: UserEntity }): Promise<void> => {
+  async ({ tx, entity }: { tx?: Tx; entity: UserEntity }): Promise<void> => {
     const fUpdate = async (tx: Tx) => {
       await tx
         .update(usersTable)
-        .set({ ...user })
-        .where(eq(usersTable.id, user.id));
+        .set({ ...entity })
+        .where(eq(usersTable.id, entity.id));
     };
 
     tx ? await fUpdate(tx) : await db.transaction(fUpdate);

@@ -1,4 +1,4 @@
-import { User } from '@/app/api/_shared/domain/user/user.entity';
+import { User } from '@/app/api/_shared/domain/user/user.logic';
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import { ProviderEnum } from '@/enums/user-auth/provider.enum';
 import type { DrizzleClient } from '@/lib/db/drizzle';

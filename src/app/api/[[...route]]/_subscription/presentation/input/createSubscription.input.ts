@@ -1,3 +1,4 @@
+import { CurrencyEnum } from '@/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
 import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
 import { z } from 'zod';
@@ -5,11 +6,12 @@ import { z } from 'zod';
 export const createSubscriptionSchema = z.object({
   name: z.string(),
   price: z.string(),
+  currency: z.nativeEnum(CurrencyEnum),
   cycle: z.nativeEnum(SubscriptionCycleEnum),
   startedAt: z.coerce.date(),
+  cancelledAt: z.coerce.date().optional(),
   expiredAt: z.coerce.date(),
   description: z.string().optional(),
-  status: z.nativeEnum(SubscriptionStatusEnum),
 });
 
 export type CreateSubscriptionInput = z.infer<typeof createSubscriptionSchema>;

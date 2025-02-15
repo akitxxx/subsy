@@ -1,7 +1,8 @@
+import { Subscription } from '@/app/api/_shared/domain/subscription/subscription.logic';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { subscriptionsTable } from '@/lib/db/schema';
 import type { Tx } from '@/types/api/tx';
-import { and, asc, desc, eq, inArray, isNull } from 'drizzle-orm';
+import { and, asc, eq, gt } from 'drizzle-orm';
 import type { SubscriptionEntity } from './subscription.entity';
 
 type Inject = {
@@ -10,12 +11,12 @@ type Inject = {
 
 const findManyInUse =
   ({ db }: Inject) =>
-  async (p: { userId: string }) => {
+  async (p: { userId: string; now: Date }) => {
     const subscriptions = await db.query.subscriptionsTable.findMany({
-      where: and(eq(subscriptionsTable.userId, p.userId)),
+      where: and(eq(subscriptionsTable.userId, p.userId), gt(subscriptionsTable.expiredAt, p.now)),
       orderBy: [asc(subscriptionsTable.expiredAt)],
     });
-    return subscriptions;
+    return subscriptions.map(Subscription.parseEntity);
   };
 
 const create =

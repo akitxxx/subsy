@@ -1,16 +1,15 @@
-import { randomUUID } from 'node:crypto';
+import { CurrencyEnum } from '@/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
-import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
-import type { InsertSubscription, SelectSubscription } from '@/lib/db/schema';
+import type { SelectSubscription } from '@/lib/db/schema';
 import { z } from 'zod';
 
-// Base
+// BaseSchema
 export const subscriptionModelBaseSchema = z.object({
   id: z.string(),
   userId: z.string(),
   name: z.string(),
   price: z.string(),
-  currency: z.string(),
+  currency: z.nativeEnum(CurrencyEnum),
   cycle: z.nativeEnum(SubscriptionCycleEnum),
   startedAt: z.coerce.date(),
   cancelledAt: z.coerce.date().nullable(),
@@ -23,13 +22,3 @@ export const subscriptionModelBaseSchema = z.object({
 
 // Entity
 export type SubscriptionEntity = z.infer<typeof subscriptionModelBaseSchema>;
-
-// Model
-export const subscriptionModelSchema = subscriptionModelBaseSchema.extend({
-  status: z.nativeEnum(SubscriptionStatusEnum),
-  isInUse: z.boolean(),
-  isCancelled: z.boolean(),
-  isExpired: z.boolean(),
-});
-
-export type SubscriptionModel = z.infer<typeof subscriptionModelSchema>;

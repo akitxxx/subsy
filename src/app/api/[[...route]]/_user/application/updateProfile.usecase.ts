@@ -1,7 +1,7 @@
-import { User } from '@/app/api/_shared/domain/user/user.entity';
+import type { UserEntity } from '@/app/api/_shared/domain/user/user.entity';
+import { User } from '@/app/api/_shared/domain/user/user.logic';
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import { NotFoundError } from '@/app/api/_shared/lib/error';
-import type { SelectUser } from '@/lib/db/schema';
 import type { SessionUser } from '@/types/api/sessionUser';
 
 type Inject = {
@@ -14,7 +14,7 @@ type Input = {
 };
 
 type Output = {
-  user: Omit<SelectUser, 'deletedAt'>;
+  user: UserEntity;
 };
 
 const run =
@@ -25,7 +25,7 @@ const run =
 
     const updatedUser = User.updateProfile(user)({ nickname });
 
-    await userRepository.update({ user: updatedUser });
+    await userRepository.update({ entity: updatedUser });
 
     return { user: updatedUser };
   };

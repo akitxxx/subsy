@@ -16,6 +16,7 @@ export type SubscriptionViewModel = z.infer<typeof subscriptionViewModelSchema>;
 const subscriptionCreateModelSchema = subscriptionModelBaseSchema.pick({
   name: true,
   price: true,
+  currency: true,
   cycle: true,
   startedAt: true,
   cancelledAt: true,

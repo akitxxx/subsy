@@ -1,35 +1,28 @@
 import { randomUUID } from 'node:crypto';
+import { ProviderEnum } from '@/enums/user-auth/provider.enum';
 import type { InsertUser, InsertUserAuth, SelectUser, SelectUserAuth } from '@/lib/db/schema';
+import { z } from 'zod';
 
-type UserCreateProps = Pick<InsertUser, 'nickname'> & { userAuth: Pick<InsertUserAuth, 'provider' | 'providerId'> };
-const newUser = (p: UserCreateProps) => {
-  const id = randomUUID();
-  const now = new Date();
-  return {
-    id,
-    nickname: p.nickname,
-    createdAt: now,
-    updatedAt: now,
-    deletedAt: null,
-    userAuth: {
-      userId: id,
-      provider: p.userAuth.provider,
-      providerId: p.userAuth.providerId,
-      createdAt: now,
-      updatedAt: now,
-    },
-  };
-};
+// BaseSchema
+export const userModelBaseSchema = z.object({
+  id: z.string(),
+  nickname: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  deletedAt: z.coerce.date().nullable(),
+}) satisfies z.ZodType<SelectUser>;
 
-const updateProfile =
-  (before: UserEntity) =>
-  ({ nickname }: { nickname: string }): UserEntity => {
-    return { ...before, nickname };
-  };
+// Entity
+export type UserEntity = z.infer<typeof userModelBaseSchema>;
 
-export const User = {
-  newUser,
-  updateProfile,
-};
+// AuthBaseSchema
+export const userAuthModelBaseSchema = z.object({
+  userId: z.string(),
+  provider: z.nativeEnum(ProviderEnum),
+  providerId: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+}) satisfies z.ZodType<SelectUserAuth>;
 
-export type UserEntity = Omit<SelectUser, 'deletedAt'>;
+// Entity
+export type UserAuthEntity = z.infer<typeof userAuthModelBaseSchema>;

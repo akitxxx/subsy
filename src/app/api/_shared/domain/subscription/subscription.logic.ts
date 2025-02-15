@@ -1,26 +1,38 @@
 import { randomUUID } from 'node:crypto';
 import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
-import type { SubscriptionModel } from './subscription.entity';
+import type { SelectSubscription } from '@/lib/db/schema';
+import { type SubscriptionEntity, subscriptionModelBaseSchema } from './subscription.entity';
 
-const getIsInUse = (model: SubscriptionModel) => {
-  return status === SubscriptionStatusEnum.Active;
+const getStatus = (model: SubscriptionEntity) => {
+  if (getIsExpired(model)) return SubscriptionStatusEnum.Expired;
+  if (getIsCancelled(model)) return SubscriptionStatusEnum.Cancelled;
+  return SubscriptionStatusEnum.Active;
 };
 
-const getIsCancelled = (status: SubscriptionStatusEnum) => {
-  return status === SubscriptionStatusEnum.Cancelled;
+const getIsInUse = (model: SubscriptionEntity) => (now: Date) => {
+  return !getIsExpired(model)(now);
+};
+
+const getIsCancelled = (model: SubscriptionEntity) => {
+  return model.cancelledAt !== null;
+};
+
+const getIsExpired = (model: SubscriptionEntity) => (now: Date) => {
+  return model.expiredAt < now;
 };
 
 type SubscriptionCreateProps = Pick<
-  SubscriptionModel,
-  'userId' | 'name' | 'price' | 'cycle' | 'startedAt' | 'cancelledAt' | 'expiredAt' | 'description'
+  SubscriptionEntity,
+  'userId' | 'name' | 'price' | 'currency' | 'cycle' | 'startedAt' | 'cancelledAt' | 'expiredAt' | 'description'
 >;
-const newSubscription = (p: SubscriptionCreateProps): SubscriptionModel => {
+const newSubscription = (p: SubscriptionCreateProps): SubscriptionEntity => {
   const now = new Date();
   return {
     id: randomUUID(),
     userId: p.userId,
     name: p.name,
     price: p.price,
+    currency: p.currency,
     cycle: p.cycle,
     startedAt: p.startedAt,
     cancelledAt: p.cancelledAt ?? null,
@@ -29,13 +41,18 @@ const newSubscription = (p: SubscriptionCreateProps): SubscriptionModel => {
     createdAt: now,
     updatedAt: now,
     deletedAt: null,
-    status: SubscriptionStatusEnum.Active,
-    isInUse: true,
-    isCancelled: false,
-    isExpired: false,
   };
 };
 
+const parseEntity = (data: SelectSubscription) => {
+  return subscriptionModelBaseSchema.parse(data);
+};
+
 export const Subscription = {
+  getStatus,
+  getIsInUse,
+  getIsCancelled,
+  getIsExpired,
   newSubscription,
+  parseEntity,
 };
