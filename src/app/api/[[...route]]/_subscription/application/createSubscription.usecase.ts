@@ -42,7 +42,6 @@ const run =
       startedAt: input.startedAt,
       expiredAt: input.expiredAt,
       description: input.description,
-      status: input.status,
     });
     await SubscriptionRepository({ db }).create({ entity: newSubscription });
 

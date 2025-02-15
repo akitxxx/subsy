@@ -3,16 +3,15 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Subscription } from '@/types/domains/subscription';
+import type { Subscription, SubscriptionCreateProps } from '@/types/domains/subscription';
 import { SubscriptionCycleEnum } from '@/types/enums/subscription/subscriptionCycle.enum';
-import { SubscriptionStatusEnum } from '@/types/enums/subscription/subscriptionStatus.enum';
 import { useEffect, useState } from 'react';
 
 type SubscriptionModalProps = {
   isOpen: boolean;
   isEdit: boolean;
   onClose: () => void;
-  onCreate: (subscription: Subscription) => void;
+  onCreate: (subscription: SubscriptionCreateProps) => void;
   onUpdate: (subscription: Subscription) => void;
   subscription: Subscription | null;
 };
@@ -22,13 +21,12 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
     name: '',
     price: '',
     cycle: SubscriptionCycleEnum.OneMonth,
-    startedAt: new Date().toISOString(),
-    expiredAt: new Date().toISOString(),
+    startedAt: new Date(),
+    expiredAt: new Date(),
     description: null,
-    status: SubscriptionStatusEnum.Active,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    deletedAt: null,
+    cancelledAt: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
   useEffect(() => {
@@ -39,15 +37,14 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
         id: crypto.randomUUID(),
         name: '',
         price: '0',
-        cycle: '',
-        startedAt: new Date().toISOString(),
-        expiredAt: new Date().toISOString(),
+        cycle: SubscriptionCycleEnum.OneMonth,
+        startedAt: new Date(),
+        expiredAt: new Date(),
         description: null,
-        status: 'active',
+        cancelledAt: null,
         userId: '',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        deletedAt: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       });
     }
   }, [subscription]);

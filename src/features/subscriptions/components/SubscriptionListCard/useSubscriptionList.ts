@@ -1,4 +1,6 @@
 import type { Subscription } from '@/types/domains/subscription';
+import { SubscriptionCycleEnum } from '@/types/enums/subscription/subscriptionCycle.enum';
+import { SubscriptionStatusEnum } from '@/types/enums/subscription/subscriptionStatus.enum';
 import { useState } from 'react';
 
 export const useSubscriptionList = (props: {
@@ -16,17 +18,17 @@ export const useSubscriptionList = (props: {
     setCurrentSubscription(
       subscription || {
         id: crypto.randomUUID(),
-        name: '',
-        price: '0',
-        cycle: '',
-        startedAt: new Date().toISOString(),
-        expiredAt: new Date().toISOString(),
-        description: null,
-        status: 'active',
         userId: '',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        deletedAt: null,
+        name: '',
+        status: SubscriptionStatusEnum.Active,
+        price: '0',
+        cycle: SubscriptionCycleEnum.OneMonth,
+        startedAt: new Date(),
+        cancelledAt: null,
+        expiredAt: new Date(),
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     );
     setIsEditModal(isEdit);

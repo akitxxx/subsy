@@ -21,15 +21,16 @@ const findManySubscriptions = async (db: DrizzleClient, userId: string): Promise
     .select({
       id: subscriptionsTable.id,
       name: subscriptionsTable.name,
-      deletedAt: subscriptionsTable.deletedAt,
-      description: subscriptionsTable.description,
       userId: subscriptionsTable.userId,
       price: subscriptionsTable.price,
       cycle: subscriptionsTable.cycle,
       startedAt: subscriptionsTable.startedAt,
+      cancelledAt: subscriptionsTable.cancelledAt,
       expiredAt: subscriptionsTable.expiredAt,
+      description: subscriptionsTable.description,
       createdAt: subscriptionsTable.createdAt,
       updatedAt: subscriptionsTable.updatedAt,
+      deletedAt: subscriptionsTable.deletedAt,
     })
     .from(subscriptionsTable)
     .where(and(eq(subscriptionsTable.userId, userId), isNull(subscriptionsTable.deletedAt)));

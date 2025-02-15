@@ -41,7 +41,6 @@ describe('/api/subscriptions', () => {
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date(),
         expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-        status: SubscriptionStatusEnum.Active,
       });
       const subscription2 = await createSubscription(db)({
         userId: user.id,
@@ -50,7 +49,6 @@ describe('/api/subscriptions', () => {
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date(),
         expiredAt: new Date(Date.now() + 29 * 24 * 60 * 60 * 1000),
-        status: SubscriptionStatusEnum.Canceled,
       });
       // when
       const client = createTestClient({ db, sessionUser: { id: user.id } });

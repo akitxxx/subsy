@@ -2,7 +2,7 @@ import type { DrizzleClient } from '@/lib/db/drizzle';
 import { subscriptionsTable } from '@/lib/db/schema';
 import type { Tx } from '@/types/api/tx';
 import { IN_USE_SUBSCRIPTION_STATUS } from '@/types/enums/subscription/subscriptionStatus.enum';
-import { and, asc, desc, eq, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull } from 'drizzle-orm';
 import type { SubscriptionEntity } from './subscription.entity';
 
 type Inject = {
@@ -13,7 +13,7 @@ const findManyInUse =
   ({ db }: Inject) =>
   async (p: { userId: string }) => {
     const subscriptions = await db.query.subscriptionsTable.findMany({
-      where: and(inArray(subscriptionsTable.status, IN_USE_SUBSCRIPTION_STATUS), eq(subscriptionsTable.userId, p.userId)),
+      where: and(eq(subscriptionsTable.userId, p.userId)),
       orderBy: [asc(subscriptionsTable.expiredAt)],
     });
     return subscriptions;

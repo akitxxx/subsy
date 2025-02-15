@@ -11,6 +11,7 @@ const subscriptionBaseSchema = z.object({
   price: z.string(),
   cycle: z.nativeEnum(SubscriptionCycleEnum),
   startedAt: z.coerce.date(),
+  cancelledAt: z.coerce.date().nullable(),
   expiredAt: z.coerce.date(),
   description: z.string().nullable(),
   createdAt: z.coerce.date(),
@@ -29,6 +30,7 @@ const subscriptionCreatePropsSchema = subscriptionBaseSchema.pick({
   price: true,
   cycle: true,
   startedAt: true,
+  cancelledAt: true,
   expiredAt: true,
   description: true,
 });

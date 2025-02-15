@@ -29,7 +29,6 @@ export const createSubscription = (db: DrizzleClient) => async (p: Partial<Inser
       cycle: 'monthly',
       startedAt: new Date(),
       expiredAt: new Date(),
-      status: 'active',
       ...p,
     })
     .returning();

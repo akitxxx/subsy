@@ -7,7 +7,6 @@ const newSubscription = (p: SubscriptionCreateProps): SubscriptionEntity => {
   return {
     id: randomUUID(),
     userId: p.userId,
-    status: p.status,
     name: p.name,
     price: p.price,
     cycle: p.cycle,
