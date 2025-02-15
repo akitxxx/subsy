@@ -2,9 +2,9 @@ import { SubscriptionRepository } from '@/app/api/_shared/domain/subscription/su
 import { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import { toErrorResponse } from '@/app/api/_shared/lib/error';
 import {
-  parseSubscriptionViewModel,
-  parseSubscriptionsViewModel,
-} from '@/app/api/_shared/presentation/view-model/subscription/parseSubscriptionViewModel';
+  mapSubscriptionEntitiesToViewModels,
+  mapSubscriptionEntityToViewModel,
+} from '@/app/api/_shared/presentation/view-model/subscription/mapSubscriptionEntityToViewModel';
 import type { HonoEnv } from '@/types/api/hono';
 import { zValidator } from '@hono/zod-validator';
 import { type Context, Hono } from 'hono';
@@ -21,7 +21,7 @@ const route = app
       const sessionUser = checkSessionUser(c);
       const db = c.var.db;
       const result = await GetSubscriptionsUsecase.run({ db, subscriptionRepository: SubscriptionRepository({ db }) })({ userId: sessionUser.id });
-      return c.json({ subscriptions: parseSubscriptionsViewModel(result.subscriptions) }, 200);
+      return c.json({ subscriptions: mapSubscriptionEntitiesToViewModels(result.subscriptions) }, 200);
     } catch (e) {
       if (e instanceof Error) {
         const errorResponse = toErrorResponse(e);
@@ -37,7 +37,7 @@ const route = app
       const input = createSubscriptionInputSchema.parse(await c.req.json());
 
       const result = await CreateSubscriptionUsecase.run({ db, sessionUser, userRepository: UserRepository({ db }) })(input);
-      return c.json({ subscription: parseSubscriptionViewModel(result.subscription) }, 201);
+      return c.json({ subscription: mapSubscriptionEntityToViewModel(result.subscription) }, 201);
     } catch (e) {
       if (e instanceof Error) {
         const errorResponse = toErrorResponse(e);

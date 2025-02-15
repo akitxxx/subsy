@@ -1,6 +1,6 @@
 import { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import { toErrorResponse } from '@/app/api/_shared/lib/error';
-import { parseSubscriptionsViewModel } from '@/app/api/_shared/presentation/view-model/subscription/parseSubscriptionViewModel';
+import { mapSubscriptionEntitiesToViewModels } from '@/app/api/_shared/presentation/view-model/subscription/mapSubscriptionEntityToViewModel';
 import type { HonoEnv } from '@/types/api/hono';
 import { type Context, Hono } from 'hono';
 import { checkSessionUser } from '../../../_shared/lib/utils/checkSessionUser';
@@ -17,7 +17,7 @@ const route = app.get('/', async (c: Context<HonoEnv>) => {
     return c.json(
       {
         totalThisMonth: result.totalThisMonth,
-        upcomingSubscriptions: parseSubscriptionsViewModel(result.upcomingSubscriptions),
+        upcomingSubscriptions: mapSubscriptionEntitiesToViewModels(result.upcomingSubscriptions),
       },
       200,
     );

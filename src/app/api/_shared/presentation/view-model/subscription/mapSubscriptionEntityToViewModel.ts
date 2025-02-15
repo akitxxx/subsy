@@ -2,7 +2,7 @@ import type { SubscriptionEntity } from '@/app/api/_shared/domain/subscription/s
 import { Subscription } from '@/app/api/_shared/domain/subscription/subscription.logic';
 import type { SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
 
-export const parseSubscriptionViewModel = (entity: SubscriptionEntity): SubscriptionViewModel => {
+export const mapSubscriptionEntityToViewModel = (entity: SubscriptionEntity): SubscriptionViewModel => {
   const now = new Date();
   return {
     ...entity,
@@ -13,6 +13,6 @@ export const parseSubscriptionViewModel = (entity: SubscriptionEntity): Subscrip
   };
 };
 
-export const parseSubscriptionsViewModel = (entities: SubscriptionEntity[]): SubscriptionViewModel[] => {
-  return entities.map(parseSubscriptionViewModel);
+export const mapSubscriptionEntitiesToViewModels = (entities: SubscriptionEntity[]): SubscriptionViewModel[] => {
+  return entities.map(mapSubscriptionEntityToViewModel);
 };
