@@ -12,5 +12,4 @@ export const createSubscriptionInputSchema = z.object({
   expiredAt: z.coerce.date(),
   description: z.string().nullable(),
 });
-
 export type CreateSubscriptionInput = z.infer<typeof createSubscriptionInputSchema>;

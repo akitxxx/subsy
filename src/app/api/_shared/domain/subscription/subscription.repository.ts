@@ -9,9 +9,19 @@ type Inject = {
   db: DrizzleClient;
 };
 
+const findByIdAndUserId =
+  ({ db }: Inject) =>
+  async ({ tx, id, userId }: { tx?: Tx; id: string; userId: string }): Promise<SubscriptionEntity | null> => {
+    const client = tx ?? db;
+    const subscription = await client.query.subscriptionsTable.findFirst({
+      where: and(eq(subscriptionsTable.id, id), eq(subscriptionsTable.userId, userId)),
+    });
+    return subscription ? Subscription.parseEntity(subscription) : null;
+  };
+
 const findManyInUse =
   ({ db }: Inject) =>
-  async (p: { userId: string; now: Date }) => {
+  async (p: { userId: string; now: Date }): Promise<SubscriptionEntity[]> => {
     const subscriptions = await db.query.subscriptionsTable.findMany({
       where: and(eq(subscriptionsTable.userId, p.userId), gt(subscriptionsTable.expiredAt, p.now), isNull(subscriptionsTable.deletedAt)),
       orderBy: [asc(subscriptionsTable.expiredAt)],
@@ -45,6 +55,7 @@ export const SubscriptionRepository = (inject: Inject) => ({
   create: create(inject),
   update: update(inject),
   findManyInUse: findManyInUse(inject),
+  findByIdAndUserId: findByIdAndUserId(inject),
 });
 
 export type SubscriptionRepository = ReturnType<typeof SubscriptionRepository>;

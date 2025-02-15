@@ -1,6 +1,5 @@
 import { CurrencyEnum } from '@/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
-import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
 import { type DrizzleClient, getDrizzleClient } from '@/lib/db/drizzle';
 import { cleanupDB } from '@/test/api/dbHelper';
 import { createActiveUser, createSubscription } from '@/test/api/testDataFactory';
@@ -98,6 +97,58 @@ describe('/api/subscriptions', () => {
         ...input,
         startedAt: new Date(input.startedAt),
         cancelledAt: null,
+        expiredAt: new Date(input.expiredAt),
+      });
+    });
+  });
+
+  describe('PATCH /:id', () => {
+    it('サブスクリプションを更新できること', async () => {
+      // given
+      const user = await createActiveUser(db)();
+      const subscription = await createSubscription(db)({
+        userId: user.id,
+        name: 'Old Subscription',
+        price: '1980.00',
+        currency: CurrencyEnum.JPY,
+        cycle: SubscriptionCycleEnum.OneMonth,
+        startedAt: new Date(),
+        cancelledAt: null,
+        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        description: 'Old Description',
+      });
+      // when
+      const input = {
+        name: 'New Subscription',
+        price: '2980.00',
+        currency: CurrencyEnum.USD,
+        cycle: SubscriptionCycleEnum.ThreeMonths,
+        startedAt: new Date().toISOString(),
+        cancelledAt: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        description: 'New Description',
+      };
+      const client = createTestClient({ db, sessionUser: { id: user.id } });
+      const res = await client.api.subscriptions[':id'].$patch({
+        param: { id: subscription.id },
+        json: input,
+      } as unknown as { param: { id: string }; json: typeof input }); // MEMO: jsonの部分の型推論うまくいかないので一旦無理矢理
+      // then
+      expect(res.status).toBe(200);
+      // output
+      const output = await res.json();
+      expect(output).toMatchObject({
+        subscription: {
+          ...input,
+        },
+      });
+      // DB
+      const subscriptions = await db.query.subscriptionsTable.findMany();
+      expect(subscriptions.length).toBe(1);
+      expect(subscriptions[0]).toMatchObject({
+        ...input,
+        startedAt: new Date(input.startedAt),
+        cancelledAt: new Date(input.cancelledAt),
         expiredAt: new Date(input.expiredAt),
       });
     });

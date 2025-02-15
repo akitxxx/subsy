@@ -1,8 +1,7 @@
 import type { SubscriptionEntity } from '@/app/api/_shared/domain/subscription/subscription.entity';
 import { Subscription } from '@/app/api/_shared/domain/subscription/subscription.logic';
 import { SubscriptionRepository } from '@/app/api/_shared/domain/subscription/subscription.repository';
-import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
-import { NotFoundError } from '@/app/api/_shared/lib/error';
+import { NotFoundError } from '@/app/api/_shared/lib/error/errors';
 import type { CurrencyEnum } from '@/enums/currency.enum';
 import type { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
 import type { DrizzleClient } from '@/lib/db/drizzle';
@@ -11,18 +10,19 @@ import type { SessionUser } from '@/types/api/sessionUser';
 type Inject = {
   db: DrizzleClient;
   sessionUser: SessionUser;
-  userRepository: UserRepository;
+  subscriptionRepository: SubscriptionRepository;
 };
 
 type Input = {
+  subscriptionId: string;
   name: string;
   price: string;
-  cycle: SubscriptionCycleEnum;
   currency: CurrencyEnum;
+  cycle: SubscriptionCycleEnum;
   startedAt: Date;
-  cancelledAt?: Date | null;
+  cancelledAt: Date | null;
   expiredAt: Date;
-  description?: string | null;
+  description: string | null;
 };
 
 type Output = {
@@ -30,25 +30,25 @@ type Output = {
 };
 
 const run =
-  ({ sessionUser, db, userRepository }: Inject) =>
+  ({ sessionUser, db, subscriptionRepository }: Inject) =>
   async (input: Input): Promise<Output> => {
-    const user = await userRepository.findCurrentUserById({ id: sessionUser.id });
-    if (!user) throw new NotFoundError('ユーザーが見つかりません');
+    const subscription = await subscriptionRepository.findByIdAndUserId({ id: input.subscriptionId, userId: sessionUser.id });
+    if (!subscription) throw new NotFoundError('サブスクリプションが見つかりません');
 
-    const newSubscription = Subscription.create({
-      userId: user.id,
+    const updatedSubscription = Subscription.update(subscription)({
       name: input.name,
       price: input.price,
       currency: input.currency,
       cycle: input.cycle,
       startedAt: input.startedAt,
-      cancelledAt: input.cancelledAt ?? null,
+      cancelledAt: input.cancelledAt,
       expiredAt: input.expiredAt,
-      description: input.description ?? null,
+      description: input.description,
     });
-    await SubscriptionRepository({ db }).create({ entity: newSubscription });
 
-    return { subscription: newSubscription };
+    await SubscriptionRepository({ db }).update({ entity: updatedSubscription });
+
+    return { subscription: updatedSubscription };
   };
 
-export const CreateSubscriptionUsecase = { run };
+export const UpdateSubscriptionUsecase = { run };

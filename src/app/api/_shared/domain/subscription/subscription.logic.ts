@@ -3,29 +3,29 @@ import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.
 import type { SelectSubscription } from '@/lib/db/schema';
 import { type SubscriptionEntity, subscriptionModelBaseSchema } from './subscription.entity';
 
-const getStatus = (model: SubscriptionEntity) => {
-  if (getIsExpired(model)) return SubscriptionStatusEnum.Expired;
-  if (getIsCancelled(model)) return SubscriptionStatusEnum.Cancelled;
+const getStatus = (e: SubscriptionEntity) => {
+  if (getIsExpired(e)) return SubscriptionStatusEnum.Expired;
+  if (getIsCancelled(e)) return SubscriptionStatusEnum.Cancelled;
   return SubscriptionStatusEnum.Active;
 };
 
-const getIsInUse = (model: SubscriptionEntity) => (now: Date) => {
-  return !getIsExpired(model)(now);
+const getIsInUse = (e: SubscriptionEntity) => (now: Date) => {
+  return !getIsExpired(e)(now);
 };
 
-const getIsCancelled = (model: SubscriptionEntity) => {
-  return model.cancelledAt !== null;
+const getIsCancelled = (e: SubscriptionEntity) => {
+  return e.cancelledAt !== null;
 };
 
-const getIsExpired = (model: SubscriptionEntity) => (now: Date) => {
-  return model.expiredAt < now;
+const getIsExpired = (e: SubscriptionEntity) => (now: Date) => {
+  return e.expiredAt < now;
 };
 
 type SubscriptionCreateProps = Pick<
   SubscriptionEntity,
   'userId' | 'name' | 'price' | 'currency' | 'cycle' | 'startedAt' | 'cancelledAt' | 'expiredAt' | 'description'
 >;
-const newSubscription = (p: SubscriptionCreateProps): SubscriptionEntity => {
+const create = (p: SubscriptionCreateProps): SubscriptionEntity => {
   const now = new Date();
   return {
     id: randomUUID(),
@@ -44,6 +44,12 @@ const newSubscription = (p: SubscriptionCreateProps): SubscriptionEntity => {
   };
 };
 
+const update =
+  (e: SubscriptionEntity) =>
+  (props: Partial<SubscriptionEntity>): SubscriptionEntity => {
+    return { ...e, ...props };
+  };
+
 const parseEntity = (data: SelectSubscription) => {
   return subscriptionModelBaseSchema.parse(data);
 };
@@ -53,6 +59,7 @@ export const Subscription = {
   getIsInUse,
   getIsCancelled,
   getIsExpired,
-  newSubscription,
+  create,
+  update,
   parseEntity,
 };
