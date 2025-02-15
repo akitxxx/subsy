@@ -85,7 +85,6 @@ export const subscriptionsTable = pgTable(
   (table) => ({
     userIdIdx: index('subscriptions_user_id_idx').on(table.userId),
     expiredAtIdx: index('subscriptions_expired_at_idx').on(table.expiredAt),
-    statusIdx: index('subscriptions_status_idx').on(table.status),
   }),
 );
 export const subscriptionsRelations = relations(subscriptionsTable, ({ one }) => ({
