@@ -71,25 +71,17 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
   // cycleまたはstartedAtが変更されたときにexpiredAtを更新
   useEffect(() => {
     const newExpiredAt = calculateExpiredAt(formData.startedAt, formData.cycle);
-    setFormData((prev) => ({
-      ...prev,
-      expiredAt: newExpiredAt,
-    }));
+    setFormData((prev) => ({ ...prev, expiredAt: newExpiredAt }));
   }, [formData.cycle, formData.startedAt, calculateExpiredAt]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isEdit) {
       if (!subscription) return;
-      onUpdate({
-        ...subscription,
-        ...formData,
-      });
+      onUpdate({ ...subscription, ...formData });
       return;
     }
-    onCreate({
-      ...formData,
-    });
+    onCreate({ ...formData });
   };
 
   const formatDateForInput = (date: Date) => {
