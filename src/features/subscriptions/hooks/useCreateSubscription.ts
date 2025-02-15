@@ -1,5 +1,5 @@
+import type { Subscription } from '@/domain/subscription/subscription.viewModel';
 import { honoClient } from '@/lib/hono/hono';
-import type { Subscription } from '@/types/domains/subscription';
 import useSWR from 'swr';
 
 const fetcher = async (subscription: Subscription) => {

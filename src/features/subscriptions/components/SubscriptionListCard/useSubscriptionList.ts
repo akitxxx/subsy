@@ -1,6 +1,6 @@
-import type { Subscription } from '@/types/domains/subscription';
-import { SubscriptionCycleEnum } from '@/types/enums/subscription/subscriptionCycle.enum';
-import { SubscriptionStatusEnum } from '@/types/enums/subscription/subscriptionStatus.enum';
+import type { Subscription } from '@/domain/subscription/subscription.viewModel';
+import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
+import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
 import { useState } from 'react';
 
 export const useSubscriptionList = (props: {

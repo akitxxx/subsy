@@ -1,11 +1,11 @@
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
 import { NotFoundError } from '@/app/api/_shared/lib/error';
+import type { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
+import type { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import type { SelectSubscription } from '@/lib/db/schema';
 import type { SessionUser } from '@/types/api/sessionUser';
-import type { SubscriptionCycleEnum } from '@/types/enums/subscription/subscriptionCycle.enum';
-import type { SubscriptionStatusEnum } from '@/types/enums/subscription/subscriptionStatus.enum';
-import { Subscription } from '../../../_shared/domain/subscription/subscription.entity';
+import { SubscriptionModel } from '../../../_shared/domain/subscription/subscription.entity';
 import { SubscriptionRepository } from '../../../_shared/domain/subscription/subscription.repository';
 
 type Inject = {

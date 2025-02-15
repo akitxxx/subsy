@@ -1,5 +1,5 @@
-import { SubscriptionCycleEnum } from '@/types/enums/subscription/subscriptionCycle.enum';
-import { SubscriptionStatusEnum } from '@/types/enums/subscription/subscriptionStatus.enum';
+import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
+import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
 import { z } from 'zod';
 
 export const createSubscriptionSchema = z.object({

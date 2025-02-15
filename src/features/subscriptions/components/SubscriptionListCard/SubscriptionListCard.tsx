@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { Subscription } from '@/domain/subscription/subscription.viewModel';
 import { DeleteConfirmDialog } from '@/features/subscriptions/components/DeleteConfirmDialog';
 import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
-import type { Subscription } from '@/types/domains/subscription';
 import { useSubscriptionList } from './useSubscriptionList';
 
 type Props = {

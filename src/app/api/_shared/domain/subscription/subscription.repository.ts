@@ -1,7 +1,6 @@
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { subscriptionsTable } from '@/lib/db/schema';
 import type { Tx } from '@/types/api/tx';
-import { IN_USE_SUBSCRIPTION_STATUS } from '@/types/enums/subscription/subscriptionStatus.enum';
 import { and, asc, desc, eq, inArray, isNull } from 'drizzle-orm';
 import type { SubscriptionEntity } from './subscription.entity';
 

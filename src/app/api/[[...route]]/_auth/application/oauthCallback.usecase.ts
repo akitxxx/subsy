@@ -1,8 +1,8 @@
 import { User } from '@/app/api/_shared/domain/user/user.entity';
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
+import { ProviderEnum } from '@/enums/user-auth/provider.enum';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { userAuthsTable, usersTable } from '@/lib/db/schema';
-import { ProviderEnum } from '@/types/enums/user-auth/provider.enum';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { eq } from 'drizzle-orm';
 

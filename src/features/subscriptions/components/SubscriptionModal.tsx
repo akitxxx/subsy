@@ -3,8 +3,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Subscription, SubscriptionCreateProps } from '@/types/domains/subscription';
-import { SubscriptionCycleEnum } from '@/types/enums/subscription/subscriptionCycle.enum';
+import type { Subscription, SubscriptionCreateProps } from '@/domain/subscription/subscription.viewModel';
+import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
 import { useEffect, useState } from 'react';
 
 type SubscriptionModalProps = {

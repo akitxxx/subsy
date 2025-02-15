@@ -1,7 +1,7 @@
+import type { Subscription } from '@/domain/subscription/subscription.viewModel';
 import { useCreateSubscription } from '@/features/subscriptions/hooks/useCreateSubscription';
 import { useGetSubscriptions } from '@/features/subscriptions/hooks/useGetSubscriptions';
 import { honoClient } from '@/lib/hono/hono';
-import type { Subscription } from '@/types/domains/subscription';
 import { handle } from 'hono/vercel';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useGetDashboard } from '../../hooks/useGetDashboard';
