@@ -37,7 +37,7 @@ const route = app
       const input = createSubscriptionInputSchema.parse(await c.req.json());
 
       const result = await CreateSubscriptionUsecase.run({ db, sessionUser, userRepository: UserRepository({ db }) })(input);
-      return c.json(parseSubscriptionViewModel(result.subscription), 201);
+      return c.json({ subscription: parseSubscriptionViewModel(result.subscription) }, 201);
     } catch (e) {
       if (e instanceof Error) {
         const errorResponse = toErrorResponse(e);

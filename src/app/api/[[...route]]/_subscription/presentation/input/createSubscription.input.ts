@@ -8,7 +8,7 @@ export const createSubscriptionInputSchema = z.object({
   currency: z.nativeEnum(CurrencyEnum),
   cycle: z.nativeEnum(SubscriptionCycleEnum),
   startedAt: z.coerce.date(),
-  cancelledAt: z.coerce.date().optional(),
+  cancelledAt: z.coerce.date().nullable(),
   expiredAt: z.coerce.date(),
   description: z.string().nullable(),
 });

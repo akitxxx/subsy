@@ -1,3 +1,4 @@
+import { CurrencyEnum } from '@/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
 import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
 import { type DrizzleClient, getDrizzleClient } from '@/lib/db/drizzle';
@@ -72,11 +73,12 @@ describe('/api/subscriptions', () => {
       const input = {
         name: 'Test Subscription',
         price: '1980.00',
+        currency: CurrencyEnum.JPY,
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date().toISOString(),
-        nextPaymentAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        cancelledAt: null,
+        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         description: 'Test Subscription',
-        status: SubscriptionStatusEnum.Active,
       };
       const client = createTestClient({ db, sessionUser: { id: user.id } });
       const res = await client.api.subscriptions.$post({ json: input });
@@ -95,7 +97,8 @@ describe('/api/subscriptions', () => {
       expect(subscriptions[0]).toMatchObject({
         ...input,
         startedAt: new Date(input.startedAt),
-        nextPaymentAt: new Date(input.nextPaymentAt),
+        cancelledAt: null,
+        expiredAt: new Date(input.expiredAt),
       });
     });
   });

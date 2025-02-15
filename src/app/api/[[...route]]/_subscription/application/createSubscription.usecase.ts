@@ -20,7 +20,7 @@ type Input = {
   cycle: SubscriptionCycleEnum;
   currency: CurrencyEnum;
   startedAt: Date;
-  cancelledAt?: Date;
+  cancelledAt?: Date | null;
   expiredAt: Date;
   description?: string | null;
 };
