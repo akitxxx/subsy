@@ -1,10 +1,11 @@
 import type { SubscriptionEntity } from '@/app/api/_shared/domain/subscription/subscription.entity';
 import { Subscription } from '@/app/api/_shared/domain/subscription/subscription.logic';
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
+import { getNow } from '@/lib/date.util';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { type SelectSubscription, subscriptionsTable } from '@/lib/db/schema';
 import type { SessionUser } from '@/types/api/sessionUser';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, gt, isNull } from 'drizzle-orm';
 
 type Inject = {
   db: DrizzleClient;
@@ -18,10 +19,11 @@ type Output = {
 };
 
 const findManySubscriptions = async (db: DrizzleClient, userId: string): Promise<SubscriptionEntity[]> => {
+  const now = getNow();
   const res = await db
     .select()
     .from(subscriptionsTable)
-    .where(and(eq(subscriptionsTable.userId, userId), isNull(subscriptionsTable.deletedAt)));
+    .where(and(eq(subscriptionsTable.userId, userId), isNull(subscriptionsTable.deletedAt), gt(subscriptionsTable.expiredAt, now)));
   return res.map(Subscription.parseEntity);
 };
 

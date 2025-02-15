@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
 import { CurrencyEnum } from '@/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 type SubscriptionModalProps = {
   isOpen: boolean;
@@ -45,6 +45,37 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
       setFormData(subscription);
     }
   }, [subscription]);
+
+  // cycleとstartedAtに基づいてexpiredAtを計算する関数
+  const calculateExpiredAt = useCallback((startDate: Date, cycle: SubscriptionCycleEnum): Date => {
+    const result = new Date(startDate);
+
+    switch (cycle) {
+      case SubscriptionCycleEnum.OneMonth:
+        result.setMonth(result.getMonth() + 1);
+        break;
+      case SubscriptionCycleEnum.ThreeMonths:
+        result.setMonth(result.getMonth() + 3);
+        break;
+      case SubscriptionCycleEnum.SixMonths:
+        result.setMonth(result.getMonth() + 6);
+        break;
+      case SubscriptionCycleEnum.OneYear:
+        result.setFullYear(result.getFullYear() + 1);
+        break;
+    }
+
+    return result;
+  }, []);
+
+  // cycleまたはstartedAtが変更されたときにexpiredAtを更新
+  useEffect(() => {
+    const newExpiredAt = calculateExpiredAt(formData.startedAt, formData.cycle);
+    setFormData((prev) => ({
+      ...prev,
+      expiredAt: newExpiredAt,
+    }));
+  }, [formData.cycle, formData.startedAt, calculateExpiredAt]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
