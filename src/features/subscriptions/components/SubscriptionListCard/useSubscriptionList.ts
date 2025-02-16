@@ -5,7 +5,7 @@ export const useSubscriptionList = (props: {
   subscriptions: SubscriptionViewModel[];
   onCreate: (subscription: SubscriptionCreateModel) => void;
   onUpdate: (subscription: SubscriptionViewModel) => void;
-  onDelete: (id: string) => void;
+  onDelete: (subscription: SubscriptionViewModel) => void;
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModal, setIsEditModal] = useState(false);
@@ -39,8 +39,8 @@ export const useSubscriptionList = (props: {
     handleCloseModal();
   };
 
-  const handleDeleteSubscription = (id: string) => {
-    props.onDelete(id);
+  const handleDeleteSubscription = (subscription: SubscriptionViewModel) => {
+    props.onDelete(subscription);
     setIsDeleteDialogOpen(false);
   };
 

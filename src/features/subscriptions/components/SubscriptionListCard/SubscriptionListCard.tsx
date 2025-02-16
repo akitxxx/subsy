@@ -12,7 +12,7 @@ type Props = {
   subscriptions: SubscriptionViewModel[];
   onCreate: (subscription: SubscriptionCreateModel) => void;
   onUpdate: (subscription: SubscriptionViewModel) => void;
-  onDelete: (id: string) => void;
+  onDelete: (subscription: SubscriptionViewModel) => void;
 };
 
 export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDelete }: Props) => {
@@ -96,7 +96,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
       <DeleteConfirmDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={() => currentSubscription && handleDeleteSubscription(currentSubscription.id)}
+        onConfirm={() => currentSubscription && handleDeleteSubscription(currentSubscription)}
         subscriptionName={currentSubscription?.name}
       />
     </Card>

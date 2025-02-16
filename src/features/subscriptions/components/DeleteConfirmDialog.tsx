@@ -20,10 +20,10 @@ export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, subscriptionNa
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} className="focus:outline-none">
             キャンセル
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
+          <Button variant="destructive" onClick={onConfirm} className="focus:outline-none">
             削除
           </Button>
         </DialogFooter>
