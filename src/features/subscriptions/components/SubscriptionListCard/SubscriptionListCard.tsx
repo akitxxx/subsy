@@ -59,7 +59,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="hover:bg-muted">
+                      <Button variant="ghost" size="icon" className="hover:bg-muted focus:outline-none">
                         <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
                         <span className="sr-only">メニューを開く</span>
                       </Button>
