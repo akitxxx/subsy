@@ -1,4 +1,5 @@
 import { honoClient } from '@/lib/hono/hono';
+import { useCallback } from 'react';
 import useSWR from 'swr';
 
 const fetcher = async () => {
@@ -11,7 +12,11 @@ const fetcher = async () => {
 };
 
 export const useGetDashboard = () => {
-  const { data, error, isLoading } = useSWR('/api/dashboard', fetcher);
+  const { data, error, isLoading, mutate } = useSWR('/api/dashboard', fetcher);
 
-  return { data, error, isLoading };
+  const refetch = useCallback(() => {
+    mutate();
+  }, [mutate]);
+
+  return { data, error, isLoading, refetch };
 };

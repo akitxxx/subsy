@@ -3,24 +3,13 @@ import { useCreateSubscription } from '@/features/subscriptions/hooks/useCreateS
 import { useDeleteSubscription } from '@/features/subscriptions/hooks/useDeleteSubscription';
 import { useGetSubscriptions } from '@/features/subscriptions/hooks/useGetSubscriptions';
 import { useUpdateSubscription } from '@/features/subscriptions/hooks/useUpdateSubscription';
-import { honoClient } from '@/lib/hono/hono';
-import { Subscription } from '@supabase/supabase-js';
-import { handle } from 'hono/vercel';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useGetDashboard } from '../../hooks/useGetDashboard';
-
-type DashboardResponse = {
-  subscriptions: SubscriptionViewModel[];
-  totalThisMonth: number;
-  upcomingSubscriptions: SubscriptionViewModel[];
-};
-
-type DashboardData = DashboardResponse;
 
 export const useDashboard = () => {
   const [error, setError] = useState<string | null>(null);
 
-  const { data: dashboardData, isLoading: isDashboardLoading, error: dashboardError } = useGetDashboard();
+  const { data: dashboardData, isLoading: isDashboardLoading, error: dashboardError, refetch: refetchDashboard } = useGetDashboard();
   const { data: subscriptionsData, isLoading: isSubscriptionsLoading, error: subscriptionsError } = useGetSubscriptions();
 
   const dashboard = useMemo(() => {
@@ -39,6 +28,7 @@ export const useDashboard = () => {
   const handleCreateSubscription = async (subscription: SubscriptionCreateModel) => {
     try {
       await createSubscription({ subscription });
+      refetchDashboard();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'サブスクリプションの作成に失敗しました');
     }
@@ -49,6 +39,7 @@ export const useDashboard = () => {
   const handleUpdateSubscription = async (subscription: SubscriptionViewModel) => {
     try {
       await updateSubscription({ subscription });
+      refetchDashboard();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'サブスクリプションの更新に失敗しました');
     }
@@ -59,6 +50,7 @@ export const useDashboard = () => {
   const handleDeleteSubscription = async (subscription: SubscriptionViewModel) => {
     try {
       await deleteSubscription({ subscriptionId: subscription.id });
+      refetchDashboard();
     } catch (error) {
       setError(error instanceof Error ? error.message : 'サブスクリプションの削除に失敗しました');
     }
