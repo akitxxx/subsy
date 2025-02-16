@@ -51,9 +51,20 @@ const update =
     tx ? await fUpdate(tx) : await db.transaction(fUpdate);
   };
 
+const deleteOne =
+  ({ db }: Inject) =>
+  async ({ tx, id, userId }: { tx?: Tx; id: string; userId: string }) => {
+    const fDelete = async (tx: Tx) => {
+      await tx.delete(subscriptionsTable).where(and(eq(subscriptionsTable.id, id), eq(subscriptionsTable.userId, userId)));
+    };
+
+    tx ? await fDelete(tx) : await db.transaction(fDelete);
+  };
+
 export const SubscriptionRepository = (inject: Inject) => ({
   create: create(inject),
   update: update(inject),
+  delete: deleteOne(inject),
   findManyInUse: findManyInUse(inject),
   findByIdAndUserId: findByIdAndUserId(inject),
 });

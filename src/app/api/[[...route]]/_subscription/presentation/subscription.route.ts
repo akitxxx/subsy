@@ -10,6 +10,7 @@ import { zValidator } from '@hono/zod-validator';
 import { type Context, Hono } from 'hono';
 import { checkSessionUser } from '../../../_shared/lib/utils/checkSessionUser';
 import { CreateSubscriptionUsecase } from '../application/createSubscription.usecase';
+import { DeleteSubscriptionUsecase } from '../application/deleteSubscription.usecase';
 import { GetSubscriptionsUsecase } from '../application/getSubscriptions.usecase';
 import { UpdateSubscriptionUsecase } from '../application/updateSubscription.usecase';
 import { createSubscriptionInputSchema } from './input/createSubscription.input';
@@ -60,6 +61,22 @@ const route = app
         subscriptionId,
       });
       return c.json({ subscription: mapSubscriptionEntityToViewModel(result.subscription) }, 200);
+    } catch (e) {
+      if (e instanceof Error) {
+        const errorResponse = toErrorResponse(e);
+        return c.json(errorResponse, errorResponse.error.status);
+      }
+      throw e;
+    }
+  })
+  .delete('/:id', async (c: Context<HonoEnv>) => {
+    try {
+      const sessionUser = checkSessionUser(c);
+      const db = c.var.db;
+      const subscriptionId = c.req.param('id');
+
+      await DeleteSubscriptionUsecase.run({ sessionUser, subscriptionRepository: SubscriptionRepository({ db }) })({ subscriptionId });
+      return c.json({}, 200);
     } catch (e) {
       if (e instanceof Error) {
         const errorResponse = toErrorResponse(e);

@@ -4,6 +4,7 @@ import { type DrizzleClient, getDrizzleClient } from '@/lib/db/drizzle';
 import { cleanupDB } from '@/test/api/dbHelper';
 import { createActiveUser, createSubscription } from '@/test/api/testDataFactory';
 import type { HonoEnv } from '@/types/api/hono';
+import { desc } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -151,6 +152,22 @@ describe('/api/subscriptions', () => {
         cancelledAt: new Date(input.cancelledAt),
         expiredAt: new Date(input.expiredAt),
       });
+    });
+  });
+
+  describe('DELETE /:id', () => {
+    it('サブスクリプションを削除できること', async () => {
+      // given
+      const user = await createActiveUser(db)();
+      const subscription = await createSubscription(db)({ userId: user.id });
+      // when
+      const client = createTestClient({ db, sessionUser: { id: user.id } });
+      const res = await client.api.subscriptions[':id'].$delete({ param: { id: subscription.id } });
+      // then
+      expect(res.status).toBe(200);
+      // DB
+      const subscriptions = await db.query.subscriptionsTable.findMany();
+      expect(subscriptions.length).toBe(0);
     });
   });
 });
