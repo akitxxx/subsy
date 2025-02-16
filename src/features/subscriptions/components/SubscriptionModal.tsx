@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
 import { CurrencyEnum } from '@/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 type SubscriptionModalProps = {
   isOpen: boolean;
@@ -29,22 +29,28 @@ type TFormData = {
 };
 
 export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate, subscription }: SubscriptionModalProps) {
-  const [formData, setFormData] = useState<TFormData>({
-    name: subscription?.name ?? '',
-    price: subscription?.price ?? '',
-    currency: subscription?.currency ?? CurrencyEnum.JPY,
-    cycle: subscription?.cycle ?? SubscriptionCycleEnum.OneMonth,
-    startedAt: subscription?.startedAt ?? new Date(),
-    cancelledAt: subscription?.cancelledAt ?? null,
-    expiredAt: subscription?.expiredAt ?? new Date(),
-    description: subscription?.description ?? null,
-  });
+  const defaultFormData = useMemo(() => {
+    return {
+      name: subscription?.name ?? '',
+      price: subscription?.price ?? '',
+      currency: subscription?.currency ?? CurrencyEnum.JPY,
+      cycle: subscription?.cycle ?? SubscriptionCycleEnum.OneMonth,
+      startedAt: subscription?.startedAt ?? new Date(),
+      cancelledAt: subscription?.cancelledAt ?? null,
+      expiredAt: subscription?.expiredAt ?? new Date(),
+      description: subscription?.description ?? null,
+    };
+  }, [subscription]);
+
+  const [formData, setFormData] = useState<TFormData>(defaultFormData);
 
   useEffect(() => {
     if (subscription) {
       setFormData(subscription);
+      return;
     }
-  }, [subscription]);
+    setFormData(defaultFormData);
+  }, [subscription, defaultFormData]);
 
   // cycleとstartedAtに基づいてexpiredAtを計算する関数
   const calculateExpiredAt = useCallback((startDate: Date, cycle: SubscriptionCycleEnum): Date => {
