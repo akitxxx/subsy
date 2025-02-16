@@ -45,12 +45,13 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
   const [formData, setFormData] = useState<TFormData>(defaultFormData);
 
   useEffect(() => {
+    if (!isOpen) return;
     if (subscription) {
       setFormData(subscription);
       return;
     }
     setFormData(defaultFormData);
-  }, [subscription, defaultFormData]);
+  }, [subscription, defaultFormData, isOpen]);
 
   // cycleとstartedAtに基づいてexpiredAtを計算する関数
   const calculateExpiredAt = useCallback((startDate: Date, cycle: SubscriptionCycleEnum): Date => {
