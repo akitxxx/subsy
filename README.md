@@ -37,7 +37,7 @@ pnpm install
 ```bash
 cp .env.development .env.local
 ```
-- 一部の環境変数については、個別で入力
+- 一部の環境変数については、個別で.env.localに上書き
 
 3. ローカルデータベースの起動
 ```bash
