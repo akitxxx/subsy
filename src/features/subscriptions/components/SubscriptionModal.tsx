@@ -57,7 +57,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
     e.preventDefault();
     if (isEdit) {
       if (!subscription) return;
-      onUpdate(subscription);
+      onUpdate({ ...subscription, ...formData });
       return;
     }
     onCreate(formData);
