@@ -20,7 +20,7 @@ const getIsCancelled = (e: SubscriptionEntity) => {
 };
 
 const getIsExpired = (e: SubscriptionEntity) => (now: Date) => {
-  return e.expiredAt < now;
+  return e.expiredAt !== null && e.expiredAt < now;
 };
 
 type SubscriptionCreateProps = Omit<
@@ -53,7 +53,12 @@ const create = (p: SubscriptionCreateProps): SubscriptionEntity => {
 const update =
   (e: SubscriptionEntity) =>
   (props: Partial<SubscriptionEntity>): SubscriptionEntity => {
-    return { ...e, ...props };
+    const updated = { ...e, ...props };
+    // cycleまたはstartedAtが変更された場合、expiredAtを再計算
+    if (props.cycle || props.startedAt) {
+      updated.expiredAt = calculateExpiredAt(updated.startedAt, updated.cycle);
+    }
+    return updated;
   };
 
 const parseEntity = (data: SelectSubscription) => {

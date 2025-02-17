@@ -13,7 +13,7 @@ export const subscriptionModelBaseSchema = z.object({
   cycle: z.nativeEnum(SubscriptionCycleEnum),
   startedAt: z.coerce.date(),
   cancelledAt: z.coerce.date().nullable(),
-  expiredAt: z.coerce.date(),
+  expiredAt: z.coerce.date().nullable(),
   description: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),

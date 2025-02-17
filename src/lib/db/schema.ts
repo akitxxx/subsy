@@ -75,7 +75,7 @@ export const subscriptionsTable = pgTable(
     cycle: varchar('cycle', { length: 255 }).notNull(),
     startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
     cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
-    expiredAt: timestamp('expired_at', { withTimezone: true }).notNull(),
+    expiredAt: timestamp('expired_at', { withTimezone: true }),
     description: text('description'),
 
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),

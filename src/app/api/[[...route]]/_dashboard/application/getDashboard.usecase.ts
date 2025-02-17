@@ -32,7 +32,12 @@ const calculateTotalAmount = (subscriptions: SubscriptionEntity[]): number => {
 };
 
 const getUpcomingSubscriptions = (subscriptions: SubscriptionEntity[]): SubscriptionEntity[] => {
-  return [...subscriptions].sort((a, b) => new Date(a.expiredAt).getTime() - new Date(b.expiredAt).getTime()).slice(0, 2);
+  return [...subscriptions]
+    .sort((a, b) => {
+      if (!a.expiredAt || !b.expiredAt) return 0;
+      return new Date(a.expiredAt).getTime() - new Date(b.expiredAt).getTime();
+    })
+    .slice(0, 2);
 };
 
 const run =

@@ -1,0 +1,1 @@
+ALTER TABLE subscriptions ALTER COLUMN expired_at DROP NOT NULL;
