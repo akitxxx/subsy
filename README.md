@@ -47,7 +47,6 @@ pnpm db:up
 # テスト用DBを作成（Dockerコマンド）
 docker exec supabase_db_subsy createdb -U postgres test
 ```
-※ Supabaseのローカル環境を使用するため、事前に`supabase`のセットアップが必要です。
 
 4. データベースのマイグレーション
 ```bash
@@ -72,9 +71,6 @@ pnpm db:reset:test
 
 # すべてのテストを実行
 pnpm test
-
-# テストをウォッチモードで実行
-pnpm test:watch
 ```
 
 ## 開発ガイドライン
@@ -82,12 +78,5 @@ pnpm test:watch
 - このプロジェクトは [Next.js](https://nextjs.org) App Routerを使用しています
 - UIコンポーネントには [shadcn/ui](https://ui.shadcn.com/) を使用しています
 - データベースには Supabase (PostgreSQL) を使用しています
-
-## 困ったときは
-
-- チームのSlackチャンネル `#subsy-dev` で質問してください
-- [プロジェクトWiki](https://wiki.example.com/subsy)も参照してください
-
-## ライセンス
-
-社内プロジェクト - All rights reserved
+- APIルートには [Hono](https://hono.dev/) を使用しています
+- ORMには [Drizzle](https://orm.drizzle.team/) を使用しています
