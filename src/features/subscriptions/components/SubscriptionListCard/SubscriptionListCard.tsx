@@ -50,13 +50,20 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
             </TableRow>
           </TableHeader>
           <TableBody>
-            {subscriptions.map((sub) => (
-              <TableRow key={sub.id}>
-                <TableCell className="font-medium">{sub.name}</TableCell>
-                <TableCell>¥{Number(sub.price).toLocaleString()}</TableCell>
-                <TableCell>{sub.cycle}</TableCell>
-                <TableCell>{sub.expiredAt.toLocaleDateString()}</TableCell>
-                <TableCell>
+            {subscriptions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground text-sm">
+                  サブスクリプションはありません
+                </TableCell>
+              </TableRow>
+            ) : (
+              subscriptions.map((sub) => (
+                <TableRow key={sub.id}>
+                  <TableCell className="font-medium">{sub.name}</TableCell>
+                  <TableCell>¥{Number(sub.price).toLocaleString()}</TableCell>
+                  <TableCell>{sub.cycle}</TableCell>
+                  <TableCell>{sub.expiredAt.toLocaleDateString()}</TableCell>
+                  <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon" className="hover:bg-muted focus:outline-none">
@@ -79,7 +86,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+            )))}
           </TableBody>
         </Table>
       </CardContent>

@@ -25,14 +25,18 @@ export const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <ul className="space-y-3">
-              {dashboard.data.upcomingSubscriptions.map((sub) => (
-                <li key={sub.id} className="flex justify-between items-center p-3 rounded-lg bg-secondary">
-                  <span className="font-semibold">{sub.name}</span>
-                  <span className="font-medium">
-                    ¥{Number(sub.price).toLocaleString()} ({sub.expiredAt})
-                  </span>
-                </li>
-              ))}
+              {dashboard.data.upcomingSubscriptions.length === 0 ? (
+                <p className="text-muted-foreground text-sm">次回支払い日が近いサブスクはありません</p>
+              ) : (
+                dashboard.data.upcomingSubscriptions.map((sub) => (
+                  <li key={sub.id} className="flex justify-between items-center p-3 rounded-lg bg-secondary">
+                    <span className="font-semibold">{sub.name}</span>
+                    <span className="font-medium">
+                      ¥{Number(sub.price).toLocaleString()} ({sub.expiredAt})
+                    </span>
+                  </li>
+                ))
+              )}
             </ul>
           </CardContent>
         </Card>
