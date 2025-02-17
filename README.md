@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Subsy
 
-## Getting Started
+サブスクリプション管理アプリケーション
 
-First, run the development server:
+## 開発環境のセットアップ
 
+### 必要要件
+
+- Node.js (v18以上)
+- pnpm
+- Docker (Supabaseのローカル開発用)
+
+### 初期セットアップ手順
+
+1. パッケージのインストール
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. 環境変数の設定
+- `.env.development`ファイルを`.env.local`としてコピー
+```bash
+cp .env.development .env.local
+```
+- 一部の環境変数については、個別で入力
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. ローカルデータベースの起動
+```bash
+pnpm db:up
+```
+※ Supabaseのローカル環境を使用するため、事前に`supabase`のセットアップが必要です。
+※ `pnpm db:up`実行時に開発用DBと一緒にテスト用DBも自動的に作成されます
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. データベースのマイグレーション
+```bash
+pnpm db:reset
+```
 
-## Learn More
+5. 開発サーバーの起動
+```bash
+pnpm dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+アプリケーションは [http://localhost:3000](http://localhost:3000) で起動します。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+6. テストDBのセットアップとテスト実行
+```bash
+# テスト用DBのマイグレーション
+pnpm db:reset:test
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# すべてのテストを実行
+pnpm test
 
-## Deploy on Vercel
+# テストをウォッチモードで実行
+pnpm test:watch
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 開発ガイドライン
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- このプロジェクトは [Next.js](https://nextjs.org) App Routerを使用しています
+- UIコンポーネントには [shadcn/ui](https://ui.shadcn.com/) を使用しています
+- データベースには Supabase (PostgreSQL) を使用しています
+
+## 困ったときは
+
+- チームのSlackチャンネル `#subsy-dev` で質問してください
+- [プロジェクトWiki](https://wiki.example.com/subsy)も参照してください
+
+## ライセンス
+
+社内プロジェクト - All rights reserved
