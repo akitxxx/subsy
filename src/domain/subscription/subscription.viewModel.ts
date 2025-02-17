@@ -20,7 +20,6 @@ const subscriptionCreateModelSchema = subscriptionModelBaseSchema.pick({
   cycle: true,
   startedAt: true,
   cancelledAt: true,
-  expiredAt: true,
   description: true,
 });
 export type SubscriptionCreateModel = z.infer<typeof subscriptionCreateModelSchema>;

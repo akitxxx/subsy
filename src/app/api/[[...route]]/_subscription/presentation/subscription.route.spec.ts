@@ -41,7 +41,6 @@ describe('/api/subscriptions', () => {
         price: '1980.00',
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date(),
-        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       });
       const subscription2 = await createSubscription(db)({
         userId: user.id,
@@ -49,7 +48,6 @@ describe('/api/subscriptions', () => {
         price: '1980.00',
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date(),
-        expiredAt: new Date(Date.now() + 29 * 24 * 60 * 60 * 1000),
       });
       // when
       const client = createTestClient({ db, sessionUser: { id: user.id } });
@@ -60,7 +58,16 @@ describe('/api/subscriptions', () => {
       const output = await res.json();
       expect(output).toMatchObject({
         // 次回支払日が新しい順
-        subscriptions: [JSON.parse(JSON.stringify(subscription2)), JSON.parse(JSON.stringify(subscription1))],
+        subscriptions: [
+          {
+            ...JSON.parse(JSON.stringify(subscription2)),
+            expiredAt: expect.any(String),
+          },
+          {
+            ...JSON.parse(JSON.stringify(subscription1)),
+            expiredAt: expect.any(String),
+          },
+        ],
       });
     });
   });
@@ -77,7 +84,6 @@ describe('/api/subscriptions', () => {
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date().toISOString(),
         cancelledAt: null,
-        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         description: 'Test Subscription',
       };
       const client = createTestClient({ db, sessionUser: { id: user.id } });
@@ -98,8 +104,13 @@ describe('/api/subscriptions', () => {
         ...input,
         startedAt: new Date(input.startedAt),
         cancelledAt: null,
-        expiredAt: new Date(input.expiredAt),
+        expiredAt: expect.any(Date),
       });
+      
+      // expiredAtが正しく計算されていることを確認
+      const expectedExpiredAt = new Date(input.startedAt);
+      expectedExpiredAt.setMonth(expectedExpiredAt.getMonth() + 1); // OneMonthの場合
+      expect(subscriptions[0].expiredAt).toEqual(expectedExpiredAt);
     });
   });
 
@@ -115,7 +126,6 @@ describe('/api/subscriptions', () => {
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date(),
         cancelledAt: null,
-        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         description: 'Old Description',
       });
       // when
@@ -126,7 +136,6 @@ describe('/api/subscriptions', () => {
         cycle: SubscriptionCycleEnum.ThreeMonths,
         startedAt: new Date().toISOString(),
         cancelledAt: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         description: 'New Description',
       };
       const client = createTestClient({ db, sessionUser: { id: user.id } });
@@ -150,8 +159,13 @@ describe('/api/subscriptions', () => {
         ...input,
         startedAt: new Date(input.startedAt),
         cancelledAt: new Date(input.cancelledAt),
-        expiredAt: new Date(input.expiredAt),
+        expiredAt: expect.any(Date),
       });
+
+      // expiredAtが正しく計算されていることを確認
+      const expectedExpiredAt = new Date(input.startedAt);
+      expectedExpiredAt.setMonth(expectedExpiredAt.getMonth() + 3); // ThreeMonthsの場合
+      expect(subscriptions[0].expiredAt).toEqual(expectedExpiredAt);
     });
   });
 

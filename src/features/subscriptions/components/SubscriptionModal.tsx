@@ -24,7 +24,6 @@ type TFormData = {
   cycle: SubscriptionCycleEnum;
   startedAt: Date;
   cancelledAt: Date | null;
-  expiredAt: Date;
   description: string | null;
 };
 
@@ -37,7 +36,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
       cycle: subscription?.cycle ?? SubscriptionCycleEnum.OneMonth,
       startedAt: subscription?.startedAt ?? new Date(),
       cancelledAt: subscription?.cancelledAt ?? null,
-      expiredAt: subscription?.expiredAt ?? new Date(),
+
       description: subscription?.description ?? null,
     };
   }, [subscription]);
@@ -53,42 +52,15 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
     setFormData(defaultFormData);
   }, [subscription, defaultFormData, isOpen]);
 
-  // cycleとstartedAtに基づいてexpiredAtを計算する関数
-  const calculateExpiredAt = useCallback((startDate: Date, cycle: SubscriptionCycleEnum): Date => {
-    const result = new Date(startDate);
-
-    switch (cycle) {
-      case SubscriptionCycleEnum.OneMonth:
-        result.setMonth(result.getMonth() + 1);
-        break;
-      case SubscriptionCycleEnum.ThreeMonths:
-        result.setMonth(result.getMonth() + 3);
-        break;
-      case SubscriptionCycleEnum.SixMonths:
-        result.setMonth(result.getMonth() + 6);
-        break;
-      case SubscriptionCycleEnum.OneYear:
-        result.setFullYear(result.getFullYear() + 1);
-        break;
-    }
-
-    return result;
-  }, []);
-
-  // cycleまたはstartedAtが変更されたときにexpiredAtを更新
-  useEffect(() => {
-    const newExpiredAt = calculateExpiredAt(formData.startedAt, formData.cycle);
-    setFormData((prev) => ({ ...prev, expiredAt: newExpiredAt }));
-  }, [formData.cycle, formData.startedAt, calculateExpiredAt]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isEdit) {
       if (!subscription) return;
-      onUpdate({ ...subscription, ...formData });
+      onUpdate(subscription);
       return;
     }
-    onCreate({ ...formData });
+    onCreate(formData);
   };
 
   const formatDateForInput = (date: Date) => {
@@ -289,30 +261,6 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
               </div>
             </div>
 
-            <div className="grid gap-2 sm:gap-2.5 sm:grid-cols-7 sm:items-center sm:gap-x-4 group">
-              <Label
-                htmlFor="expiredAt"
-                className="text-sm font-medium text-gray-500 sm:text-right sm:whitespace-nowrap sm:col-span-2 transition-colors group-focus-within:text-primary-600"
-              >
-                次回支払い日
-                <span className="text-rose-500 ml-1 text-xs align-top">*</span>
-              </Label>
-              <div className="sm:col-span-5">
-                <Input
-                  id="expiredAt"
-                  type="date"
-                  value={formatDateForInput(formData.expiredAt)}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      expiredAt: new Date(e.target.value),
-                    })
-                  }
-                  className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
-                  required
-                />
-              </div>
-            </div>
 
             <div className="grid gap-2 sm:gap-2.5 sm:grid-cols-7 sm:items-center sm:gap-x-4 group">
               <Label

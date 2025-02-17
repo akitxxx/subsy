@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { SubscriptionStatusEnum } from '@/enums/subscription/subscriptionStatus.enum';
+import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
 import type { SelectSubscription } from '@/lib/db/schema';
 import { type SubscriptionEntity, subscriptionModelBaseSchema } from './subscription.entity';
 
@@ -21,12 +22,16 @@ const getIsExpired = (e: SubscriptionEntity) => (now: Date) => {
   return e.expiredAt < now;
 };
 
-type SubscriptionCreateProps = Pick<
-  SubscriptionEntity,
-  'userId' | 'name' | 'price' | 'currency' | 'cycle' | 'startedAt' | 'cancelledAt' | 'expiredAt' | 'description'
+type SubscriptionCreateProps = Omit<
+  Pick<
+    SubscriptionEntity,
+    'userId' | 'name' | 'price' | 'currency' | 'cycle' | 'startedAt' | 'cancelledAt' | 'description'
+  >,
+  'expiredAt'
 >;
 const create = (p: SubscriptionCreateProps): SubscriptionEntity => {
   const now = new Date();
+  const expiredAt = calculateExpiredAt(p.startedAt, p.cycle);
   return {
     id: randomUUID(),
     userId: p.userId,
@@ -36,7 +41,7 @@ const create = (p: SubscriptionCreateProps): SubscriptionEntity => {
     cycle: p.cycle,
     startedAt: p.startedAt,
     cancelledAt: p.cancelledAt ?? null,
-    expiredAt: p.expiredAt,
+    expiredAt,
     description: p.description ?? null,
     createdAt: now,
     updatedAt: now,
@@ -54,11 +59,31 @@ const parseEntity = (data: SelectSubscription) => {
   return subscriptionModelBaseSchema.parse(data);
 };
 
+const calculateExpiredAt = (startDate: Date, cycle: SubscriptionCycleEnum): Date => {
+  const result = new Date(startDate);
+  switch (cycle) {
+    case SubscriptionCycleEnum.OneMonth:
+      result.setMonth(result.getMonth() + 1);
+      break;
+    case SubscriptionCycleEnum.ThreeMonths:
+      result.setMonth(result.getMonth() + 3);
+      break;
+    case SubscriptionCycleEnum.SixMonths:
+      result.setMonth(result.getMonth() + 6);
+      break;
+    case SubscriptionCycleEnum.OneYear:
+      result.setFullYear(result.getFullYear() + 1);
+      break;
+  }
+  return result;
+};
+
 export const Subscription = {
   getStatus,
   getIsInUse,
   getIsCancelled,
   getIsExpired,
+  calculateExpiredAt,
   create,
   update,
   parseEntity,
