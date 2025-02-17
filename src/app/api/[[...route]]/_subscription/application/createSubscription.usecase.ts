@@ -21,7 +21,6 @@ type Input = {
   currency: CurrencyEnum;
   startedAt: Date;
   cancelledAt?: Date | null;
-  expiredAt: Date;
   description?: string | null;
 };
 
