@@ -5,7 +5,8 @@ import type { SelectSubscription } from '@/lib/db/schema';
 import { type SubscriptionEntity, subscriptionModelBaseSchema } from './subscription.entity';
 
 const getStatus = (e: SubscriptionEntity) => {
-  if (getIsExpired(e)) return SubscriptionStatusEnum.Expired;
+  const now = new Date();
+  if (getIsExpired(e)(now)) return SubscriptionStatusEnum.Expired;
   if (getIsCancelled(e)) return SubscriptionStatusEnum.Cancelled;
   return SubscriptionStatusEnum.Active;
 };
