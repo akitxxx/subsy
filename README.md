@@ -9,6 +9,21 @@
 - Node.js (v18以上)
 - pnpm
 - Docker (Supabaseのローカル開発用)
+- Supabase CLI
+  ```bash
+  # macOSの場合
+  brew install supabase/tap/supabase
+
+  # Windowsの場合（Windows Package Manager）
+  winget install supabase.cli
+
+  # Linuxの場合
+  curl -fsSL https://cli.supabase.com/install.sh | sh
+
+  # npmを使用する場合（すべてのOS）
+  npm install -g supabase
+  ```
+  詳細は[Supabase CLI公式ドキュメント](https://supabase.com/docs/guides/cli)を参照してください。
 
 ### 初期セットアップ手順
 
@@ -26,14 +41,21 @@ cp .env.development .env.local
 
 3. ローカルデータベースの起動
 ```bash
+# Supabaseの開発用DBを起動
 pnpm db:up
+
+# テスト用DBを作成（Dockerコマンド）
+docker exec supabase_db_subsy createdb -U postgres test
 ```
 ※ Supabaseのローカル環境を使用するため、事前に`supabase`のセットアップが必要です。
-※ `pnpm db:up`実行時に開発用DBと一緒にテスト用DBも自動的に作成されます
 
 4. データベースのマイグレーション
 ```bash
+# 開発用DBのマイグレーション
 pnpm db:reset
+
+# テスト用DBのマイグレーション
+pnpm db:reset:test
 ```
 
 5. 開発サーバーの起動
