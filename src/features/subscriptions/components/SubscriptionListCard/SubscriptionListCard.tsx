@@ -50,36 +50,44 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
             </TableRow>
           </TableHeader>
           <TableBody>
-            {subscriptions.map((sub) => (
-              <TableRow key={sub.id}>
-                <TableCell className="font-medium">{sub.name}</TableCell>
-                <TableCell>¥{Number(sub.price).toLocaleString()}</TableCell>
-                <TableCell>{sub.cycle}</TableCell>
-                <TableCell>{sub.expiredAt.toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="hover:bg-muted focus:outline-none">
-                        <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
-                        <span className="sr-only">メニューを開く</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleOpenModal(sub)}>編集</DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={() => {
-                          setCurrentSubscription(sub);
-                          setIsDeleteDialogOpen(true);
-                        }}
-                      >
-                        削除
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+            {subscriptions.length > 0 ? (
+              subscriptions.map((sub) => (
+                <TableRow key={sub.id}>
+                  <TableCell className="font-medium">{sub.name}</TableCell>
+                  <TableCell>¥{Number(sub.price).toLocaleString()}</TableCell>
+                  <TableCell>{sub.cycle}</TableCell>
+                  <TableCell>{sub.expiredAt.toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="hover:bg-muted focus:outline-none">
+                          <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+                          <span className="sr-only">メニューを開く</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleOpenModal(sub)}>編集</DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => {
+                            setCurrentSubscription(sub);
+                            setIsDeleteDialogOpen(true);
+                          }}
+                        >
+                          削除
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-muted-foreground">
+                  サブスクリプションはありません
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </CardContent>
