@@ -33,11 +33,11 @@ pnpm install
 ```
 
 2. 環境変数の設定
-- `.env.development`ファイルを`.env.local`としてコピー
+- `.env.development`ファイルを`.env`としてコピー
 ```bash
-cp .env.development .env.local
+cp .env.development .env
 ```
-- 一部の環境変数については、個別で.env.localに上書き
+- 一部の環境変数については、個別で.envに上書き
 
 3. ローカルデータベースの起動
 ```bash
