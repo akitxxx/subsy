@@ -86,7 +86,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                   </DropdownMenu>
                 </TableCell>
               </TableRow>
-            )))}
+            ))}
           </TableBody>
         </Table>
       </CardContent>
