@@ -41,7 +41,6 @@ const run =
       cycle: input.cycle,
       startedAt: input.startedAt,
       cancelledAt: input.cancelledAt,
-      expiredAt: Subscription.calculateExpiredAt(input.startedAt, input.cycle),
       description: input.description,
     });
 

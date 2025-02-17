@@ -23,12 +23,9 @@ const getIsExpired = (e: SubscriptionEntity) => (now: Date) => {
   return e.expiredAt !== null && e.expiredAt < now;
 };
 
-type SubscriptionCreateProps = Omit<
-  Pick<
-    SubscriptionEntity,
-    'userId' | 'name' | 'price' | 'currency' | 'cycle' | 'startedAt' | 'cancelledAt' | 'description'
-  >,
-  'expiredAt'
+type SubscriptionCreateProps = Pick<
+  SubscriptionEntity,
+  'userId' | 'name' | 'price' | 'currency' | 'cycle' | 'startedAt' | 'cancelledAt' | 'description'
 >;
 const create = (p: SubscriptionCreateProps): SubscriptionEntity => {
   const now = new Date();
@@ -52,7 +49,7 @@ const create = (p: SubscriptionCreateProps): SubscriptionEntity => {
 
 const update =
   (e: SubscriptionEntity) =>
-  (props: Partial<SubscriptionEntity>): SubscriptionEntity => {
+  (props: Omit<Partial<SubscriptionEntity>, 'expiredAt' | 'id' | 'userId' | 'createdAt' | 'updatedAt' | 'deletedAt'>): SubscriptionEntity => {
     const updated = { ...e, ...props };
     // cycleまたはstartedAtが変更された場合、expiredAtを再計算
     if (props.cycle || props.startedAt) {

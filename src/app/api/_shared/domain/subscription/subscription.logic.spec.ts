@@ -50,6 +50,44 @@ describe('Subscription', () => {
     });
   });
 
+  describe('update', () => {
+    it('expiredAtを直接更新できないこと', () => {
+      const subscription = {
+        ...baseSubscription,
+        expiredAt: new Date('2025-01-01'),
+      };
+      const props = {
+        cycle: SubscriptionCycleEnum.ThreeMonths,
+      } as const;
+      const updated = Subscription.update(subscription)(props);
+      expect(updated.expiredAt).toEqual(new Date('2025-04-01'));
+    });
+
+    it('cycleが変更された場合にexpiredAtが再計算されること', () => {
+      const subscription = {
+        ...baseSubscription,
+        expiredAt: new Date('2025-02-01'),
+      };
+      const props = {
+        cycle: SubscriptionCycleEnum.ThreeMonths,
+      };
+      const updated = Subscription.update(subscription)(props);
+      expect(updated.expiredAt).toEqual(new Date('2025-04-01'));
+    });
+
+    it('startedAtが変更された場合にexpiredAtが再計算されること', () => {
+      const subscription = {
+        ...baseSubscription,
+        expiredAt: new Date('2025-02-01'),
+      };
+      const props = {
+        startedAt: new Date('2025-02-01'),
+      };
+      const updated = Subscription.update(subscription)(props);
+      expect(updated.expiredAt).toEqual(new Date('2025-03-01'));
+    });
+  });
+
   describe('calculateExpiredAt', () => {
     const startDate = new Date('2025-01-01');
 
