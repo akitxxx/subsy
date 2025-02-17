@@ -56,8 +56,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                   サブスクリプションはありません
                 </TableCell>
               </TableRow>
-            ) : (
-              subscriptions.map((sub) => (
+            ) : subscriptions.map((sub) => (
                 <TableRow key={sub.id}>
                   <TableCell className="font-medium">{sub.name}</TableCell>
                   <TableCell>¥{Number(sub.price).toLocaleString()}</TableCell>
