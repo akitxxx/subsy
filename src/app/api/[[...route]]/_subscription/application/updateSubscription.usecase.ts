@@ -21,7 +21,6 @@ type Input = {
   cycle: SubscriptionCycleEnum;
   startedAt: Date;
   cancelledAt: Date | null;
-  expiredAt: Date;
   description: string | null;
 };
 
@@ -42,7 +41,6 @@ const run =
       cycle: input.cycle,
       startedAt: input.startedAt,
       cancelledAt: input.cancelledAt,
-      expiredAt: input.expiredAt,
       description: input.description,
     });
 

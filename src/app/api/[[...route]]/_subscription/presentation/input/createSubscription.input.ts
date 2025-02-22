@@ -9,7 +9,6 @@ export const createSubscriptionInputSchema = z.object({
   cycle: z.nativeEnum(SubscriptionCycleEnum),
   startedAt: z.coerce.date(),
   cancelledAt: z.coerce.date().nullable(),
-  expiredAt: z.coerce.date(),
   description: z.string().nullable(),
 });
 export type CreateSubscriptionInput = z.infer<typeof createSubscriptionInputSchema>;

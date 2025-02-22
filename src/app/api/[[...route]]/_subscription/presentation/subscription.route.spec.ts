@@ -4,10 +4,11 @@ import { type DrizzleClient, getDrizzleClient } from '@/lib/db/drizzle';
 import { cleanupDB } from '@/test/api/dbHelper';
 import { createActiveUser, createSubscription } from '@/test/api/testDataFactory';
 import type { HonoEnv } from '@/types/api/hono';
-import { desc } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
+import type { CreateSubscriptionInput } from './input/createSubscription.input';
+import type { UpdateSubscriptionInput } from './input/updateSubscription.input';
 import subscriptionRoute from './subscription.route';
 
 describe('/api/subscriptions', () => {
@@ -75,11 +76,10 @@ describe('/api/subscriptions', () => {
         price: '1980.00',
         currency: CurrencyEnum.JPY,
         cycle: SubscriptionCycleEnum.OneMonth,
-        startedAt: new Date().toISOString(),
+        startedAt: new Date(),
         cancelledAt: null,
-        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         description: 'Test Subscription',
-      };
+      } satisfies CreateSubscriptionInput;
       const client = createTestClient({ db, sessionUser: { id: user.id } });
       const res = await client.api.subscriptions.$post({ json: input });
       // then
@@ -89,6 +89,8 @@ describe('/api/subscriptions', () => {
       expect(output).toMatchObject({
         subscription: {
           ...input,
+          startedAt: new Date(input.startedAt).toISOString(),
+          expiredAt: null,
         },
       });
       // DB
@@ -96,9 +98,8 @@ describe('/api/subscriptions', () => {
       expect(subscriptions.length).toBe(1);
       expect(subscriptions[0]).toMatchObject({
         ...input,
-        startedAt: new Date(input.startedAt),
         cancelledAt: null,
-        expiredAt: new Date(input.expiredAt),
+        expiredAt: null,
       });
     });
   });
@@ -113,9 +114,8 @@ describe('/api/subscriptions', () => {
         price: '1980.00',
         currency: CurrencyEnum.JPY,
         cycle: SubscriptionCycleEnum.OneMonth,
-        startedAt: new Date(),
+        startedAt: new Date('2025-01-01'),
         cancelledAt: null,
-        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
         description: 'Old Description',
       });
       // when
@@ -124,11 +124,10 @@ describe('/api/subscriptions', () => {
         price: '2980.00',
         currency: CurrencyEnum.USD,
         cycle: SubscriptionCycleEnum.ThreeMonths,
-        startedAt: new Date().toISOString(),
-        cancelledAt: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
-        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        startedAt: new Date('2025-02-01 00:00:00'),
+        cancelledAt: new Date('2025-05-03 00:00:00'),
         description: 'New Description',
-      };
+      } satisfies UpdateSubscriptionInput;
       const client = createTestClient({ db, sessionUser: { id: user.id } });
       const res = await client.api.subscriptions[':id'].$patch({
         param: { id: subscription.id },
@@ -137,10 +136,14 @@ describe('/api/subscriptions', () => {
       // then
       expect(res.status).toBe(200);
       // output
+      const expectedExpiredAt = new Date('2025-05-03 00:00:00');
       const output = await res.json();
       expect(output).toMatchObject({
         subscription: {
           ...input,
+          startedAt: new Date(input.startedAt).toISOString(),
+          cancelledAt: new Date(input.cancelledAt).toISOString(),
+          expiredAt: new Date('2025-08-01 00:00:00').toISOString(),
         },
       });
       // DB
@@ -148,9 +151,7 @@ describe('/api/subscriptions', () => {
       expect(subscriptions.length).toBe(1);
       expect(subscriptions[0]).toMatchObject({
         ...input,
-        startedAt: new Date(input.startedAt),
-        cancelledAt: new Date(input.cancelledAt),
-        expiredAt: new Date(input.expiredAt),
+        expiredAt: new Date('2025-08-01 00:00:00'),
       });
     });
   });
