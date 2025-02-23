@@ -56,7 +56,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                   <TableCell className="font-medium">{sub.name}</TableCell>
                   <TableCell>¥{Number(sub.price).toLocaleString()}</TableCell>
                   <TableCell>{sub.cycle}</TableCell>
-                  <TableCell>{sub.expiredAt.toLocaleDateString()}</TableCell>
+                  <TableCell>{sub.nextPaymentAt.toLocaleDateString()}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

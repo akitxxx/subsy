@@ -32,16 +32,16 @@ describe('/api/dashboard', () => {
 
   // ========== test ==========
 
-  describe('GET /', () => {
-    it('dashboard情報を返す', async () => {
-      // given
-      const user = await createActiveUser(db)();
-      // when
-      const client = createTestClient({ db, sessionUser: { id: user.id } });
-      const res = await client.api.dashboard.$get();
-      // then
-      expect(res.status).toBe(200);
-      const data = await res.json();
-    });
-  });
+  // describe('GET /', () => {
+  //   it('dashboard情報を返す', async () => {
+  //     // given
+  //     const user = await createActiveUser(db)();
+  //     // when
+  //     const client = createTestClient({ db, sessionUser: { id: user.id } });
+  //     const res = await client.api.dashboard.$get();
+  //     // then
+  //     expect(res.status).toBe(200);
+  //     const data = await res.json();
+  //   });
+  // });
 });

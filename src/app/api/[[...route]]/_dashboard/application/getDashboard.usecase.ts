@@ -1,9 +1,9 @@
 import type { SubscriptionEntity } from '@/app/api/_shared/domain/subscription/subscription.entity';
 import { Subscription } from '@/app/api/_shared/domain/subscription/subscription.logic';
 import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
-import { getNow } from '@/lib/date.util';
+import { DateUtils } from '@/lib/date.util';
 import type { DrizzleClient } from '@/lib/db/drizzle';
-import { type SelectSubscription, subscriptionsTable } from '@/lib/db/schema';
+import { subscriptionsTable } from '@/lib/db/schema';
 import type { SessionUser } from '@/types/api/sessionUser';
 import { and, eq, gt, isNull } from 'drizzle-orm';
 
@@ -19,7 +19,7 @@ type Output = {
 };
 
 const findManySubscriptions = async (db: DrizzleClient, userId: string): Promise<SubscriptionEntity[]> => {
-  const now = getNow();
+  const now = DateUtils.getNow();
   const res = await db
     .select()
     .from(subscriptionsTable)
@@ -32,7 +32,7 @@ const calculateTotalAmount = (subscriptions: SubscriptionEntity[]): number => {
 };
 
 const getUpcomingSubscriptions = (subscriptions: SubscriptionEntity[]): SubscriptionEntity[] => {
-  return [...subscriptions].sort((a, b) => new Date(a.expiredAt).getTime() - new Date(b.expiredAt).getTime()).slice(0, 2);
+  return [...subscriptions].sort((a, b) => Subscription.getNextPaymentAt(a).getTime() - Subscription.getNextPaymentAt(b).getTime()).slice(0, 2);
 };
 
 const run =

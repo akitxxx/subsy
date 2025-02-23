@@ -1,6 +1,6 @@
 import type { SubscriptionEntity } from '@/app/api/_shared/domain/subscription/subscription.entity';
 import type { SubscriptionRepository } from '@/app/api/_shared/domain/subscription/subscription.repository';
-import { getNow } from '@/lib/date.util';
+import { DateUtils } from '@/lib/date.util';
 import type { DrizzleClient } from '@/lib/db/drizzle';
 
 type Inject = {
@@ -18,7 +18,7 @@ type Output = {
 
 const run = ({ subscriptionRepository }: Inject) => {
   return async (p: Input): Promise<Output> => {
-    const now = getNow();
+    const now = DateUtils.getNow();
     const subscriptions = await subscriptionRepository.findManyInUse({ userId: p.userId, now });
     return { subscriptions };
   };

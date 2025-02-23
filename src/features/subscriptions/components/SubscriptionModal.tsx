@@ -24,7 +24,7 @@ type TFormData = {
   cycle: SubscriptionCycleEnum;
   startedAt: Date;
   cancelledAt: Date | null;
-  expiredAt: Date;
+  expiredAt: Date | null;
   description: string | null;
 };
 
@@ -301,7 +301,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                 <Input
                   id="expiredAt"
                   type="date"
-                  value={formatDateForInput(formData.expiredAt)}
+                  value={formData.expiredAt ? formatDateForInput(formData.expiredAt) : ''}
                   onChange={(e) =>
                     setFormData({
                       ...formData,

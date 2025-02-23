@@ -1,12 +1,13 @@
 import { CurrencyEnum } from '@/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
+import { DateUtils } from '@/lib/date.util';
 import { type DrizzleClient, getDrizzleClient } from '@/lib/db/drizzle';
 import { cleanupDB } from '@/test/api/dbHelper';
 import { createActiveUser, createSubscription } from '@/test/api/testDataFactory';
 import type { HonoEnv } from '@/types/api/hono';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CreateSubscriptionInput } from './input/createSubscription.input';
 import type { UpdateSubscriptionInput } from './input/updateSubscription.input';
 import subscriptionRoute from './subscription.route';
@@ -32,6 +33,9 @@ describe('/api/subscriptions', () => {
 
   // ========== test ==========
 
+  const now = new Date('2025-01-01 00:00:00');
+  vi.spyOn(DateUtils, 'getNow').mockReturnValue(now);
+
   describe('GET /', () => {
     it('サブスクリプションを取得できること', async () => {
       // given
@@ -41,16 +45,16 @@ describe('/api/subscriptions', () => {
         name: 'Test Subscription',
         price: '1980.00',
         cycle: SubscriptionCycleEnum.OneMonth,
-        startedAt: new Date(),
-        expiredAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        startedAt: DateUtils.addDays(now, 1),
+        expiredAt: DateUtils.addDays(now, 30),
       });
       const subscription2 = await createSubscription(db)({
         userId: user.id,
         name: 'Test Subscription 2',
         price: '1980.00',
         cycle: SubscriptionCycleEnum.OneMonth,
-        startedAt: new Date(),
-        expiredAt: new Date(Date.now() + 29 * 24 * 60 * 60 * 1000),
+        startedAt: DateUtils.addDays(now, 2),
+        expiredAt: DateUtils.addDays(now, 29),
       });
       // when
       const client = createTestClient({ db, sessionUser: { id: user.id } });
@@ -76,7 +80,7 @@ describe('/api/subscriptions', () => {
         price: '1980.00',
         currency: CurrencyEnum.JPY,
         cycle: SubscriptionCycleEnum.OneMonth,
-        startedAt: new Date(),
+        startedAt: now,
         cancelledAt: null,
         description: 'Test Subscription',
       } satisfies CreateSubscriptionInput;
@@ -90,6 +94,7 @@ describe('/api/subscriptions', () => {
         subscription: {
           ...input,
           startedAt: new Date(input.startedAt).toISOString(),
+          nextPaymentAt: new Date('2025-02-01 00:00:00').toISOString(),
           expiredAt: null,
         },
       });
@@ -114,8 +119,9 @@ describe('/api/subscriptions', () => {
         price: '1980.00',
         currency: CurrencyEnum.JPY,
         cycle: SubscriptionCycleEnum.OneMonth,
-        startedAt: new Date('2025-01-01'),
+        startedAt: now,
         cancelledAt: null,
+        expiredAt: null,
         description: 'Old Description',
       });
       // when
@@ -124,8 +130,8 @@ describe('/api/subscriptions', () => {
         price: '2980.00',
         currency: CurrencyEnum.USD,
         cycle: SubscriptionCycleEnum.ThreeMonths,
-        startedAt: new Date('2025-02-01 00:00:00'),
-        cancelledAt: new Date('2025-05-03 00:00:00'),
+        startedAt: new Date('2024-10-01 00:00:00'),
+        cancelledAt: new Date('2025-01-01 00:00:01'),
         description: 'New Description',
       } satisfies UpdateSubscriptionInput;
       const client = createTestClient({ db, sessionUser: { id: user.id } });
@@ -143,7 +149,8 @@ describe('/api/subscriptions', () => {
           ...input,
           startedAt: new Date(input.startedAt).toISOString(),
           cancelledAt: new Date(input.cancelledAt).toISOString(),
-          expiredAt: new Date('2025-08-01 00:00:00').toISOString(),
+          nextPaymentAt: new Date('2025-04-01 00:00:00').toISOString(),
+          expiredAt: DateUtils.addMilliseconds(new Date('2025-04-01 00:00:00'), -1).toISOString(),
         },
       });
       // DB
@@ -151,7 +158,7 @@ describe('/api/subscriptions', () => {
       expect(subscriptions.length).toBe(1);
       expect(subscriptions[0]).toMatchObject({
         ...input,
-        expiredAt: new Date('2025-08-01 00:00:00'),
+        expiredAt: DateUtils.addMilliseconds(new Date('2025-04-01 00:00:00'), -1),
       });
     });
   });
