@@ -6,7 +6,7 @@ import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/su
 import { DeleteConfirmDialog } from '@/features/subscriptions/components/DeleteConfirmDialog';
 import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
 import { DateUtils } from '@/lib/date.util';
-import { formatCycle } from '@/lib/subscription.util';
+import { SubscriptionUtils, formatCycle } from '@/lib/subscription.util';
 import { MoreHorizontal } from 'lucide-react';
 import { useSubscriptionList } from './useSubscriptionList';
 
@@ -57,7 +57,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                 <TableRow key={sub.id}>
                   <TableCell className="font-medium">{sub.name}</TableCell>
                   <TableCell>¥{Number(sub.price).toLocaleString()}</TableCell>
-                  <TableCell>{formatCycle(sub.cycle)}</TableCell>
+                  <TableCell>{SubscriptionUtils.display.formatCycle(sub.cycle)}</TableCell>
                   <TableCell>{DateUtils.format.custom(sub.nextPaymentAt, 'YYYY/MM/DD')}</TableCell>
                   <TableCell>
                     <DropdownMenu>
