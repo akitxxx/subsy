@@ -2,7 +2,7 @@ import { Subscription } from '@/app/api/_shared/domain/subscription/subscription
 import type { DrizzleClient } from '@/lib/db/drizzle';
 import { subscriptionsTable } from '@/lib/db/schema';
 import type { Tx } from '@/types/api/tx';
-import { and, asc, eq, gt, isNull } from 'drizzle-orm';
+import { and, asc, eq, gt, isNull, or } from 'drizzle-orm';
 import type { SubscriptionEntity } from './subscription.entity';
 
 type Inject = {
@@ -23,7 +23,11 @@ const findManyInUse =
   ({ db }: Inject) =>
   async (p: { userId: string; now: Date }): Promise<SubscriptionEntity[]> => {
     const subscriptions = await db.query.subscriptionsTable.findMany({
-      where: and(eq(subscriptionsTable.userId, p.userId), gt(subscriptionsTable.expiredAt, p.now), isNull(subscriptionsTable.deletedAt)),
+      where: and(
+        eq(subscriptionsTable.userId, p.userId),
+        or(gt(subscriptionsTable.expiredAt, p.now), isNull(subscriptionsTable.expiredAt)),
+        isNull(subscriptionsTable.deletedAt),
+      ),
       orderBy: [asc(subscriptionsTable.expiredAt)],
     });
     return subscriptions.map(Subscription.parseEntity);

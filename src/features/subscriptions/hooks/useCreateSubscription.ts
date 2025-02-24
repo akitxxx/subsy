@@ -11,7 +11,6 @@ const fetcher = async (subscription: SubscriptionCreateModel) => {
       cycle: subscription.cycle,
       startedAt: subscription.startedAt,
       cancelledAt: subscription.cancelledAt,
-      expiredAt: subscription.expiredAt,
       description: subscription.description,
     },
   });

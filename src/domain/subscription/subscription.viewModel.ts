@@ -5,7 +5,7 @@ import { z } from 'zod';
 // ViewModel
 export const subscriptionViewModelSchema = subscriptionModelBaseSchema.extend({
   status: z.nativeEnum(SubscriptionStatusEnum),
-  nextPaymentAt: z.date(),
+  nextPaymentAt: z.coerce.date(),
   isInUse: z.boolean(),
   isCancelled: z.boolean(),
   isExpired: z.boolean(),
@@ -21,7 +21,6 @@ const subscriptionCreateModelSchema = subscriptionModelBaseSchema.pick({
   cycle: true,
   startedAt: true,
   cancelledAt: true,
-  expiredAt: true,
   description: true,
 });
 export type SubscriptionCreateModel = z.infer<typeof subscriptionCreateModelSchema>;
