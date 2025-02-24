@@ -6,7 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
 import { CurrencyEnum } from '@/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
-import { useEffect, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
+import ja from 'dayjs/locale/ja';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type SubscriptionModalProps = {
   isOpen: boolean;
@@ -28,6 +30,8 @@ type TFormData = {
 };
 
 export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate, subscription }: SubscriptionModalProps) {
+  // 日本語ロケールを設定
+  dayjs.locale(ja);
   const defaultFormData = useMemo(() => {
     return {
       name: subscription?.name ?? '',
@@ -62,13 +66,15 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
   };
 
   const formatDateForInput = (date: Date) => {
-    return date.toISOString().split('T')[0];
+    return dayjs(date).format('YYYY-MM-DD');
   };
 
   const formatTimeForInput = (date: Date) => {
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
+    return dayjs(date).format('HH:mm');
+  };
+
+  const formatDateTime = (date: Date) => {
+    return dayjs(date).format('YYYY年MM月DD日 HH:mm');
   };
 
   // 表示用の価格フォーマット
@@ -248,42 +254,77 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                 開始日時
                 <span className="text-rose-500 ml-1 text-xs align-top">*</span>
               </Label>
-              <div className="sm:col-span-5 flex gap-2">
-                <Input
-                  id="startedAt"
-                  type="date"
-                  value={formatDateForInput(formData.startedAt)}
-                  onChange={(e) => {
-                    const newDate = new Date(formData.startedAt);
-                    const [year, month, day] = e.target.value.split('-').map(Number);
-                    newDate.setFullYear(year);
-                    newDate.setMonth(month - 1);
-                    newDate.setDate(day);
-                    setFormData({
-                      ...formData,
-                      startedAt: newDate,
-                    });
-                  }}
-                  className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
-                  required
-                />
-                <Input
-                  id="startedAtTime"
-                  type="time"
-                  value={formatTimeForInput(formData.startedAt)}
-                  onChange={(e) => {
-                    const newDate = new Date(formData.startedAt);
-                    const [hours, minutes] = e.target.value.split(':').map(Number);
-                    newDate.setHours(hours);
-                    newDate.setMinutes(minutes);
-                    setFormData({
-                      ...formData,
-                      startedAt: newDate,
-                    });
-                  }}
-                  className="w-36 border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
-                  required
-                />
+              <div className="sm:col-span-5">
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <Input
+                      id="startedAt"
+                      type="date"
+                      value={formatDateForInput(formData.startedAt)}
+                      onChange={(e) => {
+                        const updated = dayjs(formData.startedAt)
+                          .year(Number.parseInt(e.target.value.split('-')[0], 10))
+                          .month(Number.parseInt(e.target.value.split('-')[1], 10) - 1)
+                          .date(Number.parseInt(e.target.value.split('-')[2], 10))
+                          .toDate();
+
+                        setFormData({
+                          ...formData,
+                          startedAt: updated,
+                        });
+                      }}
+                      className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
+                      required
+                    />
+                  </div>
+                  <div className="relative">
+                    <Input
+                      id="startedAtTime"
+                      type="time"
+                      value={formatTimeForInput(formData.startedAt)}
+                      onChange={(e) => {
+                        const [hours, minutes] = e.target.value.split(':').map(Number);
+                        const updated = dayjs(formData.startedAt).hour(hours).minute(minutes).toDate();
+
+                        setFormData({
+                          ...formData,
+                          startedAt: updated,
+                        });
+                      }}
+                      className="w-36 border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
+                      required
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setFormData({ ...formData, startedAt: new Date() })}
+                    className="h-9 w-9 rounded-full text-gray-400 border-transparent hover:border-transparent hover:bg-transparent hover:text-gray-400 focus:ring-0 focus:border-transparent"
+                    title="現在の日時にリセット"
+                    aria-label="現在の日時にリセット"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      role="img"
+                    >
+                      <path d="M23 12a11 11 0 1 1-5-9" />
+                      <path d="M21 3v6h-6" />
+                    </svg>
+                  </Button>
+                </div>
+                <div className="mt-1.5 text-xs text-gray-500 bg-gray-50 py-1 px-2 rounded border border-gray-100 inline-block">
+                  {formatDateTime(formData.startedAt)}
+                </div>
               </div>
             </div>
 
