@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -109,6 +109,9 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
       <DialogContent className="w-[calc(100%-2rem)] sm:max-w-[520px] mx-auto rounded-lg bg-white shadow-lg border-0">
         <DialogHeader className="px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-gray-100">
           <DialogTitle className="text-lg sm:text-xl font-bold text-gray-900">{isEdit ? 'サブスク編集' : 'サブスク登録'}</DialogTitle>
+          <DialogDescription style={{ visibility: 'hidden', height: 0, margin: 0 }}>
+            {isEdit ? 'サブスクリプション情報を編集してください。' : '新しいサブスクリプションを登録してください。'}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(100vh-12rem)]">
           <div className="px-4 sm:px-6 py-5 sm:py-6 space-y-5 sm:space-y-6">
