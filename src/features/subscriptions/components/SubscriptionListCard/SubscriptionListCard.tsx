@@ -6,7 +6,7 @@ import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/su
 import { DeleteConfirmDialog } from '@/features/subscriptions/components/DeleteConfirmDialog';
 import { SubscriptionModal } from '@/features/subscriptions/components/SubscriptionModal';
 import { DateUtils } from '@/lib/date.util';
-import { SubscriptionUtils, formatCycle } from '@/lib/subscription.util';
+import { SubscriptionUtils } from '@/lib/subscription.util';
 import { MoreHorizontal } from 'lucide-react';
 import { useSubscriptionList } from './useSubscriptionList';
 
