@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
 import { CurrencyEnum } from '@/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 type SubscriptionModalProps = {
   isOpen: boolean;
@@ -63,6 +63,12 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
 
   const formatDateForInput = (date: Date) => {
     return date.toISOString().split('T')[0];
+  };
+
+  const formatTimeForInput = (date: Date) => {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
   };
 
   // 表示用の価格フォーマット
@@ -239,21 +245,43 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                 htmlFor="startedAt"
                 className="text-sm font-medium text-gray-500 sm:text-right sm:whitespace-nowrap sm:col-span-2 transition-colors group-focus-within:text-primary-600"
               >
-                開始日
+                開始日時
                 <span className="text-rose-500 ml-1 text-xs align-top">*</span>
               </Label>
-              <div className="sm:col-span-5">
+              <div className="sm:col-span-5 flex gap-2">
                 <Input
                   id="startedAt"
                   type="date"
                   value={formatDateForInput(formData.startedAt)}
-                  onChange={(e) =>
+                  onChange={(e) => {
+                    const newDate = new Date(formData.startedAt);
+                    const [year, month, day] = e.target.value.split('-').map(Number);
+                    newDate.setFullYear(year);
+                    newDate.setMonth(month - 1);
+                    newDate.setDate(day);
                     setFormData({
                       ...formData,
-                      startedAt: new Date(e.target.value),
-                    })
-                  }
+                      startedAt: newDate,
+                    });
+                  }}
                   className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
+                  required
+                />
+                <Input
+                  id="startedAtTime"
+                  type="time"
+                  value={formatTimeForInput(formData.startedAt)}
+                  onChange={(e) => {
+                    const newDate = new Date(formData.startedAt);
+                    const [hours, minutes] = e.target.value.split(':').map(Number);
+                    newDate.setHours(hours);
+                    newDate.setMinutes(minutes);
+                    setFormData({
+                      ...formData,
+                      startedAt: newDate,
+                    });
+                  }}
+                  className="w-36 border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
                   required
                 />
               </div>
