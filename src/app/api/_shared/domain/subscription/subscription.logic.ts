@@ -49,7 +49,7 @@ const _calculateNextPaymentAt = (p: { cycle: SubscriptionCycleEnum; startedAt: D
   }
 
   // 開始日から現在までの経過月数を計算
-  const now = DateUtils.getNow();
+  const now = DateUtils.create.now();
   const startDate = p.startedAt.getDate();
   const currentDate = now.getDate();
 

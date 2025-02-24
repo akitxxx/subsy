@@ -18,7 +18,7 @@ type Output = {
 
 const run = ({ subscriptionRepository }: Inject) => {
   return async (p: Input): Promise<Output> => {
-    const now = DateUtils.getNow();
+    const now = DateUtils.create.now();
     const subscriptions = await subscriptionRepository.findManyInUse({ userId: p.userId, now });
     return { subscriptions };
   };

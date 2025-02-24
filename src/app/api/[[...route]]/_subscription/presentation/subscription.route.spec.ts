@@ -34,7 +34,7 @@ describe('/api/subscriptions', () => {
   // ========== test ==========
 
   const now = new Date('2025-01-01 00:00:00');
-  vi.spyOn(DateUtils, 'getNow').mockReturnValue(now);
+  vi.spyOn(DateUtils.create, 'now').mockReturnValue(now);
 
   describe('GET /', () => {
     it('サブスクリプションを取得できること', async () => {
@@ -45,16 +45,16 @@ describe('/api/subscriptions', () => {
         name: 'Test Subscription',
         price: '1980.00',
         cycle: SubscriptionCycleEnum.OneMonth,
-        startedAt: DateUtils.addDays(now, 1),
-        expiredAt: DateUtils.addDays(now, 30),
+        startedAt: DateUtils.modify.addDays(now, 1),
+        expiredAt: DateUtils.modify.addDays(now, 30),
       });
       const subscription2 = await createSubscription(db)({
         userId: user.id,
         name: 'Test Subscription 2',
         price: '1980.00',
         cycle: SubscriptionCycleEnum.OneMonth,
-        startedAt: DateUtils.addDays(now, 2),
-        expiredAt: DateUtils.addDays(now, 29),
+        startedAt: DateUtils.modify.addDays(now, 2),
+        expiredAt: DateUtils.modify.addDays(now, 29),
       });
       // when
       const client = createTestClient({ db, sessionUser: { id: user.id } });
@@ -150,7 +150,7 @@ describe('/api/subscriptions', () => {
           startedAt: new Date(input.startedAt).toISOString(),
           cancelledAt: new Date(input.cancelledAt).toISOString(),
           nextPaymentAt: new Date('2025-04-01 00:00:00').toISOString(),
-          expiredAt: DateUtils.addMilliseconds(new Date('2025-04-01 00:00:00'), -1).toISOString(),
+          expiredAt: DateUtils.modify.addMilliseconds(new Date('2025-04-01 00:00:00'), -1).toISOString(),
         },
       });
       // DB
@@ -158,7 +158,7 @@ describe('/api/subscriptions', () => {
       expect(subscriptions.length).toBe(1);
       expect(subscriptions[0]).toMatchObject({
         ...input,
-        expiredAt: DateUtils.addMilliseconds(new Date('2025-04-01 00:00:00'), -1),
+        expiredAt: DateUtils.modify.addMilliseconds(new Date('2025-04-01 00:00:00'), -1),
       });
     });
   });

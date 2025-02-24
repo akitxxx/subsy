@@ -19,7 +19,7 @@ type Output = {
 };
 
 const findManySubscriptions = async (db: DrizzleClient, userId: string): Promise<SubscriptionEntity[]> => {
-  const now = DateUtils.getNow();
+  const now = DateUtils.create.now();
   const res = await db
     .select()
     .from(subscriptionsTable)
