@@ -1,9 +1,10 @@
 import type { SubscriptionEntity } from '@/app/api/_shared/domain/subscription/subscription.entity';
 import { Subscription } from '@/app/api/_shared/domain/subscription/subscription.logic';
 import type { SubscriptionViewModel } from '@/domain/subscription/subscription.viewModel';
+import { DateUtils } from '@/lib/date.util';
 
 export const mapSubscriptionEntityToViewModel = (entity: SubscriptionEntity): SubscriptionViewModel => {
-  const now = new Date();
+  const now = DateUtils.create.now();
   return {
     ...entity,
     status: Subscription.getStatus(entity),

@@ -27,14 +27,14 @@ describe('/api/subscriptions', () => {
     return testClient(route);
   };
 
+  const now = new Date('2025-01-01 00:00:00');
+
   beforeEach(async () => {
     await cleanupDB(db);
+    vi.spyOn(DateUtils.create, 'now').mockReturnValue(now);
   });
 
   // ========== test ==========
-
-  const now = new Date('2025-01-01 00:00:00');
-  vi.spyOn(DateUtils.create, 'now').mockReturnValue(now);
 
   describe('GET /', () => {
     it('サブスクリプションを取得できること', async () => {
@@ -93,8 +93,8 @@ describe('/api/subscriptions', () => {
       expect(output).toMatchObject({
         subscription: {
           ...input,
-          startedAt: new Date(input.startedAt).toISOString(),
-          nextPaymentAt: new Date('2025-02-01 00:00:00').toISOString(),
+          startedAt: input.startedAt.toISOString(),
+          nextPaymentAt: DateUtils.modify.addMonths(input.startedAt, 1).toISOString(),
           expiredAt: null,
         },
       });
