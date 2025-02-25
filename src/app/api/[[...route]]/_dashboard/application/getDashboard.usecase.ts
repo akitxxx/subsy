@@ -1,16 +1,12 @@
 import type { SubscriptionEntity } from '@/app/api/_shared/domain/subscription/subscription.entity';
 import { Subscription } from '@/app/api/_shared/domain/subscription/subscription.logic';
-import type { UserRepository } from '@/app/api/_shared/domain/user/user.repository';
+import type { SubscriptionRepository } from '@/app/api/_shared/domain/subscription/subscription.repository';
 import { DateUtils } from '@/lib/date.util';
-import type { DrizzleClient } from '@/lib/db/drizzle';
-import { subscriptionsTable } from '@/lib/db/schema';
 import type { SessionUser } from '@/types/api/sessionUser';
-import { and, eq, gt, isNull } from 'drizzle-orm';
 
 type Inject = {
-  db: DrizzleClient;
   sessionUser: SessionUser;
-  userRepository: UserRepository;
+  subscriptionRepository: SubscriptionRepository;
 };
 
 type Output = {
@@ -18,30 +14,57 @@ type Output = {
   upcomingSubscriptions: SubscriptionEntity[];
 };
 
-const findManySubscriptions = async (db: DrizzleClient, userId: string): Promise<SubscriptionEntity[]> => {
-  const now = DateUtils.create.now();
-  const res = await db
-    .select()
-    .from(subscriptionsTable)
-    .where(and(eq(subscriptionsTable.userId, userId), isNull(subscriptionsTable.deletedAt), gt(subscriptionsTable.expiredAt, now)));
-  return res.map(Subscription.parseEntity);
+/**
+ * 当月の支払い予定かつ期限切れ予定でないサブスクリプションの合計金額を計算
+ * @param now
+ * @param subscriptions
+ * @returns
+ */
+const calculateTotalAmount = (now: Date, subscriptions: SubscriptionEntity[]): number => {
+  // nextPaymentAtが当月のものかつ、期限切れ予定でないものを合計
+  const subscriptionsHavePaymentThisMonth = subscriptions.filter((sub) => {
+    const nextPaymentAt = Subscription.getNextPaymentAt(sub)(now);
+    // nextPaymentAtが当月のもの
+    const subscriptionsHavePaymentThisMonth = DateUtils.compare.isBetween(
+      nextPaymentAt,
+      DateUtils.create.startOfMonth(now),
+      DateUtils.create.endOfMonth(now),
+    );
+    // 期限切れ予定がない or nextPaymentAtが期限切れ予定より前
+    const hasPaymentThisMonth = !sub.expiredAt || DateUtils.compare.isBefore(nextPaymentAt, sub.expiredAt);
+    return subscriptionsHavePaymentThisMonth && hasPaymentThisMonth;
+  });
+
+  return subscriptionsHavePaymentThisMonth.reduce((total, sub) => {
+    return total + Number(sub.price);
+  }, 0);
 };
 
-const calculateTotalAmount = (subscriptions: SubscriptionEntity[]): number => {
-  return subscriptions.reduce((total, sub) => total + Number(sub.price), 0);
-};
-
-const getUpcomingSubscriptions = (subscriptions: SubscriptionEntity[]): SubscriptionEntity[] => {
-  return [...subscriptions].sort((a, b) => Subscription.getNextPaymentAt(a).getTime() - Subscription.getNextPaymentAt(b).getTime()).slice(0, 2);
+/**
+ * 次回支払日が近い順にソートして3件取得
+ * 次回支払日が2週間以内のものにfilter
+ * @param now
+ * @param subscriptions
+ * @returns
+ */
+const getUpcomingSubscriptions = (now: Date, subscriptions: SubscriptionEntity[]): SubscriptionEntity[] => {
+  return [...subscriptions]
+    .sort((a, b) => Subscription.getNextPaymentAt(a)(now).getTime() - Subscription.getNextPaymentAt(b)(now).getTime())
+    .filter((sub) => {
+      const nextPaymentAt = Subscription.getNextPaymentAt(sub)(now);
+      return DateUtils.compare.isBetween(nextPaymentAt, now, DateUtils.modify.addDays(now, 14));
+    })
+    .slice(0, 3);
 };
 
 const run =
-  ({ sessionUser, db, userRepository }: Inject) =>
+  ({ sessionUser, subscriptionRepository }: Inject) =>
   async (): Promise<Output> => {
-    const user = await userRepository.findCurrentUserById({ id: sessionUser.id });
-    const subscriptions = await findManySubscriptions(db, user.id);
-    const totalThisMonth = calculateTotalAmount(subscriptions);
-    const upcomingSubscriptions = getUpcomingSubscriptions(subscriptions);
+    const now = DateUtils.create.now();
+    const subscriptions = await subscriptionRepository.findManyInUse({ userId: sessionUser.id, now });
+
+    const totalThisMonth = calculateTotalAmount(now, subscriptions);
+    const upcomingSubscriptions = getUpcomingSubscriptions(now, subscriptions);
 
     return {
       totalThisMonth,

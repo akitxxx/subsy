@@ -89,6 +89,20 @@ const create = {
   },
 
   /**
+   * 月初の日付を取得
+   */
+  startOfMonth: (date: Date): Date => {
+    return dayjs(date).startOf('month').toDate();
+  },
+
+  /**
+   * 月末の日付を取得
+   */
+  endOfMonth: (date: Date): Date => {
+    return dayjs(date).endOf('month').toDate();
+  },
+
+  /**
    * ISO文字列から日付を生成
    */
   fromISOString: (isoString: string | null): Date | null => {
@@ -273,6 +287,13 @@ const compare = {
    */
   isAfter: (date1: Date, date2: Date): boolean => {
     return date1.getTime() > date2.getTime();
+  },
+
+  /**
+   * dateがstartとendの間にあるかどうか
+   */
+  isBetween: (date: Date, start: Date, end: Date): boolean => {
+    return date.getTime() >= start.getTime() && date.getTime() <= end.getTime();
   },
 };
 

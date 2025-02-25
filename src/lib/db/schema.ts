@@ -75,6 +75,7 @@ export const subscriptionsTable = pgTable(
     cycle: varchar('cycle', { length: 255 }).notNull(),
     startedAt: timestamp('started_at', { withTimezone: true }).notNull(),
     cancelledAt: timestamp('cancelled_at', { withTimezone: true }),
+    // 期限がない=次の自動更新予定がある
     expiredAt: timestamp('expired_at', { withTimezone: true }),
     description: text('description'),
 

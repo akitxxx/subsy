@@ -12,23 +12,28 @@ const getStatus = (e: SubscriptionEntity) => {
   return SubscriptionStatusEnum.Active;
 };
 
+// 現在利用中か(期限が切れしていない)
 const getIsInUse = (e: SubscriptionEntity) => (now: Date) => {
   return !getIsExpired(e)(now);
 };
 
+// 自動更新キャンセル済みか
 const getIsCancelled = (e: SubscriptionEntity) => {
   return e.cancelledAt !== null;
 };
 
+// 期限が切れているか
 const getIsExpired = (e: SubscriptionEntity) => (now: Date) => {
   return e.expiredAt !== null && e.expiredAt < now;
 };
 
-const getNextPaymentAt = (e: SubscriptionEntity) => {
-  return _calculateNextPaymentAt({ cycle: e.cycle, startedAt: e.startedAt });
+// 次回支払日
+const getNextPaymentAt = (e: SubscriptionEntity) => (now: Date) => {
+  return _calculateNextPaymentAt({ cycle: e.cycle, startedAt: e.startedAt, now });
 };
 
-const _calculateNextPaymentAt = (p: { cycle: SubscriptionCycleEnum; startedAt: Date }) => {
+// 次回支払日を計算
+const _calculateNextPaymentAt = (p: { cycle: SubscriptionCycleEnum; startedAt: Date; now: Date }) => {
   // サイクルに応じて月数を計算
   let monthsPerCycle: number;
   switch (p.cycle) {
@@ -49,7 +54,7 @@ const _calculateNextPaymentAt = (p: { cycle: SubscriptionCycleEnum; startedAt: D
   }
 
   // 開始日から現在までの経過月数を計算
-  const now = DateUtils.create.now();
+  const now = p.now;
   const startDate = p.startedAt.getDate();
   const currentDate = now.getDate();
 
@@ -80,9 +85,10 @@ const _calculateNextPaymentAt = (p: { cycle: SubscriptionCycleEnum; startedAt: D
   return nextPaymentAt;
 };
 
-const getExpiredAt = (p: { cycle: SubscriptionCycleEnum; startedAt: Date; cancelledAt: Date | null }) => {
+// 期限切れ日を計算
+const _calculateExpiredAt = (p: { cycle: SubscriptionCycleEnum; startedAt: Date; cancelledAt: Date | null }) => {
   if (!p.cancelledAt) return null;
-  const nextPaymentAt = _calculateNextPaymentAt({ cycle: p.cycle, startedAt: p.startedAt });
+  const nextPaymentAt = _calculateNextPaymentAt({ cycle: p.cycle, startedAt: p.startedAt, now: DateUtils.create.now() });
   return new Date(nextPaymentAt.getTime() - 1);
 };
 
@@ -93,16 +99,9 @@ type SubscriptionCreateProps = Pick<
 const create = (p: SubscriptionCreateProps): SubscriptionEntity => {
   const now = new Date();
   return {
+    ...p,
     id: randomUUID(),
-    userId: p.userId,
-    name: p.name,
-    price: p.price,
-    currency: p.currency,
-    cycle: p.cycle,
-    startedAt: p.startedAt,
-    cancelledAt: p.cancelledAt ?? null,
-    expiredAt: getExpiredAt(p),
-    description: p.description ?? null,
+    expiredAt: _calculateExpiredAt({ cycle: p.cycle, startedAt: p.startedAt, cancelledAt: p.cancelledAt }),
     createdAt: now,
     updatedAt: now,
     deletedAt: null,
@@ -113,7 +112,7 @@ const update =
   (e: SubscriptionEntity) =>
   (props: Partial<SubscriptionEntity>): SubscriptionEntity => {
     const updated = { ...e, ...props };
-    return { ...updated, expiredAt: getExpiredAt(updated) };
+    return { ...updated, expiredAt: _calculateExpiredAt({ cycle: updated.cycle, startedAt: updated.startedAt, cancelledAt: updated.cancelledAt }) };
   };
 
 const parseEntity = (data: SelectSubscription) => {
@@ -126,7 +125,6 @@ export const Subscription = {
   getIsCancelled,
   getIsExpired,
   getNextPaymentAt,
-  getExpiredAt,
   create,
   update,
   parseEntity,

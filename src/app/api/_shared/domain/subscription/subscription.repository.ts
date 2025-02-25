@@ -25,6 +25,7 @@ const findManyInUse =
     const subscriptions = await db.query.subscriptionsTable.findMany({
       where: and(
         eq(subscriptionsTable.userId, p.userId),
+        // 有効期限が切れていないか、有効期限がない
         or(gt(subscriptionsTable.expiredAt, p.now), isNull(subscriptionsTable.expiredAt)),
         isNull(subscriptionsTable.deletedAt),
       ),
@@ -32,6 +33,23 @@ const findManyInUse =
     });
     return subscriptions.map(Subscription.parseEntity);
   };
+
+/** サブスクリプションを取得 */
+// TODO: perf: nextPaymentAtをSQL側で計算して取得したい、パフォーマンス向上のため
+const findManyWillNextPaymentByUserId =
+  ({ db }: Inject) =>
+  async (p: { userId: string }): Promise<SubscriptionEntity[]> => {
+    const subscriptions = await db.query.subscriptionsTable.findMany({
+      where: and(
+        eq(subscriptionsTable.userId, p.userId),
+        isNull(subscriptionsTable.expiredAt), // 期限がない=次の更新がある
+        isNull(subscriptionsTable.deletedAt),
+      ),
+    });
+    return subscriptions.map(Subscription.parseEntity);
+  };
+
+// ========== cud ==========
 
 const create =
   ({ db }: Inject) =>
@@ -69,8 +87,9 @@ export const SubscriptionRepository = (inject: Inject) => ({
   create: create(inject),
   update: update(inject),
   delete: deleteOne(inject),
-  findManyInUse: findManyInUse(inject),
   findByIdAndUserId: findByIdAndUserId(inject),
+  findManyInUse: findManyInUse(inject),
+  findManyWillNextPaymentByUserId: findManyWillNextPaymentByUserId(inject),
 });
 
 export type SubscriptionRepository = ReturnType<typeof SubscriptionRepository>;
