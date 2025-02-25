@@ -111,7 +111,7 @@ describe('getNextPaymentAt', () => {
         vi.setSystemTime(mockNow);
       }
       const subscription = createSubscription({ cycle, startedAt });
-      const result = Subscription.getNextPaymentAt(subscription);
+      const result = Subscription.getNextPaymentAt(subscription)(mockNow);
       expect(result).toEqual(expected);
       if (mockNow) {
         vi.useRealTimers();
@@ -125,7 +125,7 @@ describe('getNextPaymentAt', () => {
         cycle: 'InvalidCycle' as SubscriptionCycleEnum,
         startedAt: new Date('2025-01-01 00:00:00'),
       });
-      Subscription.getNextPaymentAt(subscription);
+      Subscription.getNextPaymentAt(subscription)(new Date('2025-01-01 00:00:00'));
     }).toThrow('Invalid subscription cycle: InvalidCycle');
   });
 });
