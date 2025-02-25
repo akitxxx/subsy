@@ -1,5 +1,6 @@
 import { CurrencyEnum } from '@/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/enums/subscription/subscriptionCycle.enum';
+import { DateUtils } from '@/lib/date.util';
 import { describe, expect, it } from 'vitest';
 import { vi } from 'vitest';
 import type { SubscriptionEntity } from './subscription.entity';
@@ -131,6 +132,7 @@ describe('getNextPaymentAt', () => {
 });
 
 const createSubscription = (params: Partial<SubscriptionEntity> & Pick<SubscriptionEntity, 'cycle' | 'startedAt'>): SubscriptionEntity => {
+  const now = DateUtils.create.now();
   return {
     id: 'test-id',
     name: 'Test Subscription',
@@ -140,8 +142,8 @@ const createSubscription = (params: Partial<SubscriptionEntity> & Pick<Subscript
     cancelledAt: null,
     expiredAt: null,
     description: null,
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: now,
+    updatedAt: now,
     deletedAt: null,
     ...params,
   };

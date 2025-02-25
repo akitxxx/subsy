@@ -97,7 +97,7 @@ type SubscriptionCreateProps = Pick<
   'userId' | 'name' | 'price' | 'currency' | 'cycle' | 'startedAt' | 'cancelledAt' | 'description'
 >;
 const create = (p: SubscriptionCreateProps): SubscriptionEntity => {
-  const now = new Date();
+  const now = DateUtils.create.now();
   return {
     ...p,
     id: randomUUID(),

@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { DateUtils } from '@/lib/date.util';
 import type { SelectUser } from '@/lib/db/schema';
 import type { UserAuthEntity, UserEntity } from './user.entity';
 
@@ -11,7 +12,7 @@ const updateProfile =
 type UserCreateProps = Pick<UserEntity, 'nickname'> & { userAuth: Pick<UserAuthEntity, 'provider' | 'providerId'> };
 const newUser = (p: UserCreateProps) => {
   const id = randomUUID();
-  const now = new Date();
+  const now = DateUtils.create.now();
   return {
     id,
     nickname: p.nickname,
