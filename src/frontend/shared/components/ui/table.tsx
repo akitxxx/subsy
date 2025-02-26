@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { cn } from '@/frontend/shared/utils/utils';
+import { cn } from '@/frontend/shared/lib/utils';
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(({ className, ...props }, ref) => (
   <div className="w-full overflow-auto">

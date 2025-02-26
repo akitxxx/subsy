@@ -1,4 +1,4 @@
-import { cn } from '@/frontend/shared/utils/utils';
+import { cn } from '@/frontend/shared/lib/utils';
 import { ActionButton, type ActionButtonProps } from './ActionButton';
 
 /**

@@ -1,5 +1,5 @@
 import { Button } from '@/frontend/shared/components/ui/button';
-import { cn } from '@/frontend/shared/utils/utils';
+import { cn } from '@/frontend/shared/lib/utils';
 import type { ReactNode } from 'react';
 
 export type ActionButtonProps = {
