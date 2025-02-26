@@ -2,6 +2,7 @@ import { CancelButton, PrimaryButton } from '@/frontend/shared/components/button
 import { Card, CardContent } from '@/frontend/shared/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/frontend/shared/components/ui/dialog';
 import type { SubscriptionViewModel } from '@/shared/domain/subscription/subscription.viewModel';
+import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { DateUtils } from '@/shared/utils/date.util';
 import { PriceUtils } from '@/shared/utils/price.util';
 import { SubscriptionUtils } from '@/shared/utils/subscription.util';
@@ -46,7 +47,7 @@ export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit 
   }, [subscription]);
 
   // 通貨記号を決定
-  const currencySymbol = subscription.currency === 'USD' ? '$' : '¥';
+  const currencySymbol = subscription.currency === CurrencyEnum.USD ? '$' : '¥';
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>

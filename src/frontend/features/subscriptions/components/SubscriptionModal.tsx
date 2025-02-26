@@ -1,5 +1,6 @@
-import { ActionButton, CancelButton, PrimaryButton } from '@/frontend/shared/components/button';
+import { ActionButton, CancelButton, PrimaryLoadingButton } from '@/frontend/shared/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/frontend/shared/components/ui/dialog';
+import { CloseIcon, RefreshIcon } from '@/frontend/shared/components/ui/icons';
 import { Input } from '@/frontend/shared/components/ui/input';
 import { Label } from '@/frontend/shared/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/frontend/shared/components/ui/select';
@@ -8,6 +9,7 @@ import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
 import { PriceUtils } from '@/shared/utils/price.util';
+import { sleepByPromise } from '@/shared/utils/sleepByPromise';
 import { useEffect, useMemo, useState } from 'react';
 
 // 型定義
@@ -18,6 +20,7 @@ type SubscriptionModalProps = {
   onCreate: (subscription: SubscriptionCreateModel) => void;
   onUpdate: (subscription: SubscriptionViewModel) => void;
   subscription: SubscriptionViewModel | null;
+  isLoading?: boolean;
 };
 
 type TFormData = {
@@ -51,7 +54,7 @@ const FormField = ({ id, label, required = false, children }: FormFieldProps) =>
   </div>
 );
 
-export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate, subscription }: SubscriptionModalProps) {
+export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate, subscription, isLoading = false }: SubscriptionModalProps) {
   // 初期フォームデータの生成
   const defaultFormData = useMemo(
     (): TFormData => ({
@@ -207,22 +210,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                   onClick={() => setFormData({ ...formData, startedAt: DateUtils.create.now() })}
                   className="h-9 w-9 rounded-full text-gray-400 border-transparent hover:border-transparent hover:bg-transparent hover:text-gray-400 focus:ring-0 focus:border-transparent"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                    role="img"
-                  >
-                    <path d="M23 12a11 11 0 1 1-5-9" />
-                    <path d="M21 3v6h-6" />
-                  </svg>
+                  <RefreshIcon />
                 </ActionButton>
               </div>
               <div className="mt-1.5 text-xs text-gray-500 bg-gray-50 py-1 px-2 rounded border border-gray-100 inline-block">
@@ -272,41 +260,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                   onClick={() => setFormData({ ...formData, cancelledAt: formData.cancelledAt ? null : DateUtils.create.now() })}
                   className="h-9 w-9 rounded-full text-gray-400 border-transparent hover:border-transparent hover:bg-transparent hover:text-gray-400 focus:ring-0 focus:border-transparent"
                 >
-                  {formData.cancelledAt ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                      role="img"
-                    >
-                      <path d="M18 6 6 18" />
-                      <path d="m6 6 12 12" />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                      role="img"
-                    >
-                      <path d="M23 12a11 11 0 1 1-5-9" />
-                      <path d="M21 3v6h-6" />
-                    </svg>
-                  )}
+                  {formData.cancelledAt ? <CloseIcon /> : <RefreshIcon />}
                 </ActionButton>
               </div>
               {formData.cancelledAt && (
@@ -329,8 +283,12 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
           </div>
 
           <DialogFooter className="px-4 sm:px-6 py-4 border-t border-gray-100 gap-3">
-            <CancelButton onClick={onClose}>キャンセル</CancelButton>
-            <PrimaryButton type="submit">{isEdit ? '更新' : '登録'}</PrimaryButton>
+            <CancelButton onClick={onClose} disabled={isLoading}>
+              キャンセル
+            </CancelButton>
+            <PrimaryLoadingButton type="submit" isLoading={isLoading} loadingText={isEdit ? '更新中...' : '登録中...'}>
+              {isEdit ? '更新' : '登録'}
+            </PrimaryLoadingButton>
           </DialogFooter>
         </form>
       </DialogContent>

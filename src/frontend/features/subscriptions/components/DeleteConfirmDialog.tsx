@@ -1,4 +1,4 @@
-import { CancelButton, DestructiveButton } from '@/frontend/shared/components/button';
+import { CancelButton, DestructiveLoadingButton } from '@/frontend/shared/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/frontend/shared/components/ui/dialog';
 
 type DeleteConfirmDialogProps = {
@@ -6,9 +6,10 @@ type DeleteConfirmDialogProps = {
   onClose: () => void;
   onConfirm: () => void;
   subscriptionName: string | undefined;
+  isLoading?: boolean;
 };
 
-export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, subscriptionName }: DeleteConfirmDialogProps) {
+export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, subscriptionName, isLoading = false }: DeleteConfirmDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -20,8 +21,12 @@ export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, subscriptionNa
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <CancelButton onClick={onClose}>キャンセル</CancelButton>
-          <DestructiveButton onClick={onConfirm}>削除</DestructiveButton>
+          <CancelButton onClick={onClose} disabled={isLoading}>
+            キャンセル
+          </CancelButton>
+          <DestructiveLoadingButton onClick={onConfirm} isLoading={isLoading} loadingText="削除中...">
+            削除
+          </DestructiveLoadingButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -27,6 +27,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
     isDeleteDialogOpen,
     isDetailModalOpen,
     detailSubscription,
+    isLoading,
     handleOpenModal,
     handleCloseModal,
     handleCreateSubscription,
@@ -90,6 +91,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
         onCreate={handleCreateSubscription}
         onUpdate={handleUpdateSubscription}
         subscription={currentSubscription}
+        isLoading={isLoading}
       />
 
       {/* 削除確認ダイアログ */}
@@ -98,6 +100,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={() => currentSubscription && handleDeleteSubscription(currentSubscription)}
         subscriptionName={currentSubscription?.name}
+        isLoading={isLoading}
       />
 
       {/* サブスク詳細表示用モーダル */}

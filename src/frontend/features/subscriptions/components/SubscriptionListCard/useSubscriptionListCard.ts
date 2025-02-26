@@ -14,6 +14,7 @@ export const useSubscriptionListCard = (props: {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [detailSubscription, setDetailSubscription] = useState<SubscriptionViewModel | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleOpenModal = useCallback((subscription?: SubscriptionViewModel) => {
     if (!subscription) {
@@ -56,25 +57,40 @@ export const useSubscriptionListCard = (props: {
   }, []);
 
   const handleCreateSubscription = useCallback(
-    (subscription: SubscriptionCreateModel) => {
-      props.onCreate(subscription);
-      handleCloseModal();
+    async (subscription: SubscriptionCreateModel) => {
+      setIsLoading(true);
+      try {
+        await props.onCreate(subscription);
+        handleCloseModal();
+      } finally {
+        setIsLoading(false);
+      }
     },
     [props, handleCloseModal],
   );
 
   const handleUpdateSubscription = useCallback(
-    (subscription: SubscriptionViewModel) => {
-      props.onUpdate(subscription);
-      handleCloseModal();
+    async (subscription: SubscriptionViewModel) => {
+      setIsLoading(true);
+      try {
+        await props.onUpdate(subscription);
+        handleCloseModal();
+      } finally {
+        setIsLoading(false);
+      }
     },
     [props, handleCloseModal],
   );
 
   const handleDeleteSubscription = useCallback(
-    (subscription: SubscriptionViewModel) => {
-      props.onDelete(subscription);
-      setIsDeleteDialogOpen(false);
+    async (subscription: SubscriptionViewModel) => {
+      setIsLoading(true);
+      try {
+        await props.onDelete(subscription);
+        setIsDeleteDialogOpen(false);
+      } finally {
+        setIsLoading(false);
+      }
     },
     [props],
   );
@@ -87,6 +103,7 @@ export const useSubscriptionListCard = (props: {
     isDetailModalOpen,
     detailSubscription,
     isTransitioning,
+    isLoading,
     handleOpenModal,
     handleCloseModal,
     handleOpenDetailModal,
