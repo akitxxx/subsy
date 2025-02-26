@@ -1,4 +1,4 @@
-import { Button } from '@/frontend/shared/components/ui/button';
+import { CancelButton, PrimaryButton } from '@/frontend/shared/components/button';
 import { Card, CardContent } from '@/frontend/shared/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/frontend/shared/components/ui/dialog';
 import type { SubscriptionViewModel } from '@/shared/domain/subscription/subscription.viewModel';
@@ -91,25 +91,27 @@ export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit 
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-sm text-muted-foreground">開始日</span>
-                  <span className="text-sm font-medium">{DateUtils.format.custom(subscription.startedAt, 'YYYY年MM月DD日')}</span>
+                  <span className="text-sm font-medium">{DateUtils.format.custom(subscription.startedAt, 'YYYY/MM/DD')}</span>
                 </div>
 
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">次回支払い日</span>
-                  <span className="text-sm font-medium">{DateUtils.format.custom(subscription.nextPaymentAt, 'YYYY年MM月DD日')}</span>
-                </div>
+                {!subscription.isCancelled && (
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">次回支払い日</span>
+                    <span className="text-sm font-medium">{DateUtils.format.custom(subscription.nextPaymentAt, 'YYYY/MM/DD')}</span>
+                  </div>
+                )}
 
                 {subscription.cancelledAt && (
                   <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">解約日</span>
-                    <span className="text-sm font-medium">{DateUtils.format.custom(subscription.cancelledAt, 'YYYY年MM月DD日')}</span>
+                    <span className="text-sm text-muted-foreground">キャンセル日</span>
+                    <span className="text-sm font-medium">{DateUtils.format.custom(subscription.cancelledAt, 'YYYY/MM/DD')}</span>
                   </div>
                 )}
 
                 {subscription.expiredAt && (
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">有効期限</span>
-                    <span className="text-sm font-medium">{DateUtils.format.custom(subscription.expiredAt, 'YYYY年MM月DD日')}</span>
+                    <span className="text-sm font-medium">{DateUtils.format.custom(subscription.expiredAt, 'YYYY/MM/DD')}</span>
                   </div>
                 )}
               </div>
@@ -131,13 +133,11 @@ export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit 
 
           {/* ボタン */}
           <div className="flex justify-end space-x-2 pt-2">
-            <Button variant="outline" onClick={onEdit} className="gap-1 transition-all duration-200 hover:bg-primary hover:text-primary-foreground">
+            <PrimaryButton onClick={onEdit} className="gap-1">
               <PencilIcon className="h-4 w-4" />
               編集
-            </Button>
-            <Button variant="default" onClick={onClose} className="transition-all duration-200">
-              閉じる
-            </Button>
+            </PrimaryButton>
+            <CancelButton onClick={onClose}>閉じる</CancelButton>
           </div>
         </div>
       </DialogContent>

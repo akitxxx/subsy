@@ -1,4 +1,4 @@
-import { Button } from '@/frontend/shared/components/ui/button';
+import { CancelButton, DestructiveButton } from '@/frontend/shared/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/frontend/shared/components/ui/dialog';
 
 type DeleteConfirmDialogProps = {
@@ -20,12 +20,8 @@ export function DeleteConfirmDialog({ isOpen, onClose, onConfirm, subscriptionNa
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="focus:outline-none">
-            キャンセル
-          </Button>
-          <Button variant="destructive" onClick={onConfirm} className="focus:outline-none">
-            削除
-          </Button>
+          <CancelButton onClick={onClose}>キャンセル</CancelButton>
+          <DestructiveButton onClick={onConfirm}>削除</DestructiveButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

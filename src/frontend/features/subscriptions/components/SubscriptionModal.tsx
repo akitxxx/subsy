@@ -1,4 +1,4 @@
-import { Button } from '@/frontend/shared/components/ui/button';
+import { ActionButton, CancelButton, PrimaryButton } from '@/frontend/shared/components/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/frontend/shared/components/ui/dialog';
 import { Input } from '@/frontend/shared/components/ui/input';
 import { Label } from '@/frontend/shared/components/ui/label';
@@ -201,14 +201,11 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                     required
                   />
                 </div>
-                <Button
+                <ActionButton
                   type="button"
                   variant="outline"
-                  size="icon"
                   onClick={() => setFormData({ ...formData, startedAt: DateUtils.create.now() })}
                   className="h-9 w-9 rounded-full text-gray-400 border-transparent hover:border-transparent hover:bg-transparent hover:text-gray-400 focus:ring-0 focus:border-transparent"
-                  title="現在の日時にリセット"
-                  aria-label="現在の日時にリセット"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -226,11 +223,97 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                     <path d="M23 12a11 11 0 1 1-5-9" />
                     <path d="M21 3v6h-6" />
                   </svg>
-                </Button>
+                </ActionButton>
               </div>
               <div className="mt-1.5 text-xs text-gray-500 bg-gray-50 py-1 px-2 rounded border border-gray-100 inline-block">
                 {DateUtils.format.forDisplay(formData.startedAt)}
               </div>
+            </FormField>
+
+            {/* キャンセル日時フィールド */}
+            <FormField id="cancelledAt" label="キャンセル日時">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="cancelledAt"
+                    type="date"
+                    value={formData.cancelledAt ? DateUtils.format.forDateInput(formData.cancelledAt) : ''}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const baseDate = formData.cancelledAt || DateUtils.create.now();
+                        const updated = DateUtils.modify.updateFromDateInput(baseDate, e.target.value);
+                        setFormData({ ...formData, cancelledAt: updated });
+                      } else {
+                        setFormData({ ...formData, cancelledAt: null });
+                      }
+                    }}
+                    className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
+                  />
+                </div>
+                <div className="relative">
+                  <Input
+                    id="cancelledAtTime"
+                    type="time"
+                    value={formData.cancelledAt ? DateUtils.format.forTimeInput(formData.cancelledAt) : ''}
+                    onChange={(e) => {
+                      if (e.target.value) {
+                        const baseDate = formData.cancelledAt || DateUtils.create.now();
+                        const updated = DateUtils.modify.updateFromTimeInput(baseDate, e.target.value);
+                        setFormData({ ...formData, cancelledAt: updated });
+                      }
+                    }}
+                    className="w-36 border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
+                    disabled={!formData.cancelledAt}
+                  />
+                </div>
+                <ActionButton
+                  type="button"
+                  variant="outline"
+                  onClick={() => setFormData({ ...formData, cancelledAt: formData.cancelledAt ? null : DateUtils.create.now() })}
+                  className="h-9 w-9 rounded-full text-gray-400 border-transparent hover:border-transparent hover:bg-transparent hover:text-gray-400 focus:ring-0 focus:border-transparent"
+                >
+                  {formData.cancelledAt ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      role="img"
+                    >
+                      <path d="M18 6 6 18" />
+                      <path d="m6 6 12 12" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                      role="img"
+                    >
+                      <path d="M23 12a11 11 0 1 1-5-9" />
+                      <path d="M21 3v6h-6" />
+                    </svg>
+                  )}
+                </ActionButton>
+              </div>
+              {formData.cancelledAt && (
+                <div className="mt-1.5 text-xs text-gray-500 bg-gray-50 py-1 px-2 rounded border border-gray-100 inline-block">
+                  {DateUtils.format.forDisplay(formData.cancelledAt)}
+                </div>
+              )}
             </FormField>
 
             {/* 説明フィールド */}
@@ -246,17 +329,8 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
           </div>
 
           <DialogFooter className="px-4 sm:px-6 py-4 border-t border-gray-100 gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1 sm:flex-none min-w-[100px] sm:min-w-[120px] transition-all hover:bg-gray-50 border-gray-200 hover:border-primary-600 text-gray-500 hover:text-primary-600"
-            >
-              キャンセル
-            </Button>
-            <Button type="submit" className="flex-1 sm:flex-none min-w-[100px] sm:min-w-[120px] font-medium text-white transition-all">
-              {isEdit ? '更新' : '登録'}
-            </Button>
+            <CancelButton onClick={onClose}>キャンセル</CancelButton>
+            <PrimaryButton type="submit">{isEdit ? '更新' : '登録'}</PrimaryButton>
           </DialogFooter>
         </form>
       </DialogContent>
