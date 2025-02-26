@@ -1,15 +1,16 @@
-import { NotFoundError, toErrorResponse } from '@/app/api/_shared/lib/error';
-import { getDrizzleClient } from '@/lib/db/drizzle';
-import { userAuthsTable, usersTable } from '@/lib/db/schema';
-import { createSupabaseHono } from '@/lib/supabase/supabase';
-import type { HonoEnv } from '@/types/api/hono';
+import { NotFoundError, toErrorResponse } from '@/api/shared/error';
+import { getDrizzleClient } from '@/api/shared/lib/db/drizzle';
+import { userAuthsTable, usersTable } from '@/api/shared/lib/db/schema';
+import type { HonoEnv } from '@/api/shared/types/hono';
+import { createSupabaseHono } from '@/shared/lib/supabase/supabase';
 import { eq } from 'drizzle-orm';
 import { type Context, Hono } from 'hono';
 import { handle } from 'hono/vercel';
-import auth from './_auth/presentation/auth.route';
-import dashboard from './_dashboard/presentation/dashboard.route';
-import subscription from './_subscription/presentation/subscription.route';
-import user from './_user/presentation/user.route';
+
+import auth from './auth.route';
+import dashboard from './dashboard.route';
+import subscription from './subscription.route';
+import user from './user.route';
 
 const app = new Hono<HonoEnv>().basePath('/api');
 

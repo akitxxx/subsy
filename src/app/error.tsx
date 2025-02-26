@@ -1,13 +1,7 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Button } from '@/frontend/shared/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/frontend/shared/components/ui/card';
 import { useEffect } from 'react';
 
 export default function ErrorPage({
@@ -33,17 +27,9 @@ export default function ErrorPage({
           <CardTitle>エラーが発生しました</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-2">
-            申し訳ありません。予期せぬエラーが発生しました。
-          </p>
-          <p className="text-sm text-muted-foreground/80">
-            エラー内容: {error.message}
-          </p>
-          {error.digest && (
-            <p className="text-xs text-muted-foreground/60 mt-1">
-              エラーID: {error.digest}
-            </p>
-          )}
+          <p className="text-muted-foreground mb-2">申し訳ありません。予期せぬエラーが発生しました。</p>
+          <p className="text-sm text-muted-foreground/80">エラー内容: {error.message}</p>
+          {error.digest && <p className="text-xs text-muted-foreground/60 mt-1">エラーID: {error.digest}</p>}
         </CardContent>
         <CardFooter className="flex justify-end gap-4">
           <Button variant="outline" onClick={handleHomeClick}>

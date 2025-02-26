@@ -1,8 +1,8 @@
-import { getDrizzleClient } from '@/lib/db/drizzle';
+import { getDrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
-import * as schema from '../src/lib/db/schema';
+import * as schema from '../src/api/shared/lib/db/schema';
 import drizzleConfig from './drizzle.config';
 
 export const resetDatabase = async () => {

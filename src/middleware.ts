@@ -1,7 +1,7 @@
-import { createSupabaseServerClient, updateSession } from '@/lib/supabase/supabase';
+import { createSupabaseServerClient, updateSession } from '@/shared/lib/supabase/supabase';
 import type { User } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
-import { honoClient } from './lib/hono/hono';
+import { honoClient } from './shared/lib/hono/hono';
 
 // 認証をスキップするパス
 const PUBLIC_PATHS = {

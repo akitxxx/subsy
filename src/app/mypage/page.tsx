@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ProfileForm } from '@/features/user/components/ProfileForm';
-import type { CurrentUser } from '@/features/user/types/user';
-import { honoClient } from '@/lib/hono/hono';
+import { ProfileForm } from '@/frontend/features/user/components/ProfileForm';
+import { Card, CardContent, CardHeader, CardTitle } from '@/frontend/shared/components/ui/card';
+import type { CurrentUser } from '@/frontend/shared/types/user';
+import { honoClient } from '@/shared/lib/hono/hono';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';

@@ -4,11 +4,7 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
-  content: [
-    './src/app/**/*.{ts,tsx}',
-    './src/components/**/*.{ts,tsx}',
-    './src/features/**/*.{ts,tsx}',
-  ],
+  content: ['./src/app/**/*.{ts,tsx}', './src/frontend/shared/components/**/*.{ts,tsx}', './src/frontend/features/**/*.{ts,tsx}'],
   theme: {
     container: {
       center: true,
