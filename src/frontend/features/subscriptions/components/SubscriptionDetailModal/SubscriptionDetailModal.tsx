@@ -30,25 +30,17 @@ export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit 
     }
     if (subscription.isCancelled) {
       return {
-        label: '解約済み',
+        label: 'キャンセル済み',
         color: 'text-orange-500',
         bgColor: 'bg-orange-100',
         icon: <XIcon className="h-4 w-4" />,
       };
     }
-    if (subscription.isInUse) {
-      return {
-        label: '利用中',
-        color: 'text-green-500',
-        bgColor: 'bg-green-100',
-        icon: <CheckIcon className="h-4 w-4" />,
-      };
-    }
     return {
-      label: '停止中',
-      color: 'text-yellow-500',
-      bgColor: 'bg-yellow-100',
-      icon: <ClockIcon className="h-4 w-4" />,
+      label: '利用中',
+      color: 'text-green-500',
+      bgColor: 'bg-green-100',
+      icon: <CheckIcon className="h-4 w-4" />,
     };
   }, [subscription]);
 
