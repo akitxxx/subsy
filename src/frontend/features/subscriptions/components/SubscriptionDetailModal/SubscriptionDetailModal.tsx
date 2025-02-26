@@ -98,13 +98,13 @@ export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit 
 
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">次回支払い日</span>
-                  <span className="text-sm font-medium">{DateUtils.format.custom(subscription.nextPaymentAt, 'YYYY年MM月DD日')}</span>
+                  <span className="text-sm text-muted-foreground">開始日</span>
+                  <span className="text-sm font-medium">{DateUtils.format.custom(subscription.startedAt, 'YYYY年MM月DD日')}</span>
                 </div>
 
                 <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">開始日</span>
-                  <span className="text-sm font-medium">{DateUtils.format.custom(subscription.startedAt, 'YYYY年MM月DD日')}</span>
+                  <span className="text-sm text-muted-foreground">次回支払い日</span>
+                  <span className="text-sm font-medium">{DateUtils.format.custom(subscription.nextPaymentAt, 'YYYY年MM月DD日')}</span>
                 </div>
 
                 {subscription.cancelledAt && (
