@@ -42,155 +42,45 @@ const submit = () => { /* ... */ }; // 動詞で始まっていない
 
 ### コンポーネントの分割
 
-* **単一責任の原則**: 1つのコンポーネントは1つの責任を持つ
-* **適切な粒度**: ロジックと表示の分離、再利用性を考慮
-* **コンポーネントサイズ**: 200行を超える場合は分割を検討
-
-### プロップス定義
-
-* 明示的な型定義
-* デフォルト値の設定
-* 必須プロップスの明示
-
-```tsx
-type Props = {
-  variant?: 'primary' | 'secondary' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  isFullWidth?: boolean;
-  children: React.ReactNode;
-  onClick?: () => void;
-};
-
-export function Button({
-  variant = 'primary',
-  size = 'md',
-  isFullWidth = false,
-  children,
-  onClick
-}: Props) {
-  // ...
-}
-```
+- 単一責任の原則: 1つのコンポーネントは1つの責任を持つ
+- 適切な粒度: ロジックと表示の分離、再利用性を考慮
+- コンポーネントサイズ: 200行を超える場合は分割を検討
 
 ### コンポーネント構造
 
+- コンポーネント本体とロジックをまとめたhookが1対1となる
+  - ロジックが少ない場合はコンポーネント本体に書いても良い
+  - コンポーネントが呼ぶhookは基本紐づく1つのhookであること
+- コンポーネントを構成するファイルが複数の場合は、ディレクトリをコンポーネント名としてバレルでexportするものを明示する
+  - ファイルが単一の場合は冗長なためディレクトリ化はしなくてもよい
+
 ```tsx
-// 1. インポート
-import { useState } from 'react';
-import { Button } from '@/frontend/shared/components/ui/Button';
-
-// 2. 型定義
-type Props = {
-  initialData?: User;
-  onSubmit: (data: UserFormData) => void;
-};
-
-// 3. コンポーネント定義
-export function UserForm({ initialData, onSubmit }: Props) {
-  // 4. フック・状態
-  const [name, setName] = useState(initialData?.name || '');
-  
-  // 5. イベントハンドラ
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit({ name });
-  };
-  
-  // 6. 条件付きレンダリング
-  if (!initialData && isRequired) {
-    return <div>初期データが必要です</div>;
-  }
-  
-  // 7. JSX
-  return (
-    <form onSubmit={handleSubmit}>
-      {/* JSXの内容 */}
-    </form>
-  );
+// ../Dashboard/Dashboard.tsx
+export const Dashboard = () => {
+  const { data } = useDashboard();
 }
+
+// ../Dashboard/useDashboard.ts
+export const useDashboard = () => {
+  // ...
+  return { data }
+}
+
+// ../Dashboard/index.ts
+export { Dashboard } from './Dashboard.tsx'
 ```
 
 ## 状態管理
 
 ### ローカル状態
-* シンプルな状態には `useState`
-* 複雑な状態には `useReducer`
-* 派生状態にはメモ化 (`useMemo`)
-
-```tsx
-// 単純な状態
-const [isOpen, setIsOpen] = useState(false);
-
-// 複雑な状態
-const [state, dispatch] = useReducer(reducer, initialState);
-
-// 派生状態
-const filteredItems = useMemo(() => {
-  return items.filter(item => item.status === status);
-}, [items, status]);
-```
+- シンプルな状態には `useState`
+- 複雑な状態には `useReducer`
+- 派生状態にはメモ化 (`useMemo`)
 
 ### グローバル状態
-
-* 必要最小限の状態だけをグローバルに
-* 適切なスコープでの状態分割
-* React Context APIの適切な使用
-
-```tsx
-// Contextを使った状態管理の例
-import { createContext, useContext, useReducer, ReactNode } from 'react';
-
-type AuthState = {
-  user: User | null;
-  isLoading: boolean;
-};
-
-type AuthAction = 
-  | { type: 'LOGIN_START' }
-  | { type: 'LOGIN_SUCCESS'; payload: User }
-  | { type: 'LOGIN_FAILURE' }
-  | { type: 'LOGOUT' };
-
-const AuthContext = createContext<{
-  state: AuthState;
-  login: (credentials: Credentials) => Promise<void>;
-  logout: () => Promise<void>;
-} | undefined>(undefined);
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(authReducer, initialState);
-  
-  const login = async (credentials: Credentials) => {
-    dispatch({ type: 'LOGIN_START' });
-    try {
-      const user = await apiLogin(credentials);
-      dispatch({ type: 'LOGIN_SUCCESS', payload: user });
-    } catch (error) {
-      dispatch({ type: 'LOGIN_FAILURE' });
-      throw error;
-    }
-  };
-  
-  const logout = async () => {
-    await apiLogout();
-    dispatch({ type: 'LOGOUT' });
-  };
-  
-  return (
-    <AuthContext.Provider value={{ state, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-```
+- 必要最小限の状態だけをグローバルに
+- 適切なスコープでの状態分割
+- React Context APIの適切な使用
 
 ## 型定義
 

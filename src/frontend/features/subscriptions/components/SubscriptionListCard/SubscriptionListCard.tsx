@@ -8,7 +8,8 @@ import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/shared/do
 import { DateUtils } from '@/shared/utils/date.util';
 import { SubscriptionUtils } from '@/shared/utils/subscription.util';
 import { MoreHorizontal } from 'lucide-react';
-import { useSubscriptionList } from './useSubscriptionList';
+import { SubscriptionDetailModal } from '../SubscriptionDetailModal';
+import { useSubscriptionListCard } from './useSubscriptionListCard';
 
 type Props = {
   subscriptions: SubscriptionViewModel[];
@@ -23,14 +24,19 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
     isEditModal,
     currentSubscription,
     isDeleteDialogOpen,
+    isDetailModalOpen,
+    detailSubscription,
     handleOpenModal,
     handleCloseModal,
     handleCreateSubscription,
     handleUpdateSubscription,
     handleDeleteSubscription,
+    handleOpenDetailModal,
+    handleCloseDetailModal,
     setIsDeleteDialogOpen,
     setCurrentSubscription,
-  } = useSubscriptionList({ subscriptions, onCreate, onUpdate, onDelete });
+    handleSwitchToEditModal,
+  } = useSubscriptionListCard({ subscriptions, onCreate, onUpdate, onDelete });
 
   return (
     <Card className="mb-8">
@@ -53,35 +59,17 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
           </TableHeader>
           <TableBody>
             {subscriptions.length > 0 ? (
-              subscriptions.map((sub) => (
-                <TableRow key={sub.id}>
-                  <TableCell className="font-medium">{sub.name}</TableCell>
-                  <TableCell>¥{Number(sub.price).toLocaleString()}</TableCell>
-                  <TableCell>{SubscriptionUtils.display.formatCycle(sub.cycle)}</TableCell>
-                  <TableCell>{DateUtils.format.custom(sub.nextPaymentAt, 'YYYY/MM/DD')}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="hover:bg-muted focus:outline-none">
-                          <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
-                          <span className="sr-only">メニューを開く</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleOpenModal(sub)}>編集</DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => {
-                            setCurrentSubscription(sub);
-                            setIsDeleteDialogOpen(true);
-                          }}
-                        >
-                          削除
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+              subscriptions.map((subscription) => (
+                <SubscriptionTableRow
+                  key={subscription.id}
+                  subscription={subscription}
+                  onOpenDetailModal={handleOpenDetailModal}
+                  onOpenEditModal={handleOpenModal}
+                  onOpenDeleteDialog={(sub) => {
+                    setCurrentSubscription(sub);
+                    setIsDeleteDialogOpen(true);
+                  }}
+                />
               ))
             ) : (
               <TableRow>
@@ -94,6 +82,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
         </Table>
       </CardContent>
 
+      {/* 編集用モーダル */}
       <SubscriptionModal
         isOpen={isModalOpen}
         isEdit={isEditModal}
@@ -103,12 +92,81 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
         subscription={currentSubscription}
       />
 
+      {/* 削除確認ダイアログ */}
       <DeleteConfirmDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={() => currentSubscription && handleDeleteSubscription(currentSubscription)}
         subscriptionName={currentSubscription?.name}
       />
+
+      {/* サブスク詳細表示用モーダル */}
+      <SubscriptionDetailModal
+        subscription={detailSubscription}
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        onEdit={() => {
+          if (detailSubscription) {
+            handleSwitchToEditModal(detailSubscription);
+          }
+        }}
+      />
     </Card>
+  );
+};
+
+// テーブル行コンポーネント
+type SubscriptionTableRowProps = {
+  subscription: SubscriptionViewModel;
+  onOpenDetailModal: (subscription: SubscriptionViewModel) => void;
+  onOpenEditModal: (subscription: SubscriptionViewModel) => void;
+  onOpenDeleteDialog: (subscription: SubscriptionViewModel) => void;
+};
+
+const SubscriptionTableRow = ({ subscription, onOpenDetailModal, onOpenEditModal, onOpenDeleteDialog }: SubscriptionTableRowProps) => {
+  return (
+    <TableRow
+      className="cursor-pointer hover:bg-muted/50 transition-colors"
+      onClick={(e) => {
+        const isDropdownClicked = (e.target as HTMLElement).closest('.dropdown-trigger, [role="menuitem"]');
+        if (!isDropdownClicked) {
+          onOpenDetailModal(subscription);
+        }
+      }}
+    >
+      <TableCell className="font-medium">{subscription.name}</TableCell>
+      <TableCell>¥{Number(subscription.price).toLocaleString()}</TableCell>
+      <TableCell>{SubscriptionUtils.display.formatCycle(subscription.cycle)}</TableCell>
+      <TableCell>{DateUtils.format.custom(subscription.nextPaymentAt, 'YYYY/MM/DD')}</TableCell>
+      <TableCell>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="hover:bg-muted focus:outline-none dropdown-trigger" onClick={(e) => e.stopPropagation()}>
+              <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
+              <span className="sr-only">メニューを開く</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenEditModal(subscription);
+              }}
+            >
+              編集
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpenDeleteDialog(subscription);
+              }}
+            >
+              削除
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </TableCell>
+    </TableRow>
   );
 };
