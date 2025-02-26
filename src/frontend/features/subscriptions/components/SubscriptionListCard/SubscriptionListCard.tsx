@@ -6,8 +6,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/frontend/shared/components/ui/table';
 import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/shared/domain/subscription/subscription.viewModel';
 import { DateUtils } from '@/shared/utils/date.util';
+import { PriceUtils } from '@/shared/utils/price.util';
 import { SubscriptionUtils } from '@/shared/utils/subscription.util';
-import { MoreHorizontal } from 'lucide-react';
+import { AlertCircle, Calendar, MoreHorizontal, Plus } from 'lucide-react';
 import { SubscriptionDetailModal } from '../SubscriptionDetailModal';
 import { useSubscriptionListCard } from './useSubscriptionListCard';
 
@@ -42,24 +43,25 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
     <Card className="mb-8">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>サブスクリプション</CardTitle>
-        <Button onClick={() => handleOpenModal()} className="font-bold">
+        <Button onClick={() => handleOpenModal()} className="font-bold" size="sm">
+          <Plus className="mr-1 h-4 w-4" />
           追加
         </Button>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>サービス名</TableHead>
-              <TableHead>金額</TableHead>
-              <TableHead>支払いサイクル</TableHead>
-              <TableHead>次回支払い日</TableHead>
-              <TableHead />
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {subscriptions.length > 0 ? (
-              subscriptions.map((subscription) => (
+        {subscriptions.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>サービス名</TableHead>
+                <TableHead>金額</TableHead>
+                <TableHead>支払いサイクル</TableHead>
+                <TableHead>次回支払い日</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {subscriptions.map((subscription) => (
                 <SubscriptionTableRow
                   key={subscription.id}
                   subscription={subscription}
@@ -70,16 +72,19 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                     setIsDeleteDialogOpen(true);
                   }}
                 />
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground">
-                  サブスクリプションはありません
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <AlertCircle className="h-10 w-10 mx-auto mb-3" />
+            <div className="mb-2">サブスクリプションはありません</div>
+            <Button variant="outline" onClick={() => handleOpenModal()} size="sm">
+              <Plus className="mr-1 h-4 w-4" />
+              サブスクリプションを追加
+            </Button>
+          </div>
+        )}
       </CardContent>
 
       {/* 編集用モーダル */}
@@ -124,24 +129,30 @@ type SubscriptionTableRowProps = {
 };
 
 const SubscriptionTableRow = ({ subscription, onOpenDetailModal, onOpenEditModal, onOpenDeleteDialog }: SubscriptionTableRowProps) => {
+  // 通貨記号を決定
+  const currencySymbol = subscription.currency === 'USD' ? '$' : '¥';
+
   return (
     <TableRow
       className="cursor-pointer hover:bg-muted/50 transition-colors"
       onClick={(e) => {
-        const isDropdownClicked = (e.target as HTMLElement).closest('.dropdown-trigger, [role="menuitem"]');
+        const isDropdownClicked = (e.target as HTMLElement).closest('[role="menuitem"]');
         if (!isDropdownClicked) {
           onOpenDetailModal(subscription);
         }
       }}
     >
       <TableCell className="font-medium">{subscription.name}</TableCell>
-      <TableCell>¥{Number(subscription.price).toLocaleString()}</TableCell>
+      <TableCell>
+        {currencySymbol}
+        {PriceUtils.display.format(subscription.price, subscription.currency)}
+      </TableCell>
       <TableCell>{SubscriptionUtils.display.formatCycle(subscription.cycle)}</TableCell>
       <TableCell>{DateUtils.format.custom(subscription.nextPaymentAt, 'YYYY/MM/DD')}</TableCell>
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="hover:bg-muted focus:outline-none dropdown-trigger" onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted focus:outline-none" onClick={(e) => e.stopPropagation()}>
               <MoreHorizontal className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors" />
               <span className="sr-only">メニューを開く</span>
             </Button>

@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/frontend/shared/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/frontend/shared/components/ui/dialog';
 import type { SubscriptionViewModel } from '@/shared/domain/subscription/subscription.viewModel';
 import { DateUtils } from '@/shared/utils/date.util';
+import { PriceUtils } from '@/shared/utils/price.util';
 import { SubscriptionUtils } from '@/shared/utils/subscription.util';
 import { AlertCircleIcon, CalendarIcon, CheckIcon, ClockIcon, CreditCardIcon, InfoIcon, PencilIcon, TagIcon, XIcon } from 'lucide-react';
 import { useMemo } from 'react';
@@ -44,6 +45,9 @@ export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit 
     };
   }, [subscription]);
 
+  // 通貨記号を決定
+  const currencySymbol = subscription.currency === 'USD' ? '$' : '¥';
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md transition-all duration-200 ease-in-out">
@@ -74,7 +78,10 @@ export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit 
                 </div>
               </div>
               <div className="flex justify-between items-baseline">
-                <div className="text-2xl font-bold">¥{Number(subscription.price).toLocaleString()}</div>
+                <div className="text-2xl font-bold">
+                  {currencySymbol}
+                  {PriceUtils.display.format(subscription.price, subscription.currency)}
+                </div>
                 <div className="text-sm text-muted-foreground">{SubscriptionUtils.display.formatCycle(subscription.cycle)}</div>
               </div>
             </CardContent>

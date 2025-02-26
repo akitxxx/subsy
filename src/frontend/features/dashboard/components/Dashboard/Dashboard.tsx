@@ -2,6 +2,7 @@
 
 import { SubscriptionListCard } from '@/frontend/features/subscriptions/components/SubscriptionListCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/frontend/shared/components/ui/card';
+import { PriceUtils } from '@/shared/utils/price.util';
 import { useDashboard } from './useDashboard';
 
 export const Dashboard = () => {
@@ -30,7 +31,8 @@ export const Dashboard = () => {
                   <li key={sub.id} className="flex justify-between items-center p-3 rounded-lg bg-secondary">
                     <span className="font-semibold">{sub.name}</span>
                     <span className="font-medium">
-                      ¥{Number(sub.price).toLocaleString()} ({sub.expiredAt})
+                      {sub.currency === 'USD' ? '$' : '¥'}
+                      {PriceUtils.display.format(sub.price, sub.currency)} ({sub.expiredAt})
                     </span>
                   </li>
                 ))
