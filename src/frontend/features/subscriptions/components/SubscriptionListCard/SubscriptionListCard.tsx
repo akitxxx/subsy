@@ -8,7 +8,7 @@ import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/shared/do
 import { DateUtils } from '@/shared/utils/date.util';
 import { PriceUtils } from '@/shared/utils/price.util';
 import { SubscriptionUtils } from '@/shared/utils/subscription.util';
-import { AlertCircle, Calendar, MoreHorizontal, Plus } from 'lucide-react';
+import { MoreHorizontal, Plus } from 'lucide-react';
 import { SubscriptionDetailModal } from '../SubscriptionDetailModal';
 import { useSubscriptionListCard } from './useSubscriptionListCard';
 
@@ -77,12 +77,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
           </Table>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
-            <AlertCircle className="h-10 w-10 mx-auto mb-3" />
             <div className="mb-2">サブスクリプションはありません</div>
-            <Button variant="outline" onClick={() => handleOpenModal()} size="sm">
-              <Plus className="mr-1 h-4 w-4" />
-              サブスクリプションを追加
-            </Button>
           </div>
         )}
       </CardContent>
