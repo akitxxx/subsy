@@ -32,9 +32,11 @@
     - shared/ - 共通APIユーティリティ
   - shared/ - フロントエンド・API間共通コード
     - types/ - 共通型定義
-    - constants/ - 定数
+    - domain/ - ドメインモデル
     - enums/ - 列挙型定義
     - utils/ - 共通ユーティリティ関数
+    - lib/ - ライブラリ統合
+    - test/ - テスト用ユーティリティ
 
 ### frontend/features/
 
@@ -59,7 +61,7 @@
 
 - frontend/shared/
   - components/ - 共通UIコンポーネント
-    - buttons/ - ボタン系
+    - ui/ - 基本的なUIコンポーネント
     - forms/ - フォーム関連
     - layout/ - レイアウト系
     - feedback/ - 通知・アラート系
@@ -101,20 +103,14 @@ API共通モジュールの構造：
 
 - shared/
   - types/ - 共通型定義
-    - models/ - ドメインモデルの型定義
+    - models/ - モデルの型定義
     - api/ - API関連の型定義
     - common/ - 汎用型定義
-  - constants/ - 定数
-    - api/ - API関連の定数
-    - app/ - アプリケーション定数
-    - common/ - 共通定数
+  - domain/ - ドメインモデル
   - enums/ - 列挙型定義
-    - models/ - ドメインモデルの列挙型
-    - common/ - 共通列挙型
   - utils/ - 共通ユーティリティ関数
-    - format/ - フォーマット関連
-    - validation/ - バリデーション関連
-    - helpers/ - ヘルパー関数
+  - lib/ - ライブラリ統合
+  - test/ - テスト用ユーティリティ
 
 ## モジュール間の依存関係
 
@@ -173,34 +169,12 @@ frontend/features/users/
 * カスタムフック
 * HOC（高階コンポーネント）
 
-内部構造:
-```
-frontend/shared/
-├── components/    # 共通UIコンポーネント（Button, Card, Modal など）
-├── hooks/         # 共通カスタムフック（useForm, useAuth など）
-├── layouts/       # 共通レイアウトコンポーネント
-├── providers/     # コンテキストプロバイダー
-├── utils/         # フロントエンド共通ユーティリティ
-└── index.ts       # 公開API
-```
-
 ### api/features/
 
 * 機能別APIエンドポイント
 * サーバーサイドのビジネスロジック
 * データベース操作
 * 外部APIとの通信
-
-各機能モジュールの内部構造:
-```
-api/features/users/
-├── handlers/      # APIハンドラ関数
-├── services/      # ビジネスロジック
-├── repositories/  # データアクセス層
-├── schemas/       # バリデーションスキーマ
-├── types.ts       # 機能固有の型定義
-└── index.ts       # 公開API
-```
 
 ### api/shared/
 
@@ -210,42 +184,13 @@ api/features/users/
 * ミドルウェア
 * エラーハンドリング
 
-内部構造:
-```
-api/shared/
-├── db/           # データベース接続・設定
-├── middlewares/  # 共通ミドルウェア（認証、ロギングなど）
-├── errors/       # エラーハンドリング
-├── utils/        # ユーティリティ関数
-└── index.ts      # 公開API
-```
-
 ### shared/
 
 * フロントエンドとAPI間で共有される型定義、定数、列挙型
 * ドメインモデル
 * 共通ユーティリティ関数
-
-内部構造:
-```
-shared/
-├── types/               # 共通型定義
-│   ├── models/          # ドメインモデルの型定義
-│   ├── api/             # API関連の型定義
-│   └── common/          # 汎用型定義
-├── constants/           # 定数
-│   ├── api/             # API関連の定数
-│   ├── app/             # アプリケーション定数
-│   └── common/          # 共通定数
-├── enums/               # 列挙型定義
-│   ├── models/          # ドメインモデルの列挙型
-│   └── common/          # 共通列挙型
-├── utils/               # 共通ユーティリティ関数
-│   ├── format/          # フォーマット関連
-│   ├── validation/      # バリデーション関連
-│   └── helpers/         # ヘルパー関数
-└── index.ts             # 公開API
-```
+* テスト用ユーティリティ
+* ライブラリ統合
 
 ## データフロー
 
@@ -254,8 +199,8 @@ shared/
    * API通信用の関数は機能モジュール内に配置
 
 2. **サーバーからデータベースへ**:
-   * ORMを使用してデータアクセス
-   * データアクセス層はAPI共通機能として集約
+   * Drizzle ORMを使用してデータアクセス
+   * Supabaseも利用したデータ管理
 
 3. **レスポンス**:
    * 共通のレスポンス形式を定義
@@ -264,16 +209,16 @@ shared/
 ## 状態管理
 
 1. **サーバー状態**:
-   * サーバーからのデータをフロントエンドで管理
+   * TanStack Queryを使用したサーバー状態管理
    * キャッシュ、再取得、楽観的更新の戦略
 
 2. **クライアント状態**:
    * グローバル状態と局所的な状態の分離
-   * 適切なスコープでの状態管理
+   * React Context APIを活用した状態管理
    
 3. **フォーム状態**:
-   * 入力値の状態管理
-   * バリデーション
+   * React Hook Formを使用した入力値の状態管理
+   * Zodを用いたバリデーション
 
 ## エラーハンドリング
 

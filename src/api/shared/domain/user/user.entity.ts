@@ -1,5 +1,4 @@
-import { randomUUID } from 'node:crypto';
-import type { InsertUser, InsertUserAuth, SelectUser, SelectUserAuth } from '@/api/shared/lib/db/schema';
+import type { SelectUser, SelectUserAuth } from '@/api/shared/lib/db/schema';
 import { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
 import { z } from 'zod';
 

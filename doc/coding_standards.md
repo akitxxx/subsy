@@ -2,45 +2,13 @@
 
 ## 目次
 
-1. [ファイル構成](#ファイル構成)
-2. [命名規則](#命名規則)
-3. [コンポーネント設計](#コンポーネント設計)
-4. [状態管理](#状態管理)
-5. [型定義](#型定義)
-6. [コメント](#コメント)
-7. [テスト](#テスト)
-8. [スタイリング](#スタイリング)
-
-## ファイル構成
-
-### ディレクトリ構造
-
-機能モジュールの内部構造は以下のパターンに従います：
-
-```
-src/frontend/features/users/
-├── components/        # UI コンポーネント
-├── hooks/             # カスタムフック
-├── api.ts             # API通信関数
-├── types.ts           # 機能固有の型定義
-├── utils.ts           # ユーティリティ関数
-└── index.ts           # Public API
-```
-
-### エクスポート規則
-
-* 各機能モジュールは `index.ts` で公開APIを明示的にエクスポート
-* 内部実装の詳細は直接インポートしない
-
-```ts
-// Good: src/frontend/features/users/index.ts
-export { UsersList } from './components/UsersList';
-export { useUsers } from './hooks/useUsers';
-export type { UserSortOption } from './types';
-
-// Bad: 他のモジュールから直接内部コンポーネントをインポート
-// import { UserCard } from '@/frontend/features/users/components/UserCard';
-```
+1. [命名規則](#命名規則)
+2. [コンポーネント設計](#コンポーネント設計)
+3. [状態管理](#状態管理)
+4. [型定義](#型定義)
+5. [コメント](#コメント)
+6. [テスト](#テスト)
+7. [スタイリング](#スタイリング)
 
 ## 命名規則
 
@@ -109,7 +77,7 @@ export function Button({
 ```tsx
 // 1. インポート
 import { useState } from 'react';
-import { Button } from '@/frontend/shared/components/Button';
+import { Button } from '@/frontend/shared/components/ui/Button';
 
 // 2. 型定義
 type Props = {
@@ -123,7 +91,7 @@ export function UserForm({ initialData, onSubmit }: Props) {
   const [name, setName] = useState(initialData?.name || '');
   
   // 5. イベントハンドラ
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit({ name });
   };
@@ -145,7 +113,6 @@ export function UserForm({ initialData, onSubmit }: Props) {
 ## 状態管理
 
 ### ローカル状態
-
 * シンプルな状態には `useState`
 * 複雑な状態には `useReducer`
 * 派生状態にはメモ化 (`useMemo`)
@@ -167,38 +134,62 @@ const filteredItems = useMemo(() => {
 
 * 必要最小限の状態だけをグローバルに
 * 適切なスコープでの状態分割
-* コンテキストの適切な使用
+* React Context APIの適切な使用
 
 ```tsx
-// Zustandを使った状態管理の例
-import { create } from 'zustand';
+// Contextを使った状態管理の例
+import { createContext, useContext, useReducer, ReactNode } from 'react';
 
-interface AuthState {
+type AuthState = {
   user: User | null;
   isLoading: boolean;
+};
+
+type AuthAction = 
+  | { type: 'LOGIN_START' }
+  | { type: 'LOGIN_SUCCESS'; payload: User }
+  | { type: 'LOGIN_FAILURE' }
+  | { type: 'LOGOUT' };
+
+const AuthContext = createContext<{
+  state: AuthState;
   login: (credentials: Credentials) => Promise<void>;
   logout: () => Promise<void>;
-}
+} | undefined>(undefined);
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  isLoading: false,
-  login: async (credentials) => {
-    set({ isLoading: true });
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [state, dispatch] = useReducer(authReducer, initialState);
+  
+  const login = async (credentials: Credentials) => {
+    dispatch({ type: 'LOGIN_START' });
     try {
       const user = await apiLogin(credentials);
-      set({ user, isLoading: false });
+      dispatch({ type: 'LOGIN_SUCCESS', payload: user });
     } catch (error) {
-      set({ isLoading: false });
+      dispatch({ type: 'LOGIN_FAILURE' });
       throw error;
     }
-  },
-  logout: async () => {
-    set({ isLoading: true });
+  };
+  
+  const logout = async () => {
     await apiLogout();
-    set({ user: null, isLoading: false });
+    dispatch({ type: 'LOGOUT' });
+  };
+  
+  return (
+    <AuthContext.Provider value={{ state, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-}));
+  return context;
+};
 ```
 
 ## 型定義
@@ -222,16 +213,16 @@ export type User = {
   id: string;
   name: string;
   email: string;
-  role: UserRoleEnum;
+  role: UserRole;
 };
 
 // Good: constオブジェクト + typeパターン
-export const UserRoleEnum = {
-  ADMIN: 'ADMIN',
-  MANAGER: 'MANAGER',
-  USER: 'USER'
+export const UserRole = {
+  Admin: 'Admin',
+  Manager: 'Manager',
+  User: 'User'
 } as const;
-export type UserRoleEnum = (typeof UserRoleEnum)[keyof typeof UserRoleEnum];
+export type UserRole = (typeof UserRole)[keyof typeof UserRole];
 
 // 必要な場合のみinterfaceを使用（拡張が必要な場合など）
 export interface BaseRepository<T> {
@@ -241,53 +232,30 @@ export interface BaseRepository<T> {
   update(id: string, data: Partial<T>): Promise<T>;
   delete(id: string): Promise<boolean>;
 }
-
-// 実装例
-export class UserRepository implements BaseRepository<User> {
-  // メソッドの実装
-}
 ```
 
 ### 型定義の場所
 
-* 共通型: `src/types/`
-* ドメインモデル: `src/domain/{モジュール名}/`
-* 列挙型: `src/enums/`
-* 機能固有型: 該当機能内またはドメインモデル内
+* 共通型: `src/shared/types/`
+* ドメインモデル: `src/shared/domain/`
+* 列挙型: `src/shared/enums/`
+* 機能固有型: 該当機能内
 
 ```ts
-// src/enums/user-auth/userRole.enum.ts
-export const UserRoleEnum = {
-  ADMIN: 'ADMIN',
-  MANAGER: 'MANAGER',
-  USER: 'USER'
-} as const;
-export type UserRoleEnum = (typeof UserRoleEnum)[keyof typeof UserRoleEnum];
-
-// src/domain/user/user.viewModel.ts
-import { UserRoleEnum } from '@/enums/user-auth/userRole.enum';
+// src/shared/domain/user.ts
+import { UserRole } from '@/shared/enums/userRole';
 import { z } from 'zod';
 
 // Zodスキーマを使った型定義
-const userViewModelSchema = z.object({
+export const userSchema = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string().email(),
-  role: z.nativeEnum(UserRoleEnum)
+  role: z.nativeEnum(UserRole)
 });
 
-export type UserViewModel = z.infer<typeof userViewModelSchema>;
+export type User = z.infer<typeof userSchema>;
 ```
-
-### ファイル命名規則
-
-* 型定義: `{名前}.type.ts`
-* 列挙型: `{名前}.enum.ts`
-* ビューモデル: `{名前}.viewModel.ts`
-* モデル: `{名前}.model.ts`
-* エンティティ: `{名前}.entity.ts`
-* ユーティリティ: `{名前}.util.ts`
-* アクション: `{名前}.action.ts`
 
 ## コメント
 
@@ -296,22 +264,7 @@ export type UserViewModel = z.infer<typeof userViewModelSchema>;
 * コードは自己説明的にする
 * **なぜ**そうしているかを説明する（**何を**しているかは通常不要）
 * 複雑なロジックには説明を加える
-* TODO コメントには理由と期限を含める
-
-```ts
-// Good
-// ユーザーが30日以上ログインしていない場合は非アクティブとみなす
-const isInactive = daysSinceLastLogin > 30;
-
-// Bad
-// ユーザー名を設定
-setUsername(name);
-
-// TODO: パフォーマンス最適化が必要（2023年Q2対応予定）
-function heavyCalculation() {
-  // ...
-}
-```
+* TODO コメントには理由を含める
 
 ### JSDoc
 
@@ -345,28 +298,28 @@ async function getUserWithStats(
 ### テストファイル配置
 
 * テストファイルは対象のコードファイルと同じディレクトリに配置
-* ファイル名は `[対象].test.ts` または `[対象].spec.ts`
+* ファイル名は `[対象].spec.ts`
 
 ```
 src/frontend/features/users/
 ├── components/
 │   ├── UserCard.tsx
-│   └── UserCard.test.tsx
+│   └── UserCard.spec.tsx
 ├── hooks/
 │   ├── useUsers.ts
-│   └── useUsers.test.ts
+│   └── useUsers.spec.ts
 ```
 
 ### テスト記述スタイル
 
 ```tsx
-// src/frontend/shared/components/Button.test.tsx
+// src/frontend/shared/components/ui/Button.spec.tsx
 import { render, fireEvent } from '@testing-library/react';
 import { Button } from './Button';
 
 describe('Button', () => {
   it('クリックイベントを発火する', () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     const { getByRole } = render(
       <Button onClick={handleClick}>クリック</Button>
     );
@@ -391,14 +344,26 @@ describe('Button', () => {
 ### CSS規約
 
 * TailwindCSSを使用
-* 複雑なコンポーネントは CSS Modules を検討
+* shadcn/uiコンポーネントを活用
 * グローバルスタイルは最小限に
 
 ### コンポーネントのスタイル
 
 ```tsx
 // シンプルなコンポーネント: インラインでTailwindクラスを使用
-function Badge({ label, variant = 'info' }) {
+import { cn } from "@/shared/lib/utils";
+
+type BadgeProps = {
+  label: string;
+  variant?: 'info' | 'success' | 'warning' | 'danger';
+  className?: string;
+};
+
+export function Badge({ 
+  label, 
+  variant = 'info',
+  className 
+}: BadgeProps) {
   const baseClasses = 'px-2 py-1 rounded text-xs font-semibold';
   const variantClasses = {
     info: 'bg-blue-100 text-blue-800',
@@ -408,7 +373,7 @@ function Badge({ label, variant = 'info' }) {
   };
   
   return (
-    <span className={`${baseClasses} ${variantClasses[variant]}`}>
+    <span className={cn(baseClasses, variantClasses[variant], className)}>
       {label}
     </span>
   );
@@ -418,18 +383,11 @@ function Badge({ label, variant = 'info' }) {
 ### レスポンシブデザイン
 
 * モバイルファーストアプローチ
-* 標準的なブレークポイントの使用
+* Tailwindの標準的なブレークポイントの使用
 
 ```tsx
 // モバイルファーストアプローチの例
-<div className="
-  grid 
-  grid-cols-1 
-  sm:grid-cols-2 
-  md:grid-cols-3 
-  lg:grid-cols-4 
-  gap-4
-">
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
   {/* コンテンツ */}
 </div>
 ``` 
