@@ -2,7 +2,7 @@ import { Subscription } from '@/api/shared/domain/subscription';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { subscriptionsTable } from '@/api/shared/lib/db/schema';
 import type { Tx } from '@/api/shared/types/tx';
-import { and, asc, eq, gt, isNull, or } from 'drizzle-orm';
+import { and, asc, eq, gt, isNull, lt, or } from 'drizzle-orm';
 import type { SubscriptionEntity } from './subscription.entity';
 
 type Inject = {
@@ -19,15 +19,27 @@ const findByIdAndUserId =
     return subscription ? Subscription.parseEntity(subscription) : null;
   };
 
-/** 期限切れしていないサブスクリプションを取得 */
-const findManyInUse =
+/** 有効なサブスクリプションと期限切れ(2週間以内)のサブスクリプションを取得 */
+const findManyActiveAndRecentlyExpired =
   ({ db }: Inject) =>
   async (p: { userId: string; now: Date }): Promise<SubscriptionEntity[]> => {
+    // 現在の日付から2週間前の日付を計算
+    const twoWeeksAgo = new Date(p.now);
+    twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+
     const subscriptions = await db.query.subscriptionsTable.findMany({
       where: and(
         eq(subscriptionsTable.userId, p.userId),
-        // 有効期限が切れていないか、有効期限がない
-        or(gt(subscriptionsTable.expiredAt, p.now), isNull(subscriptionsTable.expiredAt)),
+        // 有効期限が切れていないか、有効期限がない、または期限切れから2週間以内
+        or(
+          gt(subscriptionsTable.expiredAt, p.now), // 有効期限が現在より後
+          isNull(subscriptionsTable.expiredAt), // 有効期限がない
+          and(
+            // 期限切れだが2週間以内
+            lt(subscriptionsTable.expiredAt, p.now),
+            gt(subscriptionsTable.expiredAt, twoWeeksAgo),
+          ),
+        ),
         isNull(subscriptionsTable.deletedAt),
       ),
       orderBy: [asc(subscriptionsTable.expiredAt)],
@@ -89,7 +101,7 @@ export const SubscriptionRepository = (inject: Inject) => ({
   update: update(inject),
   delete: deleteOne(inject),
   findByIdAndUserId: findByIdAndUserId(inject),
-  findManyInUse: findManyInUse(inject),
+  findManyActiveAndRecentlyExpired: findManyActiveAndRecentlyExpired(inject),
   findManyWillNextPaymentByUserId: findManyWillNextPaymentByUserId(inject),
 });
 

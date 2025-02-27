@@ -61,7 +61,7 @@ const run =
   ({ sessionUser, subscriptionRepository }: Inject) =>
   async (): Promise<Output> => {
     const now = DateUtils.create.now();
-    const subscriptions = await subscriptionRepository.findManyInUse({ userId: sessionUser.id, now });
+    const subscriptions = await subscriptionRepository.findManyActiveAndRecentlyExpired({ userId: sessionUser.id, now });
 
     const totalThisMonth = calculateTotalAmount(now, subscriptions);
     const upcomingSubscriptions = getUpcomingSubscriptions(now, subscriptions);

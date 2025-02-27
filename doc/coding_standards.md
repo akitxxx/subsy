@@ -14,18 +14,18 @@
 
 ### ファイル名
 
-* **コンポーネント**: PascalCase (`Button.tsx`, `UserProfile.tsx`)
-* **ユーティリティ/フック**: camelCase (`useAuth.ts`, `formatDate.ts`)
-* **型定義**: インターフェース名と同じか、`types.ts`として集約
-* **定数**: `constants.ts` または機能別 (`userConstants.ts`)
+- コンポーネント: PascalCase (`Button.tsx`, `UserProfile.tsx`)
+- ユーティリティ/フック: camelCase (`useAuth.ts`, `formatDate.ts`)
+- 型定義: インターフェース名と同じか、`types.ts`として集約
+- 定数: `constants.ts` または機能別 (`userConstants.ts`)
 
 ### 変数・関数名
 
-* **変数**: camelCase、説明的な名前を使用
-* **ブール値**: `is`/`has`/`should` などの接頭辞を使用 (`isLoading`, `hasError`)
-* **関数**: 動詞で始める (`getUserData`, `formatPrice`)
-* **コンポーネント**: PascalCase、名詞 (`Button`, `UserCard`)
-* **カスタムフック**: `use` で始める (`useAuth`, `useWindowSize`)
+- 変数: camelCase、説明的な名前を使用
+- ブール値: `is`/`has`/`should` などの接頭辞を使用 (`isLoading`, `hasError`)
+- 関数: 動詞で始める (`getUserData`, `formatPrice`)
+- コンポーネント: PascalCase、名詞 (`Button`, `UserCard`)
+- カスタムフック: `use` で始める (`useAuth`, `useWindowSize`)
 
 ```tsx
 // Good
@@ -88,16 +88,16 @@ export { Dashboard } from './Dashboard.tsx'
 
 ### 基本原則
 
-* すべての変数、関数、コンポーネントに型を付ける
-* `any` の使用を避ける
-* Union型を活用する
-* 再利用可能な型は共有する
+- すべての変数、関数、コンポーネントに型を付ける
+- `any` の使用を避ける
+- Union型を活用する
+- 再利用可能な型は共有する
 
 ### 型定義の方針
 
-* 基本的に `type` を使用する
-* 拡張が必要な場合のみ `interface` を使用
-* 列挙型には `const オブジェクト + type` パターンを使用
+- 基本的に `type` を使用する
+- 拡張が必要な場合のみ `interface` を使用
+- 列挙型には `const オブジェクト + type` パターンを使用
 
 ```ts
 // Good: typeで定義
@@ -128,10 +128,10 @@ export interface BaseRepository<T> {
 
 ### 型定義の場所
 
-* 共通型: `src/shared/types/`
-* ドメインモデル: `src/shared/domain/`
-* 列挙型: `src/shared/enums/`
-* 機能固有型: 該当機能内
+- 共通型: `src/shared/types/`
+- ドメインモデル: `src/shared/domain/`
+- 列挙型: `src/shared/enums/`
+- 機能固有型: 該当機能内
 
 ```ts
 // src/shared/domain/user.ts
@@ -153,10 +153,10 @@ export type User = z.infer<typeof userSchema>;
 
 ### コメントの原則
 
-* コードは自己説明的にする
-* **なぜ**そうしているかを説明する（**何を**しているかは通常不要）
-* 複雑なロジックには説明を加える
-* TODO コメントには理由を含める
+- コードは自己説明的にする
+- **なぜ**そうしているかを説明する（**何を**しているかは通常不要）
+- 複雑なロジックには説明を加える
+- TODO コメントには理由を含める
 
 ### JSDoc
 
@@ -181,16 +181,20 @@ async function getUserWithStats(
 
 ## テスト
 
+### 基本方針
+
+- TDDでの開発を基本とする
+
 ### テスト構造
 
-* ユニットテスト: 個々の関数やコンポーネント
-* 統合テスト: コンポーネント間の相互作用
-* E2Eテスト: ユーザーフローの検証
+- ユニットテスト: 個々の関数やコンポーネント
+- 統合テスト: コンポーネント間の相互作用
+- E2Eテスト: ユーザーフローの検証
 
 ### テストファイル配置
 
-* テストファイルは対象のコードファイルと同じディレクトリに配置
-* ファイル名は `[対象].spec.ts`
+- テストファイルは対象のコードファイルと同じディレクトリに配置
+- ファイル名は `[対象].spec.ts`
 
 ```
 src/frontend/features/users/
@@ -235,9 +239,9 @@ describe('Button', () => {
 
 ### CSS規約
 
-* TailwindCSSを使用
-* shadcn/uiコンポーネントを活用
-* グローバルスタイルは最小限に
+- TailwindCSSを使用
+- shadcn/uiコンポーネントを活用
+- グローバルスタイルは最小限に
 
 ### コンポーネントのスタイル
 
@@ -274,8 +278,8 @@ export function Badge({
 
 ### レスポンシブデザイン
 
-* モバイルファーストアプローチ
-* Tailwindの標準的なブレークポイントの使用
+- モバイルファーストアプローチ
+- Tailwindの標準的なブレークポイントの使用
 
 ```tsx
 // モバイルファーストアプローチの例

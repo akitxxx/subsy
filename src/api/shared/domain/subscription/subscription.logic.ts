@@ -88,7 +88,8 @@ const _calculateNextPaymentAt = (p: { cycle: SubscriptionCycleEnum; startedAt: D
 // 期限切れ日を計算
 const _calculateExpiredAt = (p: { cycle: SubscriptionCycleEnum; startedAt: Date; cancelledAt: Date | null }) => {
   if (!p.cancelledAt) return null;
-  const nextPaymentAt = _calculateNextPaymentAt({ cycle: p.cycle, startedAt: p.startedAt, now: DateUtils.create.now() });
+  // キャンセル日を基準に次回支払い日を計算
+  const nextPaymentAt = _calculateNextPaymentAt({ cycle: p.cycle, startedAt: p.startedAt, now: p.cancelledAt });
   return new Date(nextPaymentAt.getTime() - 1);
 };
 
