@@ -1,7 +1,7 @@
 import { signOut } from '@/frontend/features/auth/actions/signOut.action';
-import { Avatar, AvatarFallback, AvatarImage } from '@/frontend/shared/components/ui/avatar';
 import { Button } from '@/frontend/shared/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/frontend/shared/components/ui/dropdown-menu';
+import { User } from 'lucide-react';
 import Link from 'next/link';
 
 type Props = {
@@ -26,10 +26,7 @@ const MyMenu = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative h-8 w-8 rounded-full focus-visible:ring-0 focus-visible:ring-offset-0">
-          <Avatar className="h-8 w-8 border-2 border-primary-foreground">
-            <AvatarImage src="" alt="@username" />
-            <AvatarFallback>UN</AvatarFallback>
-          </Avatar>
+          <User className="h-8 w-8 text-primary-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 mt-2">
