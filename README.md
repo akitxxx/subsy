@@ -1,82 +1,34 @@
-# Subsy
+# Project Design Documentation
 
-サブスクリプション管理アプリケーション
+This directory contains documentation on project design and coding standards.
+Use it for AI development support and onboarding new team members.
 
-## 開発環境のセットアップ
+## Table of Contents
 
-### 必要要件
+1. [Architecture Design](./architecture.md)
+   - Overall project structure
+   - Dependencies between modules
+   - Data flow
+   - State management strategy
 
-- Node.js (v18以上)
-- pnpm
-- Docker (Supabaseのローカル開発用)
-- Supabase CLI
-  ```bash
-  # macOSの場合
-  brew install supabase/tap/supabase
+2. [Coding Standards](./coding_standards.md)
+   - File organization and naming conventions
+   - Component design
+   - Type system usage
+   - Testing strategy
+   - Styling guidelines
 
-  # Windowsの場合（Windows Package Manager）
-  winget install supabase.cli
+3. [ローカル環境構築手順](./local_setup.md)
+   - 前提条件
+   - 環境構築手順
+   - トラブルシューティング
+   - テスト実行方法
 
-  # Linuxの場合
-  curl -fsSL https://cli.supabase.com/install.sh | sh
+## Purpose
 
-  # npmを使用する場合（すべてのOS）
-  npm install -g supabase
-  ```
-  詳細は[Supabase CLI公式ドキュメント](https://supabase.com/docs/guides/cli)を参照してください。
+This documentation set has been created for the following purposes:
 
-### 初期セットアップ手順
-
-1. パッケージのインストール
-```bash
-pnpm install
-```
-
-2. 環境変数の設定
-- `.env.development`ファイルを`.env`としてコピー
-```bash
-cp .env.development .env
-```
-- 一部の環境変数については、個別で.envに上書き
-
-3. ローカルデータベースの起動
-```bash
-# Supabaseの開発用DBを起動
-pnpm db:up
-
-# テスト用DBを作成（Dockerコマンド）
-docker exec supabase_db_subsy createdb -U postgres test
-```
-
-4. データベースのマイグレーション
-```bash
-# 開発用DBのマイグレーション
-pnpm db:reset
-
-# テスト用DBのマイグレーション
-pnpm db:reset:test
-```
-
-5. 開発サーバーの起動
-```bash
-pnpm dev
-```
-
-アプリケーションは [http://localhost:3000](http://localhost:3000) で起動します。
-
-6. テストDBのセットアップとテスト実行
-```bash
-# テスト用DBのマイグレーション
-pnpm db:reset:test
-
-# すべてのテストを実行
-pnpm test
-```
-
-## 開発ガイドライン
-
-- このプロジェクトは [Next.js](https://nextjs.org) App Routerを使用しています
-- UIコンポーネントには [shadcn/ui](https://ui.shadcn.com/) を使用しています
-- データベースには Supabase (PostgreSQL) を使用しています
-- APIルートには [Hono](https://hono.dev/) を使用しています
-- ORMには [Drizzle](https://orm.drizzle.team/) を使用しています
+1. Maintaining a consistent codebase
+2. Streamlining onboarding for new participants
+3. Improving AI-assisted development quality
+4. Providing a foundation for technical discussions 

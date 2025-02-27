@@ -18,8 +18,8 @@
     "db:migrate:test": "dotenv -e .env.test pnpm run db:migrate",
     "db:reset": "dotenv -e .env tsx drizzle/reset.ts",
     "db:reset:test": "dotenv -e .env.test tsx drizzle/reset.ts",
-    "test:front": "vitest run --dir src/app",
-    "test:back": "vitest run --dir src/app/api",
+    "test:front": "vitest run --config=./vitest.config.ts --dir src/app",
+    "test:back": "vitest run --config=./vitest.config.ts --dir src/app/api",
     "test": "vitest run --config=./vitest.config.ts",
     "db:up": "dotenv -e .env -- npx supabase start",
     "db:down": "npx supabase stop"
