@@ -19,6 +19,7 @@ const findByIdAndUserId =
     return subscription ? Subscription.parseEntity(subscription) : null;
   };
 
+/** 期限切れしていないサブスクリプションを取得 */
 const findManyInUse =
   ({ db }: Inject) =>
   async (p: { userId: string; now: Date }): Promise<SubscriptionEntity[]> => {
