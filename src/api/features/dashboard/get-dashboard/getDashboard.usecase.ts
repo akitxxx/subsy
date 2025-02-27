@@ -2,7 +2,9 @@ import type { SubscriptionEntity } from '@/api/shared/domain/subscription';
 import { Subscription } from '@/api/shared/domain/subscription';
 import type { SubscriptionRepository } from '@/api/shared/domain/subscription';
 import type { SessionUser } from '@/api/shared/types/sessionUser';
+import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { DateUtils } from '@/shared/utils/date.util';
+import { CurrencyUtils } from '@/shared/utils/currency.util';
 
 type Inject = {
   sessionUser: SessionUser;
@@ -20,7 +22,7 @@ type Output = {
  * @param subscriptions
  * @returns
  */
-const calculateTotalAmount = (now: Date, subscriptions: SubscriptionEntity[]): number => {
+const calculateTotalAmount = async (now: Date, subscriptions: SubscriptionEntity[]): Promise<number> => {
   // nextPaymentAtが当月のものかつ、期限切れ予定でないものを合計
   const subscriptionsHavePaymentThisMonth = subscriptions.filter((sub) => {
     const nextPaymentAt = Subscription.getNextPaymentAt(sub)(now);
@@ -35,9 +37,20 @@ const calculateTotalAmount = (now: Date, subscriptions: SubscriptionEntity[]): n
     return subscriptionsHavePaymentThisMonth && hasPaymentThisMonth;
   });
 
-  return subscriptionsHavePaymentThisMonth.reduce((total, sub) => {
-    return total + Number(sub.price);
-  }, 0);
+  // 各サブスクリプションの金額を合計する
+  let total = 0;
+  for (const sub of subscriptionsHavePaymentThisMonth) {
+    if (sub.currency === CurrencyEnum.USD) {
+      // USDの場合はJPYに変換する
+      const jpyAmount = await CurrencyUtils.convertUsdToJpy(Number(sub.price));
+      total += jpyAmount;
+    } else {
+      // JPYの場合はそのまま加算
+      total += Number(sub.price);
+    }
+  }
+  
+  return total;
 };
 
 /**
@@ -63,7 +76,7 @@ const run =
     const now = DateUtils.create.now();
     const subscriptions = await subscriptionRepository.findManyActiveAndRecentlyExpired({ userId: sessionUser.id, now });
 
-    const totalThisMonth = calculateTotalAmount(now, subscriptions);
+    const totalThisMonth = await calculateTotalAmount(now, subscriptions);
     const upcomingSubscriptions = getUpcomingSubscriptions(now, subscriptions);
 
     return {
