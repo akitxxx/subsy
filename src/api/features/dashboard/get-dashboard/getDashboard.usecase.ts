@@ -23,7 +23,7 @@ type Output = {
  * @returns
  */
 const calculateTotalAmount = async (now: Date, subscriptions: SubscriptionEntity[]): Promise<number> => {
-  // nextPaymentAtが当月のものかつ、期限切れ予定でないものを合計
+  // nextPaymentAtが当月のものかつ、期限切れ予定でないもの、または今月開始されたものを合計
   const subscriptionsHavePaymentThisMonth = subscriptions.filter((sub) => {
     const nextPaymentAt = Subscription.getNextPaymentAt(sub)(now);
     // nextPaymentAtが当月のもの
@@ -32,9 +32,15 @@ const calculateTotalAmount = async (now: Date, subscriptions: SubscriptionEntity
       DateUtils.create.startOfMonth(now),
       DateUtils.create.endOfMonth(now),
     );
+    // startedAtが当月のもの
+    const startedThisMonth = DateUtils.compare.isBetween(
+      sub.startedAt,
+      DateUtils.create.startOfMonth(now),
+      DateUtils.create.endOfMonth(now),
+    );
     // 期限切れ予定がない or nextPaymentAtが期限切れ予定より前
     const hasPaymentThisMonth = !sub.expiredAt || DateUtils.compare.isBefore(nextPaymentAt, sub.expiredAt);
-    return subscriptionsHavePaymentThisMonth && hasPaymentThisMonth;
+    return (subscriptionsHavePaymentThisMonth && hasPaymentThisMonth) || startedThisMonth;
   });
 
   // 各サブスクリプションの金額を合計する
