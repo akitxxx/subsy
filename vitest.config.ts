@@ -14,5 +14,6 @@ export default defineConfig({
     sequence: {
       concurrent: false,
     },
+    restoreMocks: true,
   },
 });

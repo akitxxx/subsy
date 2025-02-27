@@ -177,97 +177,105 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
 
             {/* 開始日時フィールド */}
             <FormField id="startedAt" label="開始日時" required>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    id="startedAt"
-                    type="date"
-                    value={DateUtils.format.forDateInput(formData.startedAt)}
-                    onChange={(e) => {
-                      const updated = DateUtils.modify.updateFromDateInput(formData.startedAt, e.target.value);
-                      setFormData({ ...formData, startedAt: updated });
-                    }}
-                    className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
-                    required
-                  />
+              <div className="space-y-2">
+                <div className="grid grid-cols-12 gap-2 items-center">
+                  <div className="col-span-7 sm:col-span-7">
+                    <Input
+                      id="startedAt"
+                      type="date"
+                      value={DateUtils.format.forDateInput(formData.startedAt)}
+                      onChange={(e) => {
+                        const updated = DateUtils.modify.updateFromDateInput(formData.startedAt, e.target.value);
+                        setFormData({ ...formData, startedAt: updated });
+                      }}
+                      className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
+                      required
+                    />
+                  </div>
+                  <div className="col-span-4 sm:col-span-4">
+                    <Input
+                      id="startedAtTime"
+                      type="time"
+                      value={DateUtils.format.forTimeInput(formData.startedAt)}
+                      onChange={(e) => {
+                        const updated = DateUtils.modify.updateFromTimeInput(formData.startedAt, e.target.value);
+                        setFormData({ ...formData, startedAt: updated });
+                      }}
+                      className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
+                      required
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, startedAt: DateUtils.create.now() })}
+                      className="inline-flex items-center justify-center h-6 w-6 text-gray-400 hover:text-primary-600 focus:outline-none"
+                      title="現在時刻をセット"
+                    >
+                      <RefreshIcon className="w-3 h-3" />
+                    </button>
+                  </div>
                 </div>
-                <div className="relative">
-                  <Input
-                    id="startedAtTime"
-                    type="time"
-                    value={DateUtils.format.forTimeInput(formData.startedAt)}
-                    onChange={(e) => {
-                      const updated = DateUtils.modify.updateFromTimeInput(formData.startedAt, e.target.value);
-                      setFormData({ ...formData, startedAt: updated });
-                    }}
-                    className="w-36 border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
-                    required
-                  />
+                <div className="text-xs text-gray-500 bg-gray-50 py-1 px-2 rounded border border-gray-100 inline-block">
+                  {DateUtils.format.forDisplay(formData.startedAt)}
                 </div>
-                <ActionButton
-                  type="button"
-                  variant="outline"
-                  onClick={() => setFormData({ ...formData, startedAt: DateUtils.create.now() })}
-                  className="h-9 w-9 rounded-full text-gray-400 border-transparent hover:border-transparent hover:bg-transparent hover:text-gray-400 focus:ring-0 focus:border-transparent"
-                >
-                  <RefreshIcon />
-                </ActionButton>
-              </div>
-              <div className="mt-1.5 text-xs text-gray-500 bg-gray-50 py-1 px-2 rounded border border-gray-100 inline-block">
-                {DateUtils.format.forDisplay(formData.startedAt)}
               </div>
             </FormField>
 
             {/* キャンセル日時フィールド */}
             <FormField id="cancelledAt" label="キャンセル日時">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    id="cancelledAt"
-                    type="date"
-                    value={formData.cancelledAt ? DateUtils.format.forDateInput(formData.cancelledAt) : ''}
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        const baseDate = formData.cancelledAt || DateUtils.create.now();
-                        const updated = DateUtils.modify.updateFromDateInput(baseDate, e.target.value);
-                        setFormData({ ...formData, cancelledAt: updated });
-                      } else {
-                        setFormData({ ...formData, cancelledAt: null });
-                      }
-                    }}
-                    className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
-                  />
+              <div className="space-y-2">
+                <div className="grid grid-cols-12 gap-2 items-center">
+                  <div className="col-span-7 sm:col-span-7">
+                    <Input
+                      id="cancelledAt"
+                      type="date"
+                      value={formData.cancelledAt ? DateUtils.format.forDateInput(formData.cancelledAt) : ''}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          const baseDate = formData.cancelledAt || DateUtils.create.now();
+                          const updated = DateUtils.modify.updateFromDateInput(baseDate, e.target.value);
+                          setFormData({ ...formData, cancelledAt: updated });
+                        } else {
+                          setFormData({ ...formData, cancelledAt: null });
+                        }
+                      }}
+                      className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
+                    />
+                  </div>
+                  <div className="col-span-4 sm:col-span-4">
+                    <Input
+                      id="cancelledAtTime"
+                      type="time"
+                      value={formData.cancelledAt ? DateUtils.format.forTimeInput(formData.cancelledAt) : ''}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          const baseDate = formData.cancelledAt || DateUtils.create.now();
+                          const updated = DateUtils.modify.updateFromTimeInput(baseDate, e.target.value);
+                          setFormData({ ...formData, cancelledAt: updated });
+                        }
+                      }}
+                      className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
+                      disabled={!formData.cancelledAt}
+                    />
+                  </div>
+                  <div className="col-span-1">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, cancelledAt: formData.cancelledAt ? null : DateUtils.create.now() })}
+                      className="inline-flex items-center justify-center h-6 w-6 text-gray-400 hover:text-primary-600 focus:outline-none"
+                      title={formData.cancelledAt ? 'キャンセル日時をクリア' : '現在時刻をセット'}
+                    >
+                      {formData.cancelledAt ? <CloseIcon className="w-3 h-3" /> : <RefreshIcon className="w-3 h-3" />}
+                    </button>
+                  </div>
                 </div>
-                <div className="relative">
-                  <Input
-                    id="cancelledAtTime"
-                    type="time"
-                    value={formData.cancelledAt ? DateUtils.format.forTimeInput(formData.cancelledAt) : ''}
-                    onChange={(e) => {
-                      if (e.target.value) {
-                        const baseDate = formData.cancelledAt || DateUtils.create.now();
-                        const updated = DateUtils.modify.updateFromTimeInput(baseDate, e.target.value);
-                        setFormData({ ...formData, cancelledAt: updated });
-                      }
-                    }}
-                    className="w-36 border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
-                    disabled={!formData.cancelledAt}
-                  />
-                </div>
-                <ActionButton
-                  type="button"
-                  variant="outline"
-                  onClick={() => setFormData({ ...formData, cancelledAt: formData.cancelledAt ? null : DateUtils.create.now() })}
-                  className="h-9 w-9 rounded-full text-gray-400 border-transparent hover:border-transparent hover:bg-transparent hover:text-gray-400 focus:ring-0 focus:border-transparent"
-                >
-                  {formData.cancelledAt ? <CloseIcon /> : <RefreshIcon />}
-                </ActionButton>
+                {formData.cancelledAt && (
+                  <div className="text-xs text-gray-500 bg-gray-50 py-1 px-2 rounded border border-gray-100 inline-block">
+                    {DateUtils.format.forDisplay(formData.cancelledAt)}
+                  </div>
+                )}
               </div>
-              {formData.cancelledAt && (
-                <div className="mt-1.5 text-xs text-gray-500 bg-gray-50 py-1 px-2 rounded border border-gray-100 inline-block">
-                  {DateUtils.format.forDisplay(formData.cancelledAt)}
-                </div>
-              )}
             </FormField>
 
             {/* 説明フィールド */}
