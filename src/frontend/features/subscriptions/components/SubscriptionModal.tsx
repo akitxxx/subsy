@@ -60,7 +60,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
     (): TFormData => ({
       name: '',
       price: '',
-      currency: CurrencyEnum.JPY,
+      currency: CurrencyEnum.Jpy,
       cycle: SubscriptionCycleEnum.OneMonth,
       startedAt: DateUtils.create.now(),
       cancelledAt: null,
@@ -91,7 +91,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
     const newPrice =
-      formData.currency === CurrencyEnum.USD ? PriceUtils.input.handleUsdPriceInput(rawValue) : PriceUtils.input.parse(rawValue, formData.currency);
+      formData.currency === CurrencyEnum.Usd ? PriceUtils.input.handleUsdPriceInput(rawValue) : PriceUtils.input.parse(rawValue, formData.currency);
 
     setFormData({ ...formData, price: newPrice });
   };
@@ -138,14 +138,14 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                     id="price"
                     type="text"
                     inputMode="decimal"
-                    placeholder={formData.currency === CurrencyEnum.JPY ? '1,000' : '9.99'}
+                    placeholder={formData.currency === CurrencyEnum.Jpy ? '1,000' : '9.99'}
                     value={PriceUtils.display.format(formData.price, formData.currency)}
                     onChange={handlePriceChange}
                     className="w-full pl-8 transition-all border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
                     required
                   />
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-medium transition-colors group-focus-within/price:text-primary-600">
-                    {formData.currency === CurrencyEnum.JPY ? '¥' : '$'}
+                    {formData.currency === CurrencyEnum.Jpy ? '¥' : '$'}
                   </span>
                 </div>
                 <Select value={formData.currency} onValueChange={handleCurrencyChange}>
@@ -153,8 +153,8 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value={CurrencyEnum.JPY}>JPY</SelectItem>
-                    <SelectItem value={CurrencyEnum.USD}>USD</SelectItem>
+                    <SelectItem value={CurrencyEnum.Jpy}>JPY</SelectItem>
+                    <SelectItem value={CurrencyEnum.Usd}>USD</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

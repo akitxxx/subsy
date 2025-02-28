@@ -27,7 +27,7 @@ const createSubscription = (params: Partial<SubscriptionEntity> & Pick<Subscript
     id: 'test-id',
     name: 'Test Subscription',
     price: '1000',
-    currency: CurrencyEnum.JPY,
+    currency: CurrencyEnum.Jpy,
     userId: 'test-user-id',
     cancelledAt: null,
     expiredAt: null,
@@ -353,7 +353,7 @@ describe('Subscription', () => {
             // 変更されないフィールドの追加検証
             expect(updated.id).toEqual('test-id');
             expect(updated.userId).toEqual('test-user-id');
-            expect(updated.currency).toEqual(CurrencyEnum.JPY);
+            expect(updated.currency).toEqual(CurrencyEnum.Jpy);
 
             // 有効期限の計算が正しいことを確認
             expect(updated.expiredAt).toBeInstanceOf(Date);

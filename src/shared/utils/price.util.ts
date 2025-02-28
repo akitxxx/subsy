@@ -40,7 +40,7 @@ const display = {
     const numericValue = Number(price);
     if (Number.isNaN(numericValue)) return price;
 
-    if (currency === CurrencyEnum.JPY) {
+    if (currency === CurrencyEnum.Jpy) {
       return formatters.formatJPY(numericValue);
     }
 
@@ -67,12 +67,12 @@ const input = {
   handleCurrencyChange: (currentPrice: string, newCurrency: CurrencyEnum, oldCurrency: CurrencyEnum): string => {
     if (!currentPrice) return '';
 
-    if (newCurrency === CurrencyEnum.JPY && oldCurrency === CurrencyEnum.USD) {
+    if (newCurrency === CurrencyEnum.Jpy && oldCurrency === CurrencyEnum.Usd) {
       // USDからJPYへの変換（セントからの変換）
       return Math.floor(Number(currentPrice) / 100).toString();
     }
 
-    if (newCurrency === CurrencyEnum.USD && oldCurrency === CurrencyEnum.JPY) {
+    if (newCurrency === CurrencyEnum.Usd && oldCurrency === CurrencyEnum.Jpy) {
       // JPYからUSDへの変換（セントに変換）
       return (Number(currentPrice) * 100).toString();
     }

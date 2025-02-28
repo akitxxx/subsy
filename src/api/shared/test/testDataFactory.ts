@@ -29,7 +29,7 @@ export const createSubscription = (db: DrizzleClient) => async (p: Partial<Inser
     .values({
       name: 'Test Subscription',
       price: '1000',
-      currency: CurrencyEnum.JPY,
+      currency: CurrencyEnum.Jpy,
       cycle: SubscriptionCycleEnum.OneMonth,
       startedAt: now,
       expiredAt: DateUtils.modify.addMonths(now, 1),

@@ -128,7 +128,7 @@ type SubscriptionTableRowProps = {
 
 const SubscriptionTableRow = ({ subscription, onOpenDetailModal, onOpenEditModal, onOpenDeleteDialog }: SubscriptionTableRowProps) => {
   // 通貨記号を決定
-  const currencySymbol = subscription.currency === 'USD' ? '$' : '¥';
+  const currencySymbol = subscription.currency === 'Usd' ? '$' : '¥';
 
   return (
     <TableRow

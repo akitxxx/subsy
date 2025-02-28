@@ -77,7 +77,7 @@ describe('/api/subscriptions', () => {
       const input = {
         name: 'Test Subscription',
         price: '1980.00',
-        currency: CurrencyEnum.JPY,
+        currency: CurrencyEnum.Jpy,
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: now,
         cancelledAt: null,
@@ -116,7 +116,7 @@ describe('/api/subscriptions', () => {
         userId: user.id,
         name: 'Old Subscription',
         price: '1980.00',
-        currency: CurrencyEnum.JPY,
+        currency: CurrencyEnum.Jpy,
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: now,
         cancelledAt: null,
@@ -127,7 +127,7 @@ describe('/api/subscriptions', () => {
       const input = {
         name: 'New Subscription',
         price: '2980.00',
-        currency: CurrencyEnum.USD,
+        currency: CurrencyEnum.Usd,
         cycle: SubscriptionCycleEnum.ThreeMonths,
         startedAt: new Date('2024-10-01 00:00:00'),
         cancelledAt: new Date('2025-01-01 00:00:01'),

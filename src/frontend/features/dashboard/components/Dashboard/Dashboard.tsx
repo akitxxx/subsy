@@ -61,7 +61,7 @@ export const Dashboard = () => {
                 {dashboard.data.upcomingSubscriptions.map((sub) => {
                   const daysRemaining = getDaysRemaining(sub.expiredAt);
                   const isUrgent = daysRemaining <= 3;
-                  
+
                   // 残り日数に基づいて背景色とテキスト色を設定
                   let statusColor = 'bg-gray-100 text-gray-700';
                   if (isUrgent) {
@@ -71,8 +71,8 @@ export const Dashboard = () => {
                   }
 
                   return (
-                    <div 
-                      key={sub.id} 
+                    <div
+                      key={sub.id}
                       className="p-4 rounded-lg border border-border/50 hover:border-border transition-all duration-200 hover:shadow-sm"
                     >
                       <div className="flex justify-between items-start mb-2">
@@ -81,14 +81,14 @@ export const Dashboard = () => {
                           {daysRemaining === 0 ? '今日支払い' : daysRemaining < 0 ? `${Math.abs(daysRemaining)}日経過` : `あと${daysRemaining}日`}
                         </div>
                       </div>
-                      
+
                       <div className="flex justify-between items-center">
                         <div className="flex items-center text-sm text-muted-foreground">
                           <CalendarIcon size={14} className="mr-1.5" />
                           <span>{formatDate(sub.expiredAt)}</span>
                         </div>
                         <p className="font-medium text-base">
-                          {sub.currency === CurrencyEnum.USD ? '$' : '¥'}
+                          {sub.currency === CurrencyEnum.Usd ? '$' : '¥'}
                           {PriceUtils.display.format(sub.price, sub.currency)}
                         </p>
                       </div>
@@ -97,9 +97,7 @@ export const Dashboard = () => {
                 })}
               </div>
             ) : (
-              <div className="text-center text-muted-foreground py-6 bg-muted/30 rounded-lg">
-                次回支払い日が近いサブスクはありません
-              </div>
+              <div className="text-center text-muted-foreground py-6 bg-muted/30 rounded-lg">次回支払い日が近いサブスクはありません</div>
             )}
           </CardContent>
         </Card>

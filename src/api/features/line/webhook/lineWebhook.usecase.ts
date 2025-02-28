@@ -1,10 +1,15 @@
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
+import { LineService } from '@/api/shared/lib/line';
 import { openAiService } from '@/api/shared/lib/openai';
-import type { DeleteSubscriptionFunctionArgs } from '@/api/shared/lib/openai';
+import type { DeleteSubscriptionFunctionArgs, SubscriptionFunctionArgs, UpdateSubscriptionFunctionArgs } from '@/api/shared/lib/openai';
+import type { MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk';
 
 type Inject = {
   db: DrizzleClient;
-  payload: LineWebhookPayload;
+  payload: {
+    destination: string;
+    events: WebhookEvent[];
+  };
 };
 
 type Output = {
@@ -27,8 +32,8 @@ const run =
     for (const event of payload.events) {
       try {
         // メッセージイベントだけを処理
-        if (event.type === 'message' && 'message' in event && event.message.type === 'text') {
-          await handleMessageEvent(db, event);
+        if (event.type === 'message' && event.message.type === 'text') {
+          await handleMessageEvent(db, event as MessageEvent);
         }
       } catch (error) {
         console.error('LINE Webhookイベント処理エラー:', error);
@@ -41,10 +46,13 @@ const run =
 /**
  * メッセージイベントを処理する
  */
-const handleMessageEvent = async (db: DrizzleClient, event: LineMessageEvent) => {
+const handleMessageEvent = async (db: DrizzleClient, event: MessageEvent) => {
+  // ユーザーID取得
   const userId = event.source.userId;
   if (!userId) return;
 
+  // テキストメッセージのみ処理
+  if (event.message.type !== 'text') return;
   const messageText = event.message.text;
   if (!messageText) return;
 
@@ -54,12 +62,15 @@ const handleMessageEvent = async (db: DrizzleClient, event: LineMessageEvent) =>
 
     if (result.functionCall) {
       const { name, args } = result.functionCall;
+      let responseMessage = '';
 
       // 各関数に応じた処理を実行
       switch (name) {
         case 'createSubscription': {
           // 本番環境では実際にDBにサブスクリプションを作成する処理を実装
-          console.log('サブスクリプション作成:', args);
+          const subArgs = args as SubscriptionFunctionArgs;
+          console.log('サブスクリプション作成:', subArgs);
+          responseMessage = `「${subArgs.name}」のサブスクリプションを登録しました。金額: ${subArgs.price}${subArgs.currency}/月`;
           // TODO: 実際のサブスクリプション作成処理を実装
           break;
         }
@@ -67,13 +78,16 @@ const handleMessageEvent = async (db: DrizzleClient, event: LineMessageEvent) =>
         case 'getSubscriptions': {
           // 本番環境では実際にDBからサブスクリプションを取得する処理を実装
           console.log('サブスクリプション取得');
+          responseMessage = 'あなたのサブスクリプション一覧です。\n' + '（ここには実際のサブスクリプション情報が表示されます）';
           // TODO: 実際のサブスクリプション取得処理を実装
           break;
         }
 
         case 'updateSubscription': {
           // 本番環境では実際にDBのサブスクリプションを更新する処理を実装
-          console.log('サブスクリプション更新:', args);
+          const updateArgs = args as UpdateSubscriptionFunctionArgs;
+          console.log('サブスクリプション更新:', updateArgs);
+          responseMessage = 'サブスクリプション情報を更新しました。';
           // TODO: 実際のサブスクリプション更新処理を実装
           break;
         }
@@ -82,13 +96,30 @@ const handleMessageEvent = async (db: DrizzleClient, event: LineMessageEvent) =>
           // 本番環境では実際にDBからサブスクリプションを削除する処理を実装
           const deleteArgs = args as DeleteSubscriptionFunctionArgs;
           console.log('サブスクリプション削除:', deleteArgs.id);
+          responseMessage = 'サブスクリプションを削除しました。';
           // TODO: 実際のサブスクリプション削除処理を実装
           break;
         }
       }
+
+      // 結果をLINEで返信
+      if (responseMessage && event.replyToken) {
+        await LineService.replyMessage({
+          replyToken: event.replyToken,
+          message: responseMessage,
+        });
+      }
     }
   } catch (error) {
     console.error('OpenAI API呼び出しエラー:', error);
+
+    // エラー時のメッセージ返信
+    if (event.replyToken) {
+      await LineService.replyMessage({
+        replyToken: event.replyToken,
+        message: '申し訳ありません、処理中にエラーが発生しました。しばらく経ってからもう一度お試しください。',
+      });
+    }
   }
 };
 

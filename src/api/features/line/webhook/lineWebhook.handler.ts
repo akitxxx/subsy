@@ -1,4 +1,4 @@
-import { toErrorResponse } from '@/api/shared/error';
+import { LineService } from '@/api/shared/lib/line';
 import type { HonoEnv } from '@/api/shared/types/hono';
 import { createFactory } from 'hono/factory';
 import { LineWebhookUsecase } from './lineWebhook.usecase';
@@ -8,7 +8,16 @@ const factory = createFactory<HonoEnv>();
 export const lineWebhookHandler = factory.createHandlers(async (c) => {
   try {
     const db = c.var.db;
-    const requestBody = await c.req.json();
+    const rawBody = await c.req.raw.text();
+    const signature = c.req.header('x-line-signature');
+
+    // シグネチャの検証
+    if (!LineService.validateSignature(signature, rawBody)) {
+      return c.json({ message: 'Invalid signature' }, 401);
+    }
+
+    // JSONに変換
+    const requestBody = JSON.parse(rawBody);
 
     // LINE Webhookのリクエストを処理
     const result = await LineWebhookUsecase.run({ db, payload: requestBody })();
@@ -18,8 +27,8 @@ export const lineWebhookHandler = factory.createHandlers(async (c) => {
   } catch (e: unknown) {
     if (e instanceof Error) {
       console.error('LINE Webhookエラー:', e);
-      const errorResponse = toErrorResponse(e);
-      return c.json(errorResponse, errorResponse.error.status);
+      // LINE Platformには常に200 OKを返す必要がある（エラー時も）
+      return c.json({ message: 'OK' }, 200);
     }
     throw e;
   }

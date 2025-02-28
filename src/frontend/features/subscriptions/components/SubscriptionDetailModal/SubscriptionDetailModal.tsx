@@ -47,7 +47,7 @@ export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit 
   }, [subscription]);
 
   // 通貨記号を決定
-  const currencySymbol = subscription.currency === CurrencyEnum.USD ? '$' : '¥';
+  const currencySymbol = subscription.currency === CurrencyEnum.Usd ? '$' : '¥';
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
