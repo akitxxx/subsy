@@ -9,6 +9,7 @@ import { handle } from 'hono/vercel';
 
 import auth from './auth.route';
 import dashboard from './dashboard.route';
+import line from './line.route';
 import subscription from './subscription.route';
 import user from './user.route';
 
@@ -53,7 +54,12 @@ app.notFound((c) => {
 });
 
 // routing
-const route = app.route('/dashboard', dashboard).route('/auth', auth).route('/users', user).route('/subscriptions', subscription);
+const route = app
+  .route('/dashboard', dashboard)
+  .route('/auth', auth)
+  .route('/users', user)
+  .route('/subscriptions', subscription)
+  .route('/line', line);
 
 export const GET = handle(app);
 export const POST = handle(app);

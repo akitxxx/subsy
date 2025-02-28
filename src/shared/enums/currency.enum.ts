@@ -1,5 +1,5 @@
 export const CurrencyEnum = {
-  JPY: 'JPY',
-  USD: 'USD',
+  Jpy: 'Jpy',
+  Usd: 'Usd',
 } as const;
 export type CurrencyEnum = (typeof CurrencyEnum)[keyof typeof CurrencyEnum];

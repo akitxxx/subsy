@@ -44,6 +44,7 @@
     "hono": "^4.7.1",
     "lucide-react": "^0.471.2",
     "next": "15.1.4",
+    "openai": "^4.86.1",
     "postgres": "^3.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
