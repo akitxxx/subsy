@@ -1,11 +1,15 @@
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
-import { LineService } from '@/api/shared/lib/line';
+import type { LineService } from '@/api/shared/lib/line';
 import { openAiService } from '@/api/shared/lib/openai';
 import type { DeleteSubscriptionFunctionArgs, SubscriptionFunctionArgs, UpdateSubscriptionFunctionArgs } from '@/api/shared/lib/openai';
 import type { MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk';
 
 type Inject = {
   db: DrizzleClient;
+  lineService: LineService;
+};
+
+type Input = {
   payload: {
     destination: string;
     events: WebhookEvent[];
@@ -20,8 +24,8 @@ type Output = {
  * LINE Webhookを処理するユースケース
  */
 const run =
-  ({ db, payload }: Inject) =>
-  async (): Promise<Output> => {
+  ({ db, lineService }: Inject) =>
+  async ({ payload }: Input): Promise<Output> => {
     // ペイロードのバリデーション
     if (!payload || !payload.events || !Array.isArray(payload.events)) {
       console.error('無効なLINE Webhookペイロード', payload);
@@ -33,7 +37,7 @@ const run =
       try {
         // メッセージイベントだけを処理
         if (event.type === 'message' && event.message.type === 'text') {
-          await handleMessageEvent(db, event as MessageEvent);
+          await handleMessageEvent(db, lineService, event as MessageEvent);
         }
       } catch (error) {
         console.error('LINE Webhookイベント処理エラー:', error);
@@ -43,10 +47,12 @@ const run =
     return { success: true };
   };
 
+// ==========
+
 /**
  * メッセージイベントを処理する
  */
-const handleMessageEvent = async (db: DrizzleClient, event: MessageEvent) => {
+const handleMessageEvent = async (db: DrizzleClient, lineService: LineService, event: MessageEvent) => {
   // ユーザーID取得
   const userId = event.source.userId;
   if (!userId) return;
@@ -104,7 +110,7 @@ const handleMessageEvent = async (db: DrizzleClient, event: MessageEvent) => {
 
       // 結果をLINEで返信
       if (responseMessage && event.replyToken) {
-        await LineService.replyMessage({
+        await lineService.replyMessage({
           replyToken: event.replyToken,
           message: responseMessage,
         });
@@ -115,7 +121,7 @@ const handleMessageEvent = async (db: DrizzleClient, event: MessageEvent) => {
 
     // エラー時のメッセージ返信
     if (event.replyToken) {
-      await LineService.replyMessage({
+      await lineService.replyMessage({
         replyToken: event.replyToken,
         message: '申し訳ありません、処理中にエラーが発生しました。しばらく経ってからもう一度お試しください。',
       });

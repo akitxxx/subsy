@@ -11,8 +11,9 @@ export const lineWebhookHandler = factory.createHandlers(async (c) => {
     const rawBody = await c.req.raw.text();
     const signature = c.req.header('x-line-signature');
 
+    const lineService = LineService.new();
     // シグネチャの検証
-    if (!LineService.validateSignature(signature, rawBody)) {
+    if (!lineService.validateSignature(signature, rawBody)) {
       return c.json({ message: 'Invalid signature' }, 401);
     }
 
@@ -20,7 +21,7 @@ export const lineWebhookHandler = factory.createHandlers(async (c) => {
     const requestBody = JSON.parse(rawBody);
 
     // LINE Webhookのリクエストを処理
-    const result = await LineWebhookUsecase.run({ db, payload: requestBody })();
+    await LineWebhookUsecase.run({ db, lineService })({ payload: requestBody });
 
     // LINE Platformには常に200 OKを返す必要がある
     return c.json({ message: 'OK' }, 200);

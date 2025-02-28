@@ -4,7 +4,7 @@ import type { LineClientOptions, ReplyMessageParams, SendMessageParams } from '.
 /**
  * LINE Messaging APIクライアントを作成する
  */
-const createMessagingClient = (options?: LineClientOptions): messagingApi.MessagingApiClient => {
+const _createMessagingApiClient = (options?: LineClientOptions): messagingApi.MessagingApiClient => {
   return new messagingApi.MessagingApiClient({
     channelAccessToken: options?.channelAccessToken || process.env.LINE_CHANNEL_ACCESS_TOKEN || '',
   });
@@ -26,19 +26,20 @@ const createTextMessages = (messages: string | string[]): TextMessage[] => {
  * @param options クライアントオプション（指定しない場合は環境変数を使用）
  * @returns LINEからのレスポンス
  */
-const sendMessage = async (params: SendMessageParams, options?: LineClientOptions): Promise<messagingApi.PushMessageResponse> => {
-  try {
-    const client = createMessagingClient(options);
-    const messages = createTextMessages(params.message);
-    return await client.pushMessage({
-      to: params.userId,
-      messages: messages,
-    });
-  } catch (error) {
-    console.error('LINEメッセージ送信エラー:', error);
-    throw error;
-  }
-};
+const sendMessage =
+  (client: messagingApi.MessagingApiClient) =>
+  async (params: SendMessageParams, options?: LineClientOptions): Promise<messagingApi.PushMessageResponse> => {
+    try {
+      const messages = createTextMessages(params.message);
+      return await client.pushMessage({
+        to: params.userId,
+        messages: messages,
+      });
+    } catch (error) {
+      console.error('LINEメッセージ送信エラー:', error);
+      throw error;
+    }
+  };
 
 /**
  * メッセージに返信する
@@ -46,19 +47,20 @@ const sendMessage = async (params: SendMessageParams, options?: LineClientOption
  * @param options クライアントオプション（指定しない場合は環境変数を使用）
  * @returns LINEからのレスポンス
  */
-const replyMessage = async (params: ReplyMessageParams, options?: LineClientOptions): Promise<messagingApi.ReplyMessageResponse> => {
-  try {
-    const client = createMessagingClient(options);
-    const messages = createTextMessages(params.message);
-    return await client.replyMessage({
-      replyToken: params.replyToken,
-      messages: messages,
-    });
-  } catch (error) {
-    console.error('LINE返信エラー:', error);
-    throw error;
-  }
-};
+const replyMessage =
+  (client: messagingApi.MessagingApiClient) =>
+  async (params: ReplyMessageParams, options?: LineClientOptions): Promise<messagingApi.ReplyMessageResponse> => {
+    try {
+      const messages = createTextMessages(params.message);
+      return await client.replyMessage({
+        replyToken: params.replyToken,
+        messages: messages,
+      });
+    } catch (error) {
+      console.error('LINE返信エラー:', error);
+      throw error;
+    }
+  };
 
 /**
  * Webhookイベントのシグネチャを検証する
@@ -78,13 +80,23 @@ const validateSignature = (signature: string | undefined, body: string, channelS
   }
 };
 
+// ==========
+
 /**
  * LINE サービス
  * LINE Messaging API を使用するための関数群
  */
 export const LineService = {
-  createTextMessages,
-  sendMessage,
-  replyMessage,
-  validateSignature,
+  new: () => {
+    const client = _createMessagingApiClient();
+
+    return {
+      createMessagingApiClient: _createMessagingApiClient,
+      createTextMessages,
+      sendMessage: sendMessage(client),
+      replyMessage: replyMessage(client),
+      validateSignature,
+    };
+  },
 };
+export type LineService = ReturnType<typeof LineService.new>;
