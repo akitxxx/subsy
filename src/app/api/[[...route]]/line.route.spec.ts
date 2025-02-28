@@ -11,20 +11,22 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // OpenAI サービスのモック
 vi.mock('@/api/shared/lib/openai', () => {
   return {
-    openAiService: {
-      parseSubscriptionIntent: vi.fn().mockResolvedValue({
-        message: {},
-        functionCall: {
-          name: 'createSubscription',
-          args: {
-            name: 'Netflix',
-            price: '1490',
-            currency: 'JPY',
-            cycle: 'ONE_MONTH',
-            startedAt: '2023-01-01',
-            description: 'ストリーミングサービス',
+    OpenAIService: {
+      new: () => ({
+        parseSubscriptionIntent: vi.fn().mockResolvedValue({
+          message: {},
+          functionCall: {
+            name: 'createSubscription',
+            args: {
+              name: 'Netflix',
+              price: '1490',
+              currency: 'JPY',
+              cycle: 'ONE_MONTH',
+              startedAt: '2023-01-01',
+              description: 'ストリーミングサービス',
+            },
           },
-        },
+        }),
       }),
     },
   };
@@ -86,9 +88,10 @@ describe('/api/line', () => {
       expect(res.status).toBe(200);
 
       // OpenAI サービスが正しく呼び出されたことを確認
-      const { openAiService } = await import('@/api/shared/lib/openai');
-      expect(openAiService.parseSubscriptionIntent).toHaveBeenCalledTimes(1);
-      expect(openAiService.parseSubscriptionIntent).toHaveBeenCalledWith('Netflixのサブスク登録して。月額1490円で1月1日から開始。');
+      const { OpenAIService } = await import('@/api/shared/lib/openai');
+      const mockOpenAIService = OpenAIService.new();
+      expect(mockOpenAIService.parseSubscriptionIntent).toHaveBeenCalledTimes(1);
+      expect(mockOpenAIService.parseSubscriptionIntent).toHaveBeenCalledWith('Netflixのサブスク登録して。月額1490円で1月1日から開始。');
     });
 
     it('テキスト以外のメッセージタイプは無視されること', async () => {
@@ -123,8 +126,9 @@ describe('/api/line', () => {
       expect(res.status).toBe(200);
 
       // OpenAI サービスが呼び出されないことを確認
-      const { openAiService } = await import('@/api/shared/lib/openai');
-      expect(openAiService.parseSubscriptionIntent).not.toHaveBeenCalled();
+      const { OpenAIService } = await import('@/api/shared/lib/openai');
+      const mockOpenAIService = OpenAIService.new();
+      expect(mockOpenAIService.parseSubscriptionIntent).not.toHaveBeenCalled();
     });
 
     it('不正なペイロードでもエラーにならずに処理されること', async () => {

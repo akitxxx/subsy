@@ -3,23 +3,24 @@ import type { FunctionCallResult, OpenAIClientOptions, OpenAIServiceResult } fro
 import { subscriptionFunctions } from './subscription-functions';
 
 /**
- * OpenAI APIを使用するサービスクラス
+ * OpenAI APIクライアントを作成する
  */
-export class OpenAiService {
-  private client: OpenAI;
+const _createOpenAIClient = (options?: OpenAIClientOptions): OpenAI => {
+  return new OpenAI({
+    apiKey: options?.apiKey || process.env.OPENAI_API_KEY || 'mock-api-key',
+  });
+};
 
-  constructor(options?: OpenAIClientOptions) {
-    this.client = new OpenAI({
-      apiKey: options?.apiKey || process.env.OPENAI_API_KEY || 'mock-api-key',
-    });
-  }
-
-  /**
-   * ユーザーメッセージからインテントを解析し、適切なサブスクリプション操作を決定する
-   */
-  async parseSubscriptionIntent(userMessage: string): Promise<OpenAIServiceResult> {
+/**
+ * ユーザーメッセージからインテントを解析し、適切なサブスクリプション操作を決定する
+ * @param client OpenAIクライアント
+ * @returns インテント解析関数
+ */
+const parseSubscriptionIntent =
+  (client: OpenAI) =>
+  async (userMessage: string): Promise<OpenAIServiceResult> => {
     try {
-      const response = await this.client.chat.completions.create({
+      const response = await client.chat.completions.create({
         model: 'gpt-4o',
         messages: [
           {
@@ -55,5 +56,20 @@ export class OpenAiService {
       console.error('OpenAI API呼び出しエラー:', error);
       throw error;
     }
-  }
-}
+  };
+
+/**
+ * OpenAI サービス
+ * OpenAI API を使用するための関数群
+ */
+export const OpenAIService = {
+  new: (options?: OpenAIClientOptions) => {
+    const client = _createOpenAIClient(options);
+
+    return {
+      parseSubscriptionIntent: parseSubscriptionIntent(client),
+    };
+  },
+};
+
+export type OpenAIService = ReturnType<typeof OpenAIService.new>;

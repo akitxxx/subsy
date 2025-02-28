@@ -1,4 +1,5 @@
 import { LineService } from '@/api/shared/lib/line';
+import { OpenAIService } from '@/api/shared/lib/openai';
 import type { HonoEnv } from '@/api/shared/types/hono';
 import { createFactory } from 'hono/factory';
 import { LineWebhookUsecase } from './lineWebhook.usecase';
@@ -21,7 +22,7 @@ export const lineWebhookHandler = factory.createHandlers(async (c) => {
     const requestBody = JSON.parse(rawBody);
 
     // LINE Webhookのリクエストを処理
-    await LineWebhookUsecase.run({ db, lineService })({ payload: requestBody });
+    await LineWebhookUsecase.run({ db, lineService, openAiService: OpenAIService.new() })({ payload: requestBody });
 
     // LINE Platformには常に200 OKを返す必要がある
     return c.json({ message: 'OK' }, 200);

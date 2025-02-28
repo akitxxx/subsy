@@ -13,7 +13,7 @@ const _createMessagingApiClient = (options?: LineClientOptions): messagingApi.Me
 /**
  * テキストメッセージを構築する
  */
-const createTextMessages = (messages: string | string[]): TextMessage[] => {
+const _createTextMessages = (messages: string | string[]): TextMessage[] => {
   if (typeof messages === 'string') {
     return [{ type: 'text', text: messages }];
   }
@@ -30,7 +30,7 @@ const sendMessage =
   (client: messagingApi.MessagingApiClient) =>
   async (params: SendMessageParams, options?: LineClientOptions): Promise<messagingApi.PushMessageResponse> => {
     try {
-      const messages = createTextMessages(params.message);
+      const messages = _createTextMessages(params.message);
       return await client.pushMessage({
         to: params.userId,
         messages: messages,
@@ -51,7 +51,7 @@ const replyMessage =
   (client: messagingApi.MessagingApiClient) =>
   async (params: ReplyMessageParams, options?: LineClientOptions): Promise<messagingApi.ReplyMessageResponse> => {
     try {
-      const messages = createTextMessages(params.message);
+      const messages = _createTextMessages(params.message);
       return await client.replyMessage({
         replyToken: params.replyToken,
         messages: messages,
@@ -91,8 +91,6 @@ export const LineService = {
     const client = _createMessagingApiClient();
 
     return {
-      createMessagingApiClient: _createMessagingApiClient,
-      createTextMessages,
       sendMessage: sendMessage(client),
       replyMessage: replyMessage(client),
       validateSignature,

@@ -1,17 +1,8 @@
 import { lineWebhookHandler } from '@/api/features/line/webhook/lineWebhook.handler';
-import { LineService } from '@/api/shared/lib/line';
+import type { HonoEnv } from '@/api/shared/types/hono';
 import { Hono } from 'hono';
 
-const app = new Hono<LineContext>();
-
-// context
-app.use(async (c, next) => {
-  // inject
-  const lineClient = LineService.createMessagingApiClient();
-  c.set('lineClient', lineClient);
-
-  await next();
-});
+const app = new Hono<HonoEnv>();
 
 const route = app.post('/webhook', ...lineWebhookHandler);
 

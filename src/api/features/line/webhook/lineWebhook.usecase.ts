@@ -1,12 +1,13 @@
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import type { LineService } from '@/api/shared/lib/line';
-import { openAiService } from '@/api/shared/lib/openai';
+import type { OpenAIService } from '@/api/shared/lib/openai';
 import type { DeleteSubscriptionFunctionArgs, SubscriptionFunctionArgs, UpdateSubscriptionFunctionArgs } from '@/api/shared/lib/openai';
 import type { MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk';
 
 type Inject = {
   db: DrizzleClient;
   lineService: LineService;
+  openAiService: OpenAIService;
 };
 
 type Input = {
@@ -24,7 +25,7 @@ type Output = {
  * LINE Webhookを処理するユースケース
  */
 const run =
-  ({ db, lineService }: Inject) =>
+  ({ db, lineService, openAiService }: Inject) =>
   async ({ payload }: Input): Promise<Output> => {
     // ペイロードのバリデーション
     if (!payload || !payload.events || !Array.isArray(payload.events)) {
@@ -37,7 +38,7 @@ const run =
       try {
         // メッセージイベントだけを処理
         if (event.type === 'message' && event.message.type === 'text') {
-          await handleMessageEvent(db, lineService, event as MessageEvent);
+          await handleMessageEvent(db, lineService, openAiService, event as MessageEvent);
         }
       } catch (error) {
         console.error('LINE Webhookイベント処理エラー:', error);
@@ -52,7 +53,7 @@ const run =
 /**
  * メッセージイベントを処理する
  */
-const handleMessageEvent = async (db: DrizzleClient, lineService: LineService, event: MessageEvent) => {
+const handleMessageEvent = async (db: DrizzleClient, lineService: LineService, openAiService: OpenAIService, event: MessageEvent) => {
   // ユーザーID取得
   const userId = event.source.userId;
   if (!userId) return;
