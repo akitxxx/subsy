@@ -5,7 +5,6 @@ import type { HonoEnv } from '@/api/shared/types/hono';
 import lineRoute from '@/app/api/[[...route]]/line.route';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
-import type { Mock } from 'vitest';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // OpenAI サービスのモック
