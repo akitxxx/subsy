@@ -1,57 +1,71 @@
 import { randomUUID } from 'node:crypto';
 import type { SelectSubscription } from '@/api/shared/lib/db/schema';
-import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
+import type { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { SubscriptionStatusEnum } from '@/shared/enums/subscription/subscriptionStatus.enum';
 import { DateUtils } from '@/shared/utils/date.util';
+import { SubscriptionUtils } from '@/shared/utils/subscription.util';
 import type { SubscriptionEntity } from './subscription.entity';
 import { subscriptionModelBaseSchema } from './subscription.entity';
 
-const getStatus = (e: SubscriptionEntity) => {
-  if (getIsExpired(e)) return SubscriptionStatusEnum.Expired;
+/**
+ * サブスクリプションのステータスを取得
+ */
+const getStatus = (e: SubscriptionEntity) => (now: Date) => {
+  if (getIsExpired(e)(now)) return SubscriptionStatusEnum.Expired;
   if (getIsCancelled(e)) return SubscriptionStatusEnum.Cancelled;
   return SubscriptionStatusEnum.Active;
 };
 
-// 現在利用中か(期限が切れしていない)
+/**
+ * 現在利用中か(期限が切れていない)
+ */
 const getIsInUse = (e: SubscriptionEntity) => (now: Date) => {
   return !getIsExpired(e)(now);
 };
 
-// 自動更新キャンセル済みか
+/**
+ * 自動更新キャンセル済みか
+ */
 const getIsCancelled = (e: SubscriptionEntity) => {
   return e.cancelledAt !== null;
 };
 
-// 期限が切れているか
+/**
+ * 期限が切れているか
+ */
 const getIsExpired = (e: SubscriptionEntity) => (now: Date) => {
   return e.expiredAt !== null && e.expiredAt < now;
 };
 
-// 次回支払日
+/**
+ * 次回支払日を取得
+ */
 const getNextPaymentAt = (e: SubscriptionEntity) => (now: Date) => {
-  return _calculateNextPaymentAt({ cycle: e.cycle, startedAt: e.startedAt, now });
+  return _calculateNextPaymentAt({
+    cycle: e.cycle,
+    startedAt: e.startedAt,
+    cancelledAt: e.cancelledAt,
+    now,
+  });
 };
 
-// 次回支払日を計算
-const _calculateNextPaymentAt = (p: { cycle: SubscriptionCycleEnum; startedAt: Date; now: Date }) => {
+/**
+ * 次回支払日を計算
+ *
+ * @description
+ * サブスクリプションのサイクルと開始日から次回支払日を計算します。
+ * 次回支払日は常に00:00:00形式でサイクル終了日の翌日を返します。
+ * これはexpiredAt（23:59:59.999形式）の1ミリ秒後に相当します。
+ */
+const _calculateNextPaymentAt = (p: {
+  cycle: SubscriptionCycleEnum;
+  startedAt: Date;
+  cancelledAt: Date | null;
+  now: Date;
+}): Date => {
   // サイクルに応じて月数を計算
-  let monthsPerCycle: number;
-  switch (p.cycle) {
-    case SubscriptionCycleEnum.OneMonth:
-      monthsPerCycle = 1;
-      break;
-    case SubscriptionCycleEnum.ThreeMonths:
-      monthsPerCycle = 3;
-      break;
-    case SubscriptionCycleEnum.SixMonths:
-      monthsPerCycle = 6;
-      break;
-    case SubscriptionCycleEnum.OneYear:
-      monthsPerCycle = 12;
-      break;
-    default:
-      throw new Error(`Invalid subscription cycle: ${p.cycle}`);
-  }
+  const monthsPerCycle: number = SubscriptionUtils.calculate.getMonthsFromCycle(p.cycle);
+  if (!monthsPerCycle) throw new Error(`Invalid subscription cycle: ${p.cycle}`);
 
   // 開始日から現在までの経過月数を計算
   const now = p.now;
@@ -59,11 +73,6 @@ const _calculateNextPaymentAt = (p: { cycle: SubscriptionCycleEnum; startedAt: D
   const currentDate = now.getDate();
 
   // 経過月数 = 年の差分（月換算） + 月の差分 - 日付による調整
-  // 例1: 2025/1/31 → 2025/2/15 の場合
-  //   - 年の差分: 0年 = 0ヶ月
-  //   - 月の差分: 2月 - 1月 = 1ヶ月
-  //   - 日付調整: 15日 < 31日 なので-1ヶ月
-  //   - 結果: 0 + 1 - 1 = 0ヶ月経過
   const elapsedMonths =
     (now.getFullYear() - p.startedAt.getFullYear()) * 12 + // 年の差分を月数に換算
     (now.getMonth() - p.startedAt.getMonth()) + // 月の差分
@@ -73,30 +82,57 @@ const _calculateNextPaymentAt = (p: { cycle: SubscriptionCycleEnum; startedAt: D
   const currentCycleNumber = Math.floor(elapsedMonths / monthsPerCycle);
 
   // 次回支払日を計算（現在のサイクル数 + 1 のサイクルの日付）
-  const nextPaymentAt = new Date(p.startedAt);
-  nextPaymentAt.setMonth(nextPaymentAt.getMonth() + (currentCycleNumber + 1) * monthsPerCycle);
+  const nextPaymentAt = DateUtils.modify.addMonths(p.startedAt, (currentCycleNumber + 1) * monthsPerCycle);
 
-  // 日付が変わっている場合（月末にずれた場合）は、その月の最終日を設定
-  const originalDate = p.startedAt.getDate();
-  if (nextPaymentAt.getDate() !== originalDate) {
-    nextPaymentAt.setDate(0); // 当月の最終日を設定
+  // 日付の調整：元の日付が月末の場合や、日付が存在しない月の場合の処理
+  const expectedMonth = (p.startedAt.getMonth() + (currentCycleNumber + 1) * monthsPerCycle) % 12;
+
+  // 実際の月が期待する月と異なる場合（月末調整が必要な場合）
+  if (nextPaymentAt.getMonth() !== expectedMonth) {
+    // 月の最終日を設定
+    nextPaymentAt.setDate(0);
   }
 
   return nextPaymentAt;
 };
 
-// 期限切れ日を計算
-const _calculateExpiredAt = (p: { cycle: SubscriptionCycleEnum; startedAt: Date; cancelledAt: Date | null }) => {
+/**
+ * 期限切れ日を計算
+ *
+ * @description
+ * サブスクリプションのサイクルとキャンセル日から期限切れ日を計算します。
+ * 期限切れ日は現在のサイクルの最終日の23:59:59.999形式で設定されます。
+ * これはnextPaymentAtの1ミリ秒前に相当します。
+ */
+const _calculateExpiredAt = (p: {
+  cycle: SubscriptionCycleEnum;
+  startedAt: Date;
+  cancelledAt: Date | null;
+}): Date | null => {
   if (!p.cancelledAt) return null;
-  // キャンセル日を基準に次回支払い日を計算
-  const nextPaymentAt = _calculateNextPaymentAt({ cycle: p.cycle, startedAt: p.startedAt, now: p.cancelledAt });
-  return new Date(nextPaymentAt.getTime() - 1);
+
+  const nextPaymentAtFromCancelledAt = _calculateNextPaymentAt({
+    cycle: p.cycle,
+    startedAt: p.startedAt,
+    cancelledAt: p.cancelledAt,
+    now: p.cancelledAt,
+  });
+
+  // 結果の日付を設定（23:59:59.999形式で日の最終ミリ秒を表現）
+  return DateUtils.modify.addMilliseconds(nextPaymentAtFromCancelledAt, -1);
 };
 
+/**
+ * サブスクリプションの新規作成に必要なプロパティ
+ */
 type SubscriptionCreateProps = Pick<
   SubscriptionEntity,
   'userId' | 'name' | 'price' | 'currency' | 'cycle' | 'startedAt' | 'cancelledAt' | 'description'
 >;
+
+/**
+ * 新しいサブスクリプションを作成
+ */
 const create = (p: SubscriptionCreateProps): SubscriptionEntity => {
   const now = DateUtils.create.now();
   return {
@@ -109,13 +145,32 @@ const create = (p: SubscriptionCreateProps): SubscriptionEntity => {
   };
 };
 
+/**
+ * サブスクリプションを更新
+ */
 const update =
   (e: SubscriptionEntity) =>
   (props: Partial<SubscriptionEntity>): SubscriptionEntity => {
-    const updated = { ...e, ...props };
-    return { ...updated, expiredAt: _calculateExpiredAt({ cycle: updated.cycle, startedAt: updated.startedAt, cancelledAt: updated.cancelledAt }) };
+    const now = DateUtils.create.now();
+    const updated = {
+      ...e,
+      ...props,
+      updatedAt: now,
+    };
+
+    return {
+      ...updated,
+      expiredAt: _calculateExpiredAt({
+        cycle: updated.cycle,
+        startedAt: updated.startedAt,
+        cancelledAt: updated.cancelledAt,
+      }),
+    };
   };
 
+/**
+ * DBからの取得データをエンティティに変換
+ */
 const parseEntity = (data: SelectSubscription) => {
   return subscriptionModelBaseSchema.parse(data);
 };

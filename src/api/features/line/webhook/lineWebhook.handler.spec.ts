@@ -2,46 +2,40 @@ import { type DrizzleClient, getDrizzleClient } from '@/api/shared/lib/db/drizzl
 import { cleanupDB } from '@/api/shared/test/dbHelper';
 import { createActiveUser } from '@/api/shared/test/testDataFactory';
 import type { HonoEnv } from '@/api/shared/types/hono';
-import { messagingApi } from '@line/bot-sdk';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { lineWebhookHandler } from './lineWebhook.handler';
 
 // LineServiceのモック
+const mockLineService = {
+  validateSignature: vi.fn().mockReturnValue(true),
+  replyMessage: vi.fn().mockResolvedValue({}),
+};
 vi.mock('@/api/shared/lib/line', () => {
-  return {
-    LineService: {
-      new: () => ({
-        validateSignature: vi.fn().mockReturnValue(true),
-        replyMessage: vi.fn().mockResolvedValue({}),
-      }),
-    },
-  };
+  return { LineService: { new: () => mockLineService } };
 });
 
 // OpenAI サービスのモック
-vi.mock('@/api/shared/lib/openai', () => {
-  return {
-    OpenAIService: {
-      new: () => ({
-        parseSubscriptionIntent: vi.fn().mockResolvedValue({
-          message: {},
-          functionCall: {
-            name: 'createSubscription',
-            args: {
-              name: 'Netflix',
-              price: '1490',
-              currency: 'JPY',
-              cycle: 'ONE_MONTH',
-              startedAt: '2023-01-01',
-              description: 'ストリーミングサービス',
-            },
-          },
-        }),
-      }),
+const mockOpenAIService = {
+  parseSubscriptionIntent: vi.fn().mockResolvedValue({
+    message: {},
+    functionCall: {
+      name: 'createSubscription',
+      args: {
+        name: 'Netflix',
+        price: '1490',
+        currency: 'JPY',
+        cycle: 'ONE_MONTH',
+        startedAt: '2023-01-01',
+        description: 'ストリーミングサービス',
+      },
     },
-  };
+  }),
+};
+
+vi.mock('@/api/shared/lib/openai', () => {
+  return { OpenAIService: { new: () => mockOpenAIService } };
 });
 
 describe('POST /api/line/webhook', () => {

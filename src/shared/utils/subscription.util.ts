@@ -15,7 +15,7 @@ const display = {
    * @param cycle サブスクリプションサイクル値
    * @returns 日本語表記されたサイクル文字列
    */
-  formatCycle: (cycle: string): string => {
+  formatCycle: (cycle: string): string | undefined => {
     switch (cycle) {
       case SubscriptionCycleEnum.OneMonth:
         return '1ヶ月';
@@ -26,7 +26,7 @@ const display = {
       case SubscriptionCycleEnum.OneYear:
         return '1年';
       default:
-        return cycle; // 未知の値はそのまま返す
+        return undefined;
     }
   },
 };

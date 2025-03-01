@@ -24,7 +24,7 @@ const formatDate = (dateStr: string | null) => {
 const getDaysRemaining = (dateStr: string | null) => {
   if (!dateStr) return 0;
 
-  const today = new Date();
+  const today = new Date(new Date().toISOString());
   today.setHours(0, 0, 0, 0);
 
   const targetDate = new Date(dateStr);

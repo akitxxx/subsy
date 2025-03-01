@@ -26,7 +26,8 @@ describe('PATCH /api/subscriptions/:id', () => {
     return testClient(route);
   };
 
-  const now = new Date('2025-01-01 00:00:00');
+  // 日付リテラルはDateUtils.create.fromISOStringを使って作成
+  const now = DateUtils.create.fromISOString('2025-01-01T00:00:00.000Z');
 
   beforeEach(async () => {
     await cleanupDB(db);
@@ -51,15 +52,19 @@ describe('PATCH /api/subscriptions/:id', () => {
         description: 'Old Description',
       });
       // when
+      const startedAt = DateUtils.create.fromISOString('2024-10-01T00:00:00.000Z');
+      const cancelledAt = DateUtils.create.fromISOString('2025-01-01T00:00:01.000Z');
+
       const input = {
         name: 'New Subscription',
         price: '2980.00',
         currency: CurrencyEnum.Usd,
         cycle: SubscriptionCycleEnum.ThreeMonths,
-        startedAt: new Date('2024-10-01 00:00:00'),
-        cancelledAt: new Date('2025-01-01 00:00:01'),
+        startedAt,
+        cancelledAt,
         description: 'New Description',
       } satisfies CreateOrUpdateSubscriptionInput;
+
       const client = createTestClient({ db, sessionUser: { id: user.id } });
       const res = await client.api.subscriptions[':id'].$patch({
         param: { id: subscription.id },
@@ -67,24 +72,40 @@ describe('PATCH /api/subscriptions/:id', () => {
       } as unknown as { param: { id: string }; json: typeof input }); // MEMO: jsonの部分の型推論うまくいかないので一旦無理矢理
       // then
       expect(res.status).toBe(200);
+
+      // 日付データの準備
+      const expectedStartedAt = DateUtils.format.toISOString(input.startedAt);
+      const expectedCancelledAt = DateUtils.format.toISOString(input.cancelledAt);
+
+      const nextPaymentAtDate = DateUtils.create.fromISOString('2025-04-01T00:00:00.000Z');
+      const expiredAtDate = DateUtils.create.fromISOString('2025-03-31T23:59:59.999Z');
+
       // output
       const output = await res.json();
       expect(output).toMatchObject({
         subscription: {
           ...input,
-          startedAt: new Date(input.startedAt).toISOString(),
-          cancelledAt: new Date(input.cancelledAt).toISOString(),
-          nextPaymentAt: new Date('2025-04-01 00:00:00').toISOString(),
-          expiredAt: DateUtils.modify.addMilliseconds(new Date('2025-04-01 00:00:00'), -1).toISOString(),
+          startedAt: expectedStartedAt,
+          cancelledAt: expectedCancelledAt,
+          nextPaymentAt: nextPaymentAtDate.toISOString(),
+          expiredAt: expiredAtDate.toISOString(),
         },
       });
+
       // DB
       const subscriptions = await db.query.subscriptionsTable.findMany();
       expect(subscriptions.length).toBe(1);
+
+      // DB検証 - DBから返されるデータはDateオブジェクトのため、期待値もDateオブジェクトで比較
       expect(subscriptions[0]).toMatchObject({
         ...input,
-        expiredAt: DateUtils.modify.addMilliseconds(new Date('2025-04-01 00:00:00'), -1),
+        expiredAt: expiredAtDate,
       });
+
+      // nextPaymentAtとexpiredAtの関係を検証
+      // DateUtilsを使用して統一性を高めつつ、タイムスタンプ比較を行う
+      const timeDifference = nextPaymentAtDate.getTime() - expiredAtDate.getTime();
+      expect(timeDifference).toBe(1); // 1ミリ秒の差があることを確認
     });
   });
 });

@@ -6,10 +6,6 @@
  */
 
 import dayjs from 'dayjs';
-import ja from 'dayjs/locale/ja';
-
-// 日本語ロケールを設定
-dayjs.locale(ja);
 
 /**
  * 日付操作の抽象インターフェース
@@ -85,7 +81,7 @@ const create = {
    * 現在時刻の日付を取得
    */
   now: (): Date => {
-    return new Date();
+    return dayjs().toDate();
   },
 
   /**
@@ -105,16 +101,8 @@ const create = {
   /**
    * ISO文字列から日付を生成
    */
-  fromISOString: (isoString: string | null): Date | null => {
-    if (!isoString) return null;
-
-    try {
-      const date = new Date(isoString);
-      // 無効な日付のチェック
-      return Number.isNaN(date.getTime()) ? null : date;
-    } catch {
-      return null;
-    }
+  fromISOString: (isoString: string): Date => {
+    return dayjs(isoString).toDate();
   },
 
   /**
@@ -133,63 +121,49 @@ const modify = {
    * ミリ秒を加算
    */
   addMilliseconds: (date: Date, milliseconds: number): Date => {
-    const newDate = new Date(date);
-    newDate.setMilliseconds(newDate.getMilliseconds() + milliseconds);
-    return newDate;
+    return dayjs(date).add(milliseconds, 'millisecond').toDate();
   },
 
   /**
    * 秒を加算
    */
   addSeconds: (date: Date, seconds: number): Date => {
-    const newDate = new Date(date);
-    newDate.setSeconds(newDate.getSeconds() + seconds);
-    return newDate;
+    return dayjs(date).add(seconds, 'second').toDate();
   },
 
   /**
    * 分を加算
    */
   addMinutes: (date: Date, minutes: number): Date => {
-    const newDate = new Date(date);
-    newDate.setMinutes(newDate.getMinutes() + minutes);
-    return newDate;
+    return dayjs(date).add(minutes, 'minute').toDate();
   },
 
   /**
    * 時間を加算
    */
   addHours: (date: Date, hours: number): Date => {
-    const newDate = new Date(date);
-    newDate.setHours(newDate.getHours() + hours);
-    return newDate;
+    return dayjs(date).add(hours, 'hour').toDate();
   },
 
   /**
    * 日を加算
    */
   addDays: (date: Date, days: number): Date => {
-    const newDate = new Date(date);
-    newDate.setDate(newDate.getDate() + days);
-    return newDate;
+    return dayjs(date).add(days, 'day').toDate();
   },
 
   /**
    * 月を加算
    */
   addMonths: (date: Date, months: number): Date => {
-    const newDate = new Date(date);
-    newDate.setMonth(newDate.getMonth() + months);
-    return newDate;
+    return dayjs(date).add(months, 'month').toDate();
   },
 
   /**
    * 年を加算
    */
   addYears: (date: Date, years: number): Date => {
-    const newDate = new Date(date);
-    newDate.setFullYear(newDate.getFullYear() + years);
-    return newDate;
+    return dayjs(date).add(years, 'year').toDate();
   },
 
   /**
@@ -272,28 +246,28 @@ const compare = {
    * 2つの日付が同じ日かどうか
    */
   isSameDay: (date1: Date, date2: Date): boolean => {
-    return date1.getFullYear() === date2.getFullYear() && date1.getMonth() === date2.getMonth() && date1.getDate() === date2.getDate();
+    return dayjs(date1).isSame(dayjs(date2), 'day');
   },
 
   /**
    * date1がdate2より前かどうか
    */
   isBefore: (date1: Date, date2: Date): boolean => {
-    return date1.getTime() < date2.getTime();
+    return dayjs(date1).isBefore(dayjs(date2));
   },
 
   /**
    * date1がdate2より後かどうか
    */
   isAfter: (date1: Date, date2: Date): boolean => {
-    return date1.getTime() > date2.getTime();
+    return dayjs(date1).isAfter(dayjs(date2));
   },
 
   /**
    * dateがstartとendの間にあるかどうか
    */
   isBetween: (date: Date, start: Date, end: Date): boolean => {
-    return date.getTime() >= start.getTime() && date.getTime() <= end.getTime();
+    return start.getTime() <= date.getTime() && date.getTime() <= end.getTime();
   },
 };
 
