@@ -1,6 +1,7 @@
 import { Subscription, type SubscriptionEntity, type SubscriptionRepository } from '@/api/shared/domain/subscription';
 import type {
   DeleteSubscriptionFunctionArgs,
+  GetMonthlyTotalFunctionArgs,
   GetSubscriptionDetailFunctionArgs,
   SendMessageFunctionArgs,
   SubscriptionFunctionArgs,
@@ -8,8 +9,10 @@ import type {
 } from '@/api/shared/lib/openai';
 import { FunctionName } from '@/api/shared/lib/openai/subscription-functions';
 import { CurrencyEnum, getCurrentPrefix } from '@/shared/enums/currency.enum';
+import { LanguageEnum } from '@/shared/enums/language.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
+import { LanguageUtils } from '@/shared/utils/language.util';
 
 type Inject = {
   subscriptionRepository: SubscriptionRepository;
@@ -47,6 +50,8 @@ export const executeFunctionByName =
           return handleDeleteSubscription(inject, userId, subscriptions, args as DeleteSubscriptionFunctionArgs);
         case FunctionName.sendMessage:
           return handleSendMessage(inject, args as SendMessageFunctionArgs);
+        case FunctionName.getMonthlyTotal:
+          return handleGetMonthlyTotal(subscriptions, args as GetMonthlyTotalFunctionArgs);
         default:
           throw new Error(`未知の機能: ${name}`);
       }
@@ -177,6 +182,81 @@ const handleSendMessage = async (inject: Inject, args: SendMessageFunctionArgs):
   console.dir({ 'メッセージ送信:': { args } }, { depth: null });
 
   return { message: args.message };
+};
+
+/**
+ * 月間支払い合計取得処理
+ */
+const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: GetMonthlyTotalFunctionArgs): Promise<Output> => {
+  console.dir({ '月間支払い合計取得:': { args } }, { depth: null });
+
+  // 現在の日付を取得
+  const now = DateUtils.create.now();
+  
+  // 年月の指定（指定がなければ現在の年月を使用）
+  const targetYear = args.year ?? now.getFullYear();
+  const targetMonth = args.month ?? now.getMonth() + 1; // JavaScriptの月は0始まりなので+1
+  
+  // 対象年月の開始日と終了日を計算
+  const startDate = new Date(targetYear, targetMonth - 1, 1); // 月初日
+  const endDate = new Date(targetYear, targetMonth, 0); // 月末日
+  
+  // 言語の判定（argsに言語情報がある場合はそれを使用、なければメッセージから判定、デフォルトは英語）
+  const language = args.language ?? LanguageEnum.English;
+  const isJapanese = language === LanguageEnum.Japanese;
+  
+  // 指定月の支払い予定があり、期限切れしていないサブスクリプションをフィルタリング
+  const targetMonthSubscriptions = subscriptions.filter(subscription => {
+    // 期限切れしているものは除外
+    if (Subscription.getIsExpired(subscription)(now)) return false;
+    
+    // 次回支払日を取得
+    const nextPaymentAt = Subscription.getNextPaymentAt(subscription)(now);
+    
+    // 指定月の支払いかどうかをチェック
+    return nextPaymentAt.getFullYear() === targetYear && nextPaymentAt.getMonth() === targetMonth - 1;
+  });
+  
+  // 合計金額を計算（円とドルで別々に集計）
+  let totalJpy = 0;
+  let totalUsd = 0;
+  
+  for (const subscription of targetMonthSubscriptions) {
+    if (subscription.currency === CurrencyEnum.Jpy) {
+      totalJpy += Number(subscription.price);
+    } else if (subscription.currency === CurrencyEnum.Usd) {
+      totalUsd += Number(subscription.price);
+    }
+  }
+  
+  // 言語に応じてメッセージを作成
+  if (isJapanese) {
+    // 日本語の場合はドルを円に変換（簡易的な変換レート: 1ドル = 150円）
+    const convertedUsd = totalUsd * 150;
+    const grandTotal = totalJpy + convertedUsd;
+    
+    // 年月の表示用文字列
+    const yearMonthStr = targetYear === now.getFullYear() && targetMonth === now.getMonth() + 1
+      ? '今月'
+      : `${targetYear}年${targetMonth}月`;
+    
+    return {
+      message: `${yearMonthStr}の支払い予定合計: ¥${Math.floor(grandTotal).toLocaleString()}（${targetMonthSubscriptions.length}件）`,
+    };
+  }
+  
+  // 英語の場合は円をドルに変換（簡易的な変換レート: 150円 = 1ドル）
+  const convertedJpy = totalJpy / 150;
+  const grandTotal = totalUsd + convertedJpy;
+  
+  // 年月の表示用文字列
+  const yearMonthStr = targetYear === now.getFullYear() && targetMonth === now.getMonth() + 1
+    ? 'this month'
+    : `${targetMonth}/${targetYear}`;
+  
+  return {
+    message: `Total payments due for ${yearMonthStr}: $${grandTotal.toFixed(2).toLocaleString()} (${targetMonthSubscriptions.length} subscriptions)`,
+  };
 };
 
 /**

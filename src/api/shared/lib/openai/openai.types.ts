@@ -1,4 +1,5 @@
 import type { CurrencyEnum } from '@/shared/enums/currency.enum';
+import type { LanguageEnum } from '@/shared/enums/language.enum';
 import type { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import type { ChatCompletionMessage } from 'openai/resources';
 
@@ -33,9 +34,15 @@ export interface SendMessageFunctionArgs {
   message: string;
 }
 
+export interface GetMonthlyTotalFunctionArgs {
+  language?: LanguageEnum;
+  year?: number;
+  month?: number;
+}
+
 export type ToolCallResult = {
   name: string;
-  args: SubscriptionFunctionArgs | UpdateSubscriptionFunctionArgs | DeleteSubscriptionFunctionArgs | Record<string, never>;
+  args: SubscriptionFunctionArgs | UpdateSubscriptionFunctionArgs | DeleteSubscriptionFunctionArgs | GetMonthlyTotalFunctionArgs | Record<string, never>;
 } | null;
 
 export type FunctionCallResult = ToolCallResult;

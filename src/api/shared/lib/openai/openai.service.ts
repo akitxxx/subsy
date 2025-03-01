@@ -69,6 +69,9 @@ ${p.subscriptions.map((sub) => `- ID: ${sub.id}, 名前: ${sub.name}, 料金: ${
 - ${FunctionName.getSubscriptions}
   - 特定の名前なし
   - 「一覧」「確認」「表示」「見せて」「教えて」などの表現
+- ${FunctionName.getMonthlyTotal}
+  - 「今月の支払い」「合計」「total」などの表現
+  - 特定の月の指定がある場合（例：「5月の支払い」「来月の合計」など）はその月を指定
 - ${FunctionName.sendMessage}
   - どれにもあてはまらない
 
