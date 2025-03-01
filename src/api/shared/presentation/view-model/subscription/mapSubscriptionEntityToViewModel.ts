@@ -7,7 +7,7 @@ export const mapSubscriptionEntityToViewModel = (entity: SubscriptionEntity): Su
   const now = DateUtils.create.now();
   return {
     ...entity,
-    status: Subscription.getStatus(entity),
+    status: Subscription.getStatus(entity)(now),
     nextPaymentAt: Subscription.getNextPaymentAt(entity)(now),
     isInUse: Subscription.getIsInUse(entity)(now),
     isCancelled: Subscription.getIsCancelled(entity),
