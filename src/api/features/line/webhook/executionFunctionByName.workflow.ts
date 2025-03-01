@@ -2,6 +2,7 @@ import { Subscription, type SubscriptionEntity, type SubscriptionRepository } fr
 import type {
   DeleteSubscriptionFunctionArgs,
   GetSubscriptionDetailFunctionArgs,
+  SendMessageFunctionArgs,
   SubscriptionFunctionArgs,
   UpdateSubscriptionFunctionArgs,
 } from '@/api/shared/lib/openai';
@@ -43,6 +44,8 @@ export const executeFunctionByName =
           return handleUpdateSubscription(inject, subscriptions, args as UpdateSubscriptionFunctionArgs);
         case FunctionName.deleteSubscription:
           return handleDeleteSubscription(inject, userId, subscriptions, args as DeleteSubscriptionFunctionArgs);
+        case FunctionName.sendMessage:
+          return handleSendMessage(inject, args as SendMessageFunctionArgs);
         default:
           throw new Error(`未知の機能: ${name}`);
       }
@@ -164,6 +167,15 @@ const handleDeleteSubscription = async (
   return {
     message: `サブスクリプションを削除しました。\n\n${formatSubscriptionDetails(subscription)}`,
   };
+};
+
+/**
+ * メッセージ送信処理
+ */
+const handleSendMessage = async (inject: Inject, args: SendMessageFunctionArgs): Promise<Output> => {
+  console.dir({ 'メッセージ送信:': { args } }, { depth: null });
+
+  return { message: args.message };
 };
 
 /**

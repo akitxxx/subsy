@@ -48,6 +48,7 @@ ${p.subscriptions.map((sub) => `- ID: ${sub.id}, 名前: ${sub.name}, 料金: ${
 - ${FunctionName.createSubscription}
   - 特定の名前がある
   - 「登録」「追加」「作成」「申し込み」などの表現
+  - 開始日の指定がない場合は当日とする
 - ${FunctionName.getSubscriptions}
   - 特定の名前なし
   - 「一覧」「確認」「表示」「見せて」「教えて」などの表現
@@ -81,6 +82,8 @@ ${p.subscriptions.map((sub) => `- ID: ${sub.id}, 名前: ${sub.name}, 料金: ${
 - 既存のサブスクリプションへの操作は、必ず正確なIDを使用する
 - 言及されたサブスク名が既存リストに存在しない場合のみ新規作成と判断する
 - 複数の候補がある場合は、名前の一致度や文脈から最も適切なものを選択する
+- 必要な情報が足りていない場合はその旨をユーザーに伝える
+  - ユーザーにメッセージを送信する場合は、必ず ${FunctionName.sendMessage} を使用する
 `,
           },
           {
@@ -88,10 +91,7 @@ ${p.subscriptions.map((sub) => `- ID: ${sub.id}, 名前: ${sub.name}, 料金: ${
             content: p.userMessage,
           },
         ],
-        tools: subscriptionFunctions.map((func) => ({
-          type: 'function',
-          function: func,
-        })),
+        tools: subscriptionFunctions.map((func) => ({ type: 'function', function: func })),
         tool_choice: 'auto',
       });
 
@@ -112,10 +112,7 @@ ${p.subscriptions.map((sub) => `- ID: ${sub.id}, 名前: ${sub.name}, 料金: ${
         }
       }
 
-      return {
-        message,
-        functionCall,
-      };
+      return { message, functionCall };
     } catch (error) {
       console.error('OpenAI API呼び出しエラー:', error);
       throw error;

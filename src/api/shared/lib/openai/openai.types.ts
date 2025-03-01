@@ -29,6 +29,10 @@ export interface DeleteSubscriptionFunctionArgs {
   id: string;
 }
 
+export interface SendMessageFunctionArgs {
+  message: string;
+}
+
 export type ToolCallResult = {
   name: string;
   args: SubscriptionFunctionArgs | UpdateSubscriptionFunctionArgs | DeleteSubscriptionFunctionArgs | Record<string, never>;

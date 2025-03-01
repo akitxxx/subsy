@@ -7,6 +7,7 @@ export const FunctionName = {
   getSubscriptionDetail: 'getSubscriptionDetail',
   updateSubscription: 'updateSubscription',
   deleteSubscription: 'deleteSubscription',
+  sendMessage: 'sendMessage', // ユーザーにメッセージを送信する
 } as const;
 export type FunctionName = (typeof FunctionName)[keyof typeof FunctionName];
 
@@ -129,6 +130,20 @@ export const subscriptionFunctions = [
         },
       },
       required: ['id'],
+    },
+  },
+  {
+    name: FunctionName.sendMessage,
+    description: 'ユーザーにメッセージを送信する',
+    parameters: {
+      type: 'object',
+      properties: {
+        message: {
+          type: 'string',
+          description: 'メッセージ',
+        },
+      },
+      required: ['message'],
     },
   },
 ];
