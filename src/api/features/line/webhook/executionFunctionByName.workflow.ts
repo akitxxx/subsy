@@ -7,7 +7,7 @@ import type {
   UpdateSubscriptionFunctionArgs,
 } from '@/api/shared/lib/openai';
 import { FunctionName } from '@/api/shared/lib/openai/subscription-functions';
-import { type CurrencyEnum, getCurrentPrefix } from '@/shared/enums/currency.enum';
+import { CurrencyEnum, getCurrentPrefix } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
 
@@ -209,7 +209,13 @@ const formatDate = (date: Date): string => {
 };
 
 const formatPrice = (price: string, currency: CurrencyEnum): string => {
-  return `${getCurrentPrefix(currency)}${price.toLocaleString()}`;
+  switch (currency) {
+    case CurrencyEnum.Jpy:
+      // 小数点以下を切り捨て
+      return `${getCurrentPrefix(currency)}${Math.floor(Number(price)).toLocaleString()}`;
+    case CurrencyEnum.Usd:
+      return `${getCurrentPrefix(currency)}${price.toLocaleString()}`;
+  }
 };
 
 /**
