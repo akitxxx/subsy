@@ -82,7 +82,17 @@ const handleCreateSubscription = async (inject: Inject, userId: string, args: Su
 const handleGetSubscriptions = async (subscriptions: SubscriptionEntity[]): Promise<Output> => {
   console.dir({ 'サブスクリプション一覧取得:': { subscriptions } }, { depth: null });
 
-  return { message: 'あなたのサブスクリプション一覧です。\n\n（ここには実際のサブスクリプション情報が表示されます）' };
+  if (subscriptions.length === 0) {
+    return { message: 'サブスクリプションの登録がありません。' };
+  }
+
+  return {
+    message: `登録済みサブスクリプション（${subscriptions.length}件）：
+
+${subscriptions.map((subscription, index) => `・${subscription.name}`).join('\n')}
+
+サブスクリプション名を指定すると詳細を確認できます。`,
+  };
 };
 
 /**
