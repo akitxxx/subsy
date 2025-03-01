@@ -11,9 +11,9 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['./src/shared/test/setup.ts'],
     globals: true,
-    sequence: {
-      concurrent: false,
-    },
     restoreMocks: true,
+    minWorkers: 1,
+    maxWorkers: 1,
+    maxConcurrency: 1,
   },
 });
