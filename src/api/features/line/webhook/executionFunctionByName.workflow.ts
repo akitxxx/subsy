@@ -193,17 +193,17 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
   // 現在の日付を取得
   const now = DateUtils.create.now();
   
-  // 年月の指定（指定がなければ現在の年月を使用）
-  const targetYear = args.year ?? now.getFullYear();
-  const targetMonth = args.month ?? (now.getMonth() + 1); // JavaScriptの月は0始まり（1-12に変換）
+  // 年月の指定
+  const targetYear = args.year;
+  const targetMonth = args.month; // JavaScriptの月は0始まり（1-12に変換）
   
   // 対象年月の日付オブジェクトを作成（DateUtilsを使用）
   const targetDate = DateUtils.modify.setDatePart(now, targetYear, targetMonth, 1);
   const startDate = DateUtils.create.startOfMonth(targetDate);
   const endDate = DateUtils.create.endOfMonth(targetDate);
   
-  // 言語の判定（argsに言語情報がある場合はそれを使用、なければメッセージから判定、デフォルトは英語）
-  const language = args.language ?? LanguageEnum.English;
+  // 言語の判定
+  const language = args.language;
   const isJapanese = language === LanguageEnum.Japanese;
   
   // 指定月の支払い予定があり、期限切れしていないサブスクリプションをフィルタリング
