@@ -1,4 +1,6 @@
 import { type DrizzleClient, getDrizzleClient } from '@/api/shared/lib/db/drizzle';
+import { LineService } from '@/api/shared/lib/line';
+import { OpenAIService } from '@/api/shared/lib/openai';
 import { cleanupDB } from '@/api/shared/test/dbHelper';
 import { createActiveUser } from '@/api/shared/test/testDataFactory';
 import type { HonoEnv } from '@/api/shared/types/hono';
@@ -8,34 +10,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { lineWebhookHandler } from './lineWebhook.handler';
 
 // LineServiceのモック
-const mockLineService = {
-  validateSignature: vi.fn().mockReturnValue(true),
-  replyMessage: vi.fn().mockResolvedValue({}),
-};
 vi.mock('@/api/shared/lib/line', () => {
-  return { LineService: { new: () => mockLineService } };
+  return { LineService: { new: () => ({}) } };
 });
 
 // OpenAI サービスのモック
-const mockOpenAIService = {
-  parseSubscriptionIntent: vi.fn().mockResolvedValue({
-    message: {},
-    functionCall: {
-      name: 'createSubscription',
-      args: {
-        name: 'Netflix',
-        price: '1490',
-        currency: 'JPY',
-        cycle: 'ONE_MONTH',
-        startedAt: '2023-01-01',
-        description: 'ストリーミングサービス',
-      },
-    },
-  }),
-};
-
 vi.mock('@/api/shared/lib/openai', () => {
-  return { OpenAIService: { new: () => mockOpenAIService } };
+  return { OpenAIService: { new: () => ({}) } };
 });
 
 describe('POST /api/line/webhook', () => {
@@ -58,9 +39,36 @@ describe('POST /api/line/webhook', () => {
   });
 
   // ========== test ==========
+
   describe('lineWebhookHandler', () => {
     it('LINEからのメッセージを受け取り、正常にレスポンスを返すこと', async () => {
       // given
+      vi.spyOn(LineService, 'new').mockReturnValue({
+        validateSignature: vi.fn().mockReturnValue(true),
+        replyMessage: vi.fn().mockResolvedValue({ sentMessages: [] }),
+        sendMessage: vi.fn().mockResolvedValue({ sentMessages: [] }),
+      } satisfies LineService);
+      vi.spyOn(OpenAIService, 'new').mockReturnValue({
+        parseSubscriptionIntent: vi.fn().mockResolvedValue({
+          message: {
+            content: '',
+            refusal: '',
+            role: 'assistant',
+          },
+          functionCall: {
+            name: 'createSubscription',
+            args: {
+              name: 'Netflix',
+              price: '1490',
+              currency: 'JPY',
+              cycle: 'ONE_MONTH',
+              startedAt: '2023-01-01',
+              description: 'ストリーミングサービス',
+            },
+          },
+        }),
+      } satisfies OpenAIService);
+
       const user = await createActiveUser(db)();
 
       const lineWebhookPayload = {
@@ -86,15 +94,15 @@ describe('POST /api/line/webhook', () => {
 
       // when
       const client = createTestClient({ db });
-      const res = await client.api.line.webhook.$post({
-        json: lineWebhookPayload,
-      });
+      const res = await client.api.line.webhook.$post({ json: lineWebhookPayload });
 
       // then
       expect(res.status).toBe(200);
 
+      // validateSignatureが呼び出されたことを確認
+      expect(LineService.new().validateSignature).toHaveBeenCalledTimes(1);
+
       // OpenAI サービスが正しく呼び出されたことを確認
-      const { OpenAIService } = await import('@/api/shared/lib/openai');
       const mockOpenAIService = OpenAIService.new();
       expect(mockOpenAIService.parseSubscriptionIntent).toHaveBeenCalledTimes(1);
       expect(mockOpenAIService.parseSubscriptionIntent).toHaveBeenCalledWith('Netflixのサブスク登録して。月額1490円で1月1日から開始。');
