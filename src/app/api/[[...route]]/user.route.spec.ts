@@ -30,7 +30,7 @@ describe('/api/users', () => {
 
   // ========== test ==========
 
-  describe('GET /me', () => {
+  describe('GET /api/users/me', () => {
     it('ユーザー情報を取得できる', async () => {
       // given
       const user = await createActiveUser(db)();
@@ -47,7 +47,7 @@ describe('/api/users', () => {
     });
   });
 
-  describe('PATCH /me', () => {
+  describe('PATCH /api/users/me', () => {
     it('ユーザー情報を更新できる', async () => {
       // given
       const user = await createActiveUser(db)();
