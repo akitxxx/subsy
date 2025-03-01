@@ -87,7 +87,7 @@ const handleGetSubscriptions = async (subscriptions: SubscriptionEntity[]): Prom
   }
 
   return {
-    message: `登録済みサブスクリプション（${subscriptions.length}件）：
+    message: `登録済みサブスクリプション（${subscriptions.length}件）
 
 ${subscriptions.map((subscription, index) => `・${subscription.name}`).join('\n')}
 
