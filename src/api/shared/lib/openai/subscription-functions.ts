@@ -134,7 +134,7 @@ export const subscriptionFunctions = [
   },
   {
     name: FunctionName.sendMessage,
-    description: 'ユーザーにメッセージを送信する',
+    description: '操作に必要な情報が足りない場合、ユーザーにメッセージを送信する',
     parameters: {
       type: 'object',
       properties: {
