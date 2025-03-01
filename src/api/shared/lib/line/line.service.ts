@@ -73,8 +73,6 @@ const validateSignature = (signature: string | undefined, body: string, channelS
   if (!signature) return false;
   try {
     const secret = channelSecret || process.env.LINE_CHANNEL_SECRET || '';
-    console.log('secret', process.env.LINE_CHANNEL_SECRET);
-    const result = lineValidateSignature(body, secret, signature);
     return lineValidateSignature(body, secret, signature);
   } catch (error) {
     console.error('LINEシグネチャ検証エラー:', error);
