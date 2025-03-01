@@ -129,12 +129,10 @@ const validateMessageEvent = (event: MessageEvent): { isValid: boolean; userId: 
  * エラーハンドリング
  */
 const handleError = async (lineService: LineService, event: MessageEvent): Promise<void> => {
-  if (event.replyToken) {
-    await lineService.replyMessage({
-      replyToken: event.replyToken,
-      message: '申し訳ありません、処理中にエラーが発生しました。しばらく経ってからもう一度お試しください。',
-    });
-  }
+  await lineService.replyMessage({
+    replyToken: event.replyToken,
+    message: '申し訳ありません、処理中にエラーが発生しました。しばらく経ってからもう一度お試しください。',
+  });
 };
 
 export const LineWebhookUsecase = { run };
