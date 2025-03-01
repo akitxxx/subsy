@@ -1,5 +1,5 @@
 import type { SubscriptionRepository } from '@/api/shared/domain/subscription';
-import { FunctionName } from '@/api/shared/lib/openai';
+import { FunctionName } from '@/api/shared/lib/openai/subscription-functions';
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { LanguageEnum } from '@/shared/enums/language.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
@@ -91,8 +91,10 @@ describe('executeFunctionByName', () => {
         create: vi.fn(),
         update: vi.fn(),
         delete: vi.fn(),
+        findByIdAndUserId: vi.fn(),
         findManyByUserId: vi.fn(),
-        findById: vi.fn(),
+        findManyActiveAndRecentlyExpired: vi.fn(),
+        findManyWillNextPaymentByUserId: vi.fn(),
       };
       
       const result = await executeFunctionByName({ subscriptionRepository: mockRepository })({
@@ -119,8 +121,10 @@ describe('executeFunctionByName', () => {
         create: vi.fn(),
         update: vi.fn(),
         delete: vi.fn(),
+        findByIdAndUserId: vi.fn(),
         findManyByUserId: vi.fn(),
-        findById: vi.fn(),
+        findManyActiveAndRecentlyExpired: vi.fn(),
+        findManyWillNextPaymentByUserId: vi.fn(),
       };
       
       const result = await executeFunctionByName({ subscriptionRepository: mockRepository })({
@@ -151,8 +155,10 @@ describe('executeFunctionByName', () => {
         create: vi.fn(),
         update: vi.fn(),
         delete: vi.fn(),
+        findByIdAndUserId: vi.fn(),
         findManyByUserId: vi.fn(),
-        findById: vi.fn(),
+        findManyActiveAndRecentlyExpired: vi.fn(),
+        findManyWillNextPaymentByUserId: vi.fn(),
       };
       
       const result = await executeFunctionByName({ subscriptionRepository: mockRepository })({
