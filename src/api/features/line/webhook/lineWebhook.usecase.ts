@@ -98,10 +98,14 @@ const handleMessageEvent = async ({
     }
 
     // 機能に応じた処理を実行して返信メッセージを取得
-    const responseMessage = await executeFunctionByName(db, result.functionCall);
+    const functionResult = await executeFunctionByName({ subscriptionRepository })({
+      userId: user.id,
+      subscriptions,
+      functionCall: result.functionCall,
+    });
 
     // 結果をLINEで返信
-    await sendMessage(lineService, event, responseMessage);
+    await sendMessage(lineService, event, functionResult.message);
   } catch (error) {
     console.error('OpenAI API呼び出しエラー:', error);
     await handleError(lineService, event);

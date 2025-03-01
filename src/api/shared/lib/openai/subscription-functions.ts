@@ -39,6 +39,10 @@ export const subscriptionFunctions = [
           type: 'string',
           description: '開始日（ISO形式）',
         },
+        cancelledAt: {
+          type: 'string',
+          description: 'キャンセル日（ISO形式）',
+        },
         description: {
           type: 'string',
           description: '説明（オプショナル）',

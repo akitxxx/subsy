@@ -1,3 +1,5 @@
+import type { CurrencyEnum } from '@/shared/enums/currency.enum';
+import type { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import type { ChatCompletionMessage } from 'openai/resources';
 
 export interface OpenAIClientOptions {
@@ -8,9 +10,10 @@ export interface OpenAIClientOptions {
 export interface SubscriptionFunctionArgs {
   name: string;
   price: string;
-  currency: 'JPY' | 'USD';
-  cycle: 'ONE_WEEK' | 'TWO_WEEKS' | 'ONE_MONTH' | 'THREE_MONTHS' | 'SIX_MONTHS' | 'ONE_YEAR';
+  currency: CurrencyEnum;
+  cycle: SubscriptionCycleEnum;
   startedAt: string;
+  cancelledAt?: string;
   description?: string;
 }
 
