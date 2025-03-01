@@ -35,9 +35,9 @@ export interface SendMessageFunctionArgs {
 }
 
 export interface GetMonthlyTotalFunctionArgs {
-  language?: LanguageEnum;
-  year?: number;
-  month?: number;
+  language: LanguageEnum;
+  year: number;
+  month: number;
 }
 
 export type ToolCallResult = {

@@ -195,10 +195,10 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
   
   // 年月の指定（指定がなければ現在の年月を使用）
   const targetYear = args.year ?? now.getFullYear();
-  const targetMonth = args.month ?? now.getMonth() + 1; // JavaScriptの月は0始まりなので+1
+  const targetMonth = args.month ?? (now.getMonth() + 1); // JavaScriptの月は0始まり（1-12に変換）
   
-  // 対象年月の開始日と終了日を計算
-  const targetDate = new Date(targetYear, targetMonth - 1); // 指定月の1日
+  // 対象年月の日付オブジェクトを作成（DateUtilsを使用）
+  const targetDate = DateUtils.modify.setDatePart(now, targetYear, targetMonth, 1);
   const startDate = DateUtils.create.startOfMonth(targetDate);
   const endDate = DateUtils.create.endOfMonth(targetDate);
   
@@ -214,8 +214,8 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
     // 次回支払日を取得
     const nextPaymentAt = Subscription.getNextPaymentAt(subscription)(now);
     
-    // 指定月の支払いかどうかをチェック
-    return nextPaymentAt.getFullYear() === targetYear && nextPaymentAt.getMonth() === targetMonth - 1;
+    // 指定月の支払いかどうかをチェック（DateUtilsを使用）
+    return DateUtils.compare.isSameMonth(nextPaymentAt, targetDate);
   });
   
   // 合計金額を計算（円とドルで別々に集計）
@@ -227,16 +227,14 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
     .filter(subscription => subscription.currency === CurrencyEnum.Usd)
     .reduce((total, subscription) => total + Number(subscription.price), 0);
   
+  // 年月の表示用文字列を生成
+  const yearMonthStr = formatYearMonthString(targetYear, targetMonth, now, isJapanese);
+  
   // 言語に応じてメッセージを作成
   if (isJapanese) {
     // 日本語の場合はドルを円に変換（簡易的な変換レート: 1ドル = 150円）
     const convertedUsd = totalUsd * 150;
     const grandTotal = totalJpy + convertedUsd;
-    
-    // 年月の表示用文字列
-    const yearMonthStr = targetYear === now.getFullYear() && targetMonth === now.getMonth() + 1
-      ? '今月'
-      : `${targetYear}年${targetMonth}月`;
     
     return {
       message: `${yearMonthStr}の支払い予定合計: ¥${Math.floor(grandTotal).toLocaleString()}（${targetMonthSubscriptions.length}件）`,
@@ -246,11 +244,6 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
   // 英語の場合は円をドルに変換（簡易的な変換レート: 150円 = 1ドル）
   const convertedJpy = totalJpy / 150;
   const grandTotal = totalUsd + convertedJpy;
-  
-  // 年月の表示用文字列
-  const yearMonthStr = targetYear === now.getFullYear() && targetMonth === now.getMonth() + 1
-    ? 'this month'
-    : `${targetMonth}/${targetYear}`;
   
   return {
     message: `Total payments due for ${yearMonthStr}: $${grandTotal.toFixed(2).toLocaleString()} (${targetMonthSubscriptions.length} subscriptions)`,
@@ -294,6 +287,19 @@ const formatPrice = (price: string, currency: CurrencyEnum): string => {
     case CurrencyEnum.Usd:
       return `${getCurrentPrefix(currency)}${price.toLocaleString()}`;
   }
+};
+
+/**
+ * 年月の表示用文字列を生成する補助関数
+ */
+const formatYearMonthString = (year: number, month: number, now: Date, isJapanese: boolean): string => {
+  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1;
+  
+  if (isJapanese) {
+    return isCurrentMonth ? '今月' : `${year}年${month}月`;
+  }
+  
+  return isCurrentMonth ? 'this month' : `${month}/${year}`;
 };
 
 /**

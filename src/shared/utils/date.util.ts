@@ -250,6 +250,13 @@ const compare = {
   },
 
   /**
+   * 2つの日付が同じ月かどうか
+   */
+  isSameMonth: (date1: Date, date2: Date): boolean => {
+    return dayjs(date1).isSame(dayjs(date2), 'month');
+  },
+
+  /**
    * date1がdate2より前かどうか
    */
   isBefore: (date1: Date, date2: Date): boolean => {
