@@ -70,6 +70,7 @@ const replyMessage =
  * @returns 検証結果
  */
 const validateSignature = (signature: string | undefined, body: string, channelSecret?: string): boolean => {
+  console.log('validateSignature', signature, body, channelSecret);
   if (!signature) return false;
   try {
     const secret = channelSecret || process.env.LINE_CHANNEL_SECRET || '';

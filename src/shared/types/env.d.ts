@@ -9,7 +9,8 @@ declare namespace NodeJS {
 
     // LINE
     LINE_CHANNEL_ACCESS_TOKEN: string;
-
+    LINE_CHANNEL_SECRET: string;
+    // Google
     AUTH_GOOGLE_CLIENT_ID: string;
     AUTH_GOOGLE_CLIENT_SECRET: string;
 
