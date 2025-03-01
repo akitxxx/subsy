@@ -11,12 +11,12 @@ import { lineWebhookHandler } from './lineWebhook.handler';
 
 // LineServiceのモック
 vi.mock('@/api/shared/lib/line', () => {
-  return { LineService: { new: () => ({}) } };
+  return { LineService: { new: () => ({ validateSignature: vi.fn().mockReturnValue(true) }) } };
 });
 
 // OpenAI サービスのモック
 vi.mock('@/api/shared/lib/openai', () => {
-  return { OpenAIService: { new: () => ({}) } };
+  return { OpenAIService: { new: () => ({ parseSubscriptionIntent: vi.fn().mockReturnValue({}) }) } };
 });
 
 describe('POST /api/line/webhook', () => {
@@ -140,7 +140,6 @@ describe('POST /api/line/webhook', () => {
       expect(res.status).toBe(200);
 
       // OpenAI サービスが呼び出されないことを確認
-      const { OpenAIService } = await import('@/api/shared/lib/openai');
       const mockOpenAIService = OpenAIService.new();
       expect(mockOpenAIService.parseSubscriptionIntent).not.toHaveBeenCalled();
     });

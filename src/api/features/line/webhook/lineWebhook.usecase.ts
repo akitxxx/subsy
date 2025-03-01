@@ -34,9 +34,9 @@ const run =
     for (const event of payload.events) {
       try {
         // メッセージイベントだけを処理
-        if ('message' in event && event.message.type === 'text') {
-          await handleMessageEvent(db, lineService, openAiService, event as MessageEvent);
-        }
+        if (!('message' in event && event.message.type === 'text')) return { success: false };
+
+        await handleMessageEvent(db, lineService, openAiService, event as MessageEvent);
       } catch (error) {
         console.error('LINE Webhookイベント処理エラー:', error);
       }
