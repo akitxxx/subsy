@@ -14,6 +14,10 @@ export interface SubscriptionFunctionArgs {
   description?: string;
 }
 
+export interface GetSubscriptionDetailFunctionArgs {
+  id: string;
+}
+
 export interface UpdateSubscriptionFunctionArgs extends Partial<SubscriptionFunctionArgs> {
   id: string;
 }

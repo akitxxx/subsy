@@ -1,11 +1,15 @@
+import type { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
+import type { UserRepository } from '@/api/shared/domain/user/user.repository';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import type { LineService } from '@/api/shared/lib/line';
 import type { OpenAIService } from '@/api/shared/lib/openai';
-import type { DeleteSubscriptionFunctionArgs, SubscriptionFunctionArgs, UpdateSubscriptionFunctionArgs } from '@/api/shared/lib/openai';
 import type { MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk';
+import { executeFunctionByName } from './executionFunctionByName.workflow';
 
 type Inject = {
   db: DrizzleClient;
+  userRepository: UserRepository;
+  subscriptionRepository: SubscriptionRepository;
   lineService: LineService;
   openAiService: OpenAIService;
 };
@@ -22,8 +26,10 @@ type Output = {
  * LINE Webhookを処理するユースケース
  */
 const run =
-  ({ db, lineService, openAiService }: Inject) =>
+  (inject: Inject) =>
   async ({ payload }: Input): Promise<Output> => {
+    console.dir({ 'LineWebhookUsecase.run': payload }, { depth: null });
+
     // ペイロードのバリデーション
     if (!payload || !payload.events || !Array.isArray(payload.events)) {
       console.error('無効なLINE Webhookペイロード', payload);
@@ -36,7 +42,7 @@ const run =
         // メッセージイベントだけを処理
         if (!('message' in event && event.message.type === 'text')) return { success: false };
 
-        await handleMessageEvent(db, lineService, openAiService, event as MessageEvent);
+        await handleMessageEvent({ inject, event: event as MessageEvent });
       } catch (error) {
         console.error('LINE Webhookイベント処理エラー:', error);
       }
@@ -58,21 +64,34 @@ const sendMessage = async (lineService: LineService, event: MessageEvent, messag
 /**
  * メッセージイベントを処理する
  */
-const handleMessageEvent = async (db: DrizzleClient, lineService: LineService, openAiService: OpenAIService, event: MessageEvent) => {
+const handleMessageEvent = async ({
+  inject: { db, lineService, openAiService, userRepository, subscriptionRepository },
+  event,
+}: { inject: Inject; event: MessageEvent }) => {
   try {
     // 基本的な検証
     const validationResult = validateMessageEvent(event);
-    if (!validationResult.isValid || !validationResult.messageText) {
+    if (!validationResult) {
       console.log('メッセージの検証に失敗しました', { event, validationResult });
       return;
     }
 
-    const { userId, messageText } = validationResult;
+    const { userId: lineUserId, messageText } = validationResult;
+
+    // userレコード取得
+    const user = await userRepository.findByLineUserId({ lineUserId });
+    if (!user) {
+      // TODO: signup
+      return;
+    }
+
+    // サブスクリプション一覧取得
+    const subscriptions = await subscriptionRepository.findManyByUserId({ userId: user.id });
 
     // OpenAI APIでメッセージをパース
-    const result = await openAiService.parseSubscriptionIntent(messageText);
+    const result = await openAiService.parseSubscriptionIntent({ userMessage: messageText, subscriptions });
 
-    // 対応する機能がない場合はメッセージを返す
+    // 対応する機能がなかった場合はメッセージを返す
     if (!result.functionCall) {
       await sendMessage(lineService, event, 'サブスクリプションに関する操作を指定してください。');
       return;
@@ -92,74 +111,18 @@ const handleMessageEvent = async (db: DrizzleClient, lineService: LineService, o
 /**
  * メッセージイベントのバリデーション
  */
-const validateMessageEvent = (event: MessageEvent): { isValid: boolean; userId?: string; messageText?: string } => {
+const validateMessageEvent = (event: MessageEvent): { isValid: boolean; userId: string; messageText: string } | null => {
   // ユーザーID取得
   const userId = event.source.userId;
-  if (!userId) return { isValid: false };
+  if (!userId) return null;
 
   // テキストメッセージのみ処理
-  if (event.message.type !== 'text') return { isValid: false };
+  if (event.message.type !== 'text') return null;
 
   const messageText = (event.message as TextMessage).text;
-  if (!messageText) return { isValid: false };
+  if (!messageText) return null;
 
   return { isValid: true, userId, messageText };
-};
-
-/**
- * 機能名に応じた処理を実行
- */
-const executeFunctionByName = async (db: DrizzleClient, functionCall: { name: string; args: unknown }): Promise<string> => {
-  const { name, args } = functionCall;
-
-  switch (name) {
-    case 'createSubscription':
-      return handleCreateSubscription(db, args as SubscriptionFunctionArgs);
-    case 'getSubscriptions':
-      return handleGetSubscriptions(db);
-    case 'updateSubscription':
-      return handleUpdateSubscription(db, args as UpdateSubscriptionFunctionArgs);
-    case 'deleteSubscription':
-      return handleDeleteSubscription(db, args as DeleteSubscriptionFunctionArgs);
-    default:
-      throw new Error(`未知の機能: ${name}`);
-  }
-};
-
-/**
- * サブスクリプション作成処理
- */
-const handleCreateSubscription = async (db: DrizzleClient, args: SubscriptionFunctionArgs): Promise<string> => {
-  console.log('サブスクリプション作成:', args);
-  // TODO: 実際のサブスクリプション作成処理を実装
-  return `「${args.name}」のサブスクリプションを登録しました。金額: ${args.price}${args.currency}/月`;
-};
-
-/**
- * サブスクリプション取得処理
- */
-const handleGetSubscriptions = async (db: DrizzleClient): Promise<string> => {
-  console.log('サブスクリプション取得');
-  // TODO: 実際のサブスクリプション取得処理を実装
-  return 'あなたのサブスクリプション一覧です。\n' + '（ここには実際のサブスクリプション情報が表示されます）';
-};
-
-/**
- * サブスクリプション更新処理
- */
-const handleUpdateSubscription = async (db: DrizzleClient, args: UpdateSubscriptionFunctionArgs): Promise<string> => {
-  console.log('サブスクリプション更新:', args);
-  // TODO: 実際のサブスクリプション更新処理を実装
-  return 'サブスクリプション情報を更新しました。';
-};
-
-/**
- * サブスクリプション削除処理
- */
-const handleDeleteSubscription = async (db: DrizzleClient, args: DeleteSubscriptionFunctionArgs): Promise<string> => {
-  console.log('サブスクリプション削除:', args.id);
-  // TODO: 実際のサブスクリプション削除処理を実装
-  return 'サブスクリプションを削除しました。';
 };
 
 /**

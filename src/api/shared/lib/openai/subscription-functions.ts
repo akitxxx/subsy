@@ -1,9 +1,18 @@
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 
+export const FunctionName = {
+  createSubscription: 'createSubscription',
+  getSubscriptions: 'getSubscriptions',
+  getSubscriptionDetail: 'getSubscriptionDetail',
+  updateSubscription: 'updateSubscription',
+  deleteSubscription: 'deleteSubscription',
+} as const;
+export type FunctionName = (typeof FunctionName)[keyof typeof FunctionName];
+
 export const subscriptionFunctions = [
   {
-    name: 'createSubscription',
+    name: FunctionName.createSubscription,
     description: '新しいサブスクリプションを作成する',
     parameters: {
       type: 'object',
@@ -44,6 +53,20 @@ export const subscriptionFunctions = [
     parameters: {
       type: 'object',
       properties: {},
+    },
+  },
+  {
+    name: FunctionName.getSubscriptionDetail,
+    description: '特定のサブスクリプションの詳細情報を取得する',
+    parameters: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'サブスクリプションID',
+        },
+      },
+      required: ['id'],
     },
   },
   {

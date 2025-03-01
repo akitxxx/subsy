@@ -19,6 +19,15 @@ const findByIdAndUserId =
     return subscription ? Subscription.parseEntity(subscription) : null;
   };
 
+const findManyByUserId =
+  ({ db }: Inject) =>
+  async ({ tx, userId }: { tx?: Tx; userId: string }): Promise<SubscriptionEntity[]> => {
+    const subscriptions = await db.query.subscriptionsTable.findMany({
+      where: eq(subscriptionsTable.userId, userId),
+    });
+    return subscriptions.map(Subscription.parseEntity);
+  };
+
 /** 有効なサブスクリプションと期限切れ(2週間以内)のサブスクリプションを取得 */
 const findManyActiveAndRecentlyExpired =
   ({ db }: Inject) =>
@@ -101,6 +110,7 @@ export const SubscriptionRepository = (inject: Inject) => ({
   update: update(inject),
   delete: deleteOne(inject),
   findByIdAndUserId: findByIdAndUserId(inject),
+  findManyByUserId: findManyByUserId(inject),
   findManyActiveAndRecentlyExpired: findManyActiveAndRecentlyExpired(inject),
   findManyWillNextPaymentByUserId: findManyWillNextPaymentByUserId(inject),
 });

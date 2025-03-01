@@ -1,7 +1,8 @@
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
-import type { InsertUserAuth, SelectUserAuth } from '@/api/shared/lib/db/schema';
+import type { InsertUserAuth } from '@/api/shared/lib/db/schema';
 import { userAuthsTable, usersTable } from '@/api/shared/lib/db/schema';
 import type { Tx } from '@/api/shared/types/tx';
+import { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
 import { and, eq, isNull } from 'drizzle-orm';
 import type { UserEntity } from './user.entity';
 import { User } from './user.logic';
@@ -22,6 +23,21 @@ const findCurrentUserById =
       .limit(1);
 
     return User.parseEntity(user);
+  };
+
+const findByLineUserId =
+  ({ db }: Inject) =>
+  async ({ tx, lineUserId }: { tx?: Tx; lineUserId: string }): Promise<UserEntity> => {
+    const dbClient = tx ?? db;
+
+    const [result] = await dbClient
+      .select()
+      .from(usersTable)
+      .innerJoin(userAuthsTable, eq(usersTable.id, userAuthsTable.userId))
+      .where(and(eq(userAuthsTable.providerId, lineUserId), eq(userAuthsTable.provider, ProviderEnum.Line)))
+      .limit(1);
+
+    return User.parseEntity(result.users);
   };
 
 const create =
@@ -54,6 +70,7 @@ const update =
 
 export const UserRepository = (inject: Inject) => ({
   findCurrentUserById: findCurrentUserById(inject),
+  findByLineUserId: findByLineUserId(inject),
   create: create(inject),
   update: update(inject),
 });
