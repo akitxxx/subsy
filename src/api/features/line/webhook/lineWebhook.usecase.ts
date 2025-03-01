@@ -70,11 +70,11 @@ const handleMessageEvent = async (db: DrizzleClient, lineService: LineService, o
     const { userId, messageText } = validationResult;
 
     // OpenAI APIでメッセージをパース
-    const result = await parseMessageWithOpenAI(openAiService, messageText);
+    const result = await openAiService.parseSubscriptionIntent(messageText);
 
-    // 機能に応じた処理を実行して返信メッセージを取得
+    // 対応する機能がない場合はメッセージを返す
     if (!result.functionCall) {
-      console.log('functionCallが不足しています', { result });
+      await sendMessage(lineService, event, 'サブスクリプションに関する操作を指定してください。');
       return;
     }
 
@@ -104,28 +104,6 @@ const validateMessageEvent = (event: MessageEvent): { isValid: boolean; userId?:
   if (!messageText) return { isValid: false };
 
   return { isValid: true, userId, messageText };
-};
-
-/**
- * 開発環境かどうかを判定
- */
-const isDevelopmentEnvironment = (): boolean => {
-  return process.env.NEXT_PUBLIC_APP_ENV === 'development';
-};
-
-/**
- * OpenAI APIでメッセージを解析
- */
-const parseMessageWithOpenAI = async (openAiService: OpenAIService, messageText: string) => {
-  const result = await openAiService.parseSubscriptionIntent(messageText);
-
-  // resultがnullまたはundefinedでないことを確認
-  if (!result?.functionCall) {
-    console.error('OpenAI APIの戻り値が不正です', { result, messageText });
-    throw new Error('エラーが発生しました');
-  }
-
-  return result;
 };
 
 /**
