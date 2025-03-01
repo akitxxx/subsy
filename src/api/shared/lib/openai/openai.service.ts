@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import type { FunctionCallResult, OpenAIClientOptions, OpenAIServiceResult } from './openai.types';
+import type { OpenAIClientOptions, OpenAIServiceResult, ToolCallResult } from './openai.types';
 import { subscriptionFunctions } from './subscription-functions';
 
 /**
@@ -21,7 +21,7 @@ const parseSubscriptionIntent =
   async (userMessage: string): Promise<OpenAIServiceResult> => {
     try {
       const response = await client.chat.completions.create({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -33,19 +33,25 @@ const parseSubscriptionIntent =
             content: userMessage,
           },
         ],
-        functions: subscriptionFunctions,
-        function_call: 'auto',
+        tools: subscriptionFunctions.map((func) => ({
+          type: 'function',
+          function: func,
+        })),
+        tool_choice: 'auto',
       });
 
       const message = response.choices[0].message;
 
-      // function_callの結果をパース
-      let functionCall: FunctionCallResult = null;
-      if (message.function_call) {
-        functionCall = {
-          name: message.function_call.name,
-          args: JSON.parse(message.function_call.arguments),
-        };
+      // tool_callsの結果をパース
+      let functionCall: ToolCallResult = null;
+      if (message.tool_calls && message.tool_calls.length > 0) {
+        const toolCall = message.tool_calls[0];
+        if (toolCall.type === 'function') {
+          functionCall = {
+            name: toolCall.function.name,
+            args: JSON.parse(toolCall.function.arguments),
+          };
+        }
       }
 
       return {

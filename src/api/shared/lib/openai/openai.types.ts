@@ -22,12 +22,14 @@ export interface DeleteSubscriptionFunctionArgs {
   id: string;
 }
 
-export type FunctionCallResult = {
+export type ToolCallResult = {
   name: string;
   args: SubscriptionFunctionArgs | UpdateSubscriptionFunctionArgs | DeleteSubscriptionFunctionArgs | Record<string, never>;
 } | null;
 
+export type FunctionCallResult = ToolCallResult;
+
 export interface OpenAIServiceResult {
   message: ChatCompletionMessage;
-  functionCall: FunctionCallResult;
+  functionCall: ToolCallResult;
 }

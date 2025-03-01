@@ -13,6 +13,8 @@ declare namespace NodeJS {
     // Google
     AUTH_GOOGLE_CLIENT_ID: string;
     AUTH_GOOGLE_CLIENT_SECRET: string;
+    // OpenAI
+    OPENAI_API_KEY: string;
 
     // ex. http://localhost:3000
     NEXT_PUBLIC_API_HOST: string;
