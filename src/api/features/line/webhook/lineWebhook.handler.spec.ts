@@ -12,7 +12,7 @@ import { DateUtils } from '@/shared/utils/date.util';
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { lineWebhookHandler } from './lineWebhook.handler';
 
 // LineServiceのモック
@@ -42,9 +42,12 @@ describe('POST /api/line/webhook', () => {
   };
 
   beforeEach(async () => {
-    vi.clearAllMocks();
     await cleanupDB(db);
     vi.spyOn(DateUtils.create, 'now').mockReturnValue(now);
+  });
+
+  afterEach(async () => {
+    vi.clearAllMocks();
   });
 
   // ========== test ==========

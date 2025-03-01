@@ -12,6 +12,7 @@ export default defineConfig({
     setupFiles: ['./src/shared/test/setup.ts'],
     globals: true,
     restoreMocks: true,
+    clearMocks: true,
     minWorkers: 1,
     maxWorkers: 1,
     maxConcurrency: 1,
