@@ -11,10 +11,7 @@ type Inject = {
 };
 
 type Input = {
-  payload: {
-    destination: string;
-    events: WebhookEvent[];
-  };
+  payload: LineWebhookPayload;
 };
 
 type Output = {
@@ -37,7 +34,7 @@ const run =
     for (const event of payload.events) {
       try {
         // メッセージイベントだけを処理
-        if (event.type === 'message' && event.message.type === 'text') {
+        if ('message' in event && event.message.type === 'text') {
           await handleMessageEvent(db, lineService, openAiService, event as MessageEvent);
         }
       } catch (error) {

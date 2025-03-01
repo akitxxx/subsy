@@ -1,3 +1,6 @@
+import { CurrencyEnum } from '@/shared/enums/currency.enum';
+import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
+
 export const subscriptionFunctions = [
   {
     name: 'createSubscription',
@@ -15,12 +18,12 @@ export const subscriptionFunctions = [
         },
         currency: {
           type: 'string',
-          enum: ['JPY', 'USD'],
+          enum: Object.values(CurrencyEnum),
           description: '通貨単位',
         },
         cycle: {
           type: 'string',
-          enum: ['ONE_WEEK', 'TWO_WEEKS', 'ONE_MONTH', 'THREE_MONTHS', 'SIX_MONTHS', 'ONE_YEAR'],
+          enum: Object.values(SubscriptionCycleEnum),
           description: '支払いサイクル',
         },
         startedAt: {
@@ -63,12 +66,12 @@ export const subscriptionFunctions = [
         },
         currency: {
           type: 'string',
-          enum: ['JPY', 'USD'],
+          enum: Object.values(CurrencyEnum),
           description: '通貨単位',
         },
         cycle: {
           type: 'string',
-          enum: ['ONE_WEEK', 'TWO_WEEKS', 'ONE_MONTH', 'THREE_MONTHS', 'SIX_MONTHS', 'ONE_YEAR'],
+          enum: Object.values(SubscriptionCycleEnum),
           description: '支払いサイクル',
         },
         startedAt: {
