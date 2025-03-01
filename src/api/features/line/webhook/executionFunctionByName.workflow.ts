@@ -7,6 +7,7 @@ import type {
   UpdateSubscriptionFunctionArgs,
 } from '@/api/shared/lib/openai';
 import { FunctionName } from '@/api/shared/lib/openai/subscription-functions';
+import { type CurrencyEnum, getCurrentPrefix } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
 
@@ -188,7 +189,7 @@ const formatSubscriptionDetails = (subscription: SubscriptionEntity): string => 
   const expireInfo = subscription.expiredAt ? `期限切れ: ${formatDate(subscription.expiredAt)}\n` : '';
 
   return `名前: ${subscription.name}
-金額: ${subscription.price}${subscription.currency}/${getCycleMonths(subscription.cycle)}
+金額: ${formatPrice(subscription.price, subscription.currency)}/${getCycleMonths(subscription.cycle)}
 開始: ${formatDate(subscription.startedAt)}
 ${nextPayment}${cancelInfo}${expireInfo}`.trim();
 };
@@ -205,6 +206,10 @@ const findSubscriptionById = (subscriptions: SubscriptionEntity[], id: string): 
  */
 const formatDate = (date: Date): string => {
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
+};
+
+const formatPrice = (price: string, currency: CurrencyEnum): string => {
+  return `${getCurrentPrefix(currency)}${price.toLocaleString()}`;
 };
 
 /**
