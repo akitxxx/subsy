@@ -69,13 +69,6 @@ const handleMessageEvent = async (db: DrizzleClient, lineService: LineService, o
 
     const { userId, messageText } = validationResult;
 
-    // TODO
-    // 開発環境ではログを出力して終了
-    if (isDevelopmentEnvironment()) {
-      console.log('開発環境のため処理をスキップします', { event });
-      return;
-    }
-
     // OpenAI APIでメッセージをパース
     const result = await parseMessageWithOpenAI(openAiService, messageText);
 
