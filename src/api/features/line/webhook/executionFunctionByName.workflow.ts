@@ -184,7 +184,7 @@ const handleSendMessage = async (inject: Inject, args: SendMessageFunctionArgs):
  */
 const formatSubscriptionDetails = (subscription: SubscriptionEntity): string => {
   const now = DateUtils.create.now();
-  const nextPayment = subscription.cancelledAt ? '' : `次の支払: ${formatDate(Subscription.getNextPaymentAt(subscription)(now))}\n`;
+  const nextPayment = subscription.cancelledAt ? '' : `次の支払い: ${formatDate(Subscription.getNextPaymentAt(subscription)(now))}\n`;
   const cancelInfo = subscription.cancelledAt ? `キャンセル: ${formatDate(subscription.cancelledAt)}\n` : '';
   const expireInfo = subscription.expiredAt ? `期限切れ: ${formatDate(subscription.expiredAt)}\n` : '';
 
