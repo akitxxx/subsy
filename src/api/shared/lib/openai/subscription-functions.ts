@@ -168,6 +168,7 @@ export const subscriptionFunctions = [
           description: '月（1-12、指定がない場合は現在の月）',
         },
       },
+      required: ['language', 'year', 'month'],
     },
   },
 ];

@@ -198,8 +198,9 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
   const targetMonth = args.month ?? now.getMonth() + 1; // JavaScriptの月は0始まりなので+1
   
   // 対象年月の開始日と終了日を計算
-  const startDate = new Date(targetYear, targetMonth - 1, 1); // 月初日
-  const endDate = new Date(targetYear, targetMonth, 0); // 月末日
+  const targetDate = new Date(targetYear, targetMonth - 1); // 指定月の1日
+  const startDate = DateUtils.create.startOfMonth(targetDate);
+  const endDate = DateUtils.create.endOfMonth(targetDate);
   
   // 言語の判定（argsに言語情報がある場合はそれを使用、なければメッセージから判定、デフォルトは英語）
   const language = args.language ?? LanguageEnum.English;
@@ -218,16 +219,13 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
   });
   
   // 合計金額を計算（円とドルで別々に集計）
-  let totalJpy = 0;
-  let totalUsd = 0;
+  const totalJpy = targetMonthSubscriptions
+    .filter(subscription => subscription.currency === CurrencyEnum.Jpy)
+    .reduce((total, subscription) => total + Number(subscription.price), 0);
   
-  for (const subscription of targetMonthSubscriptions) {
-    if (subscription.currency === CurrencyEnum.Jpy) {
-      totalJpy += Number(subscription.price);
-    } else if (subscription.currency === CurrencyEnum.Usd) {
-      totalUsd += Number(subscription.price);
-    }
-  }
+  const totalUsd = targetMonthSubscriptions
+    .filter(subscription => subscription.currency === CurrencyEnum.Usd)
+    .reduce((total, subscription) => total + Number(subscription.price), 0);
   
   // 言語に応じてメッセージを作成
   if (isJapanese) {
