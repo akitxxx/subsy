@@ -4,15 +4,15 @@ import { cleanupDB } from '@/api/shared/test/dbHelper';
 import { createActiveUser } from '@/api/shared/test/testDataFactory';
 import { createSubscription } from '@/api/shared/test/testDataFactory';
 import type { HonoEnv } from '@/api/shared/types/hono';
-import dashboardRoute from '@/app/api/[[...route]]/dashboard.route';
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { getDashboardHandler } from './getDashboard.handler';
 
-describe('/api/dashboard', () => {
+describe('GET /api/dashboard', () => {
   // ========== setup ==========
   const db = getDrizzleClient();
 
@@ -23,7 +23,7 @@ describe('/api/dashboard', () => {
       c.set('sessionUser', sessionUser || null);
       await next();
     });
-    const route = app.route('/api/dashboard', dashboardRoute);
+    const route = app.get('/api/dashboard', ...getDashboardHandler);
     return testClient(route);
   };
 
@@ -37,7 +37,7 @@ describe('/api/dashboard', () => {
 
   // ========== test ==========
 
-  describe('GET /', () => {
+  describe('getDashboardHandler', () => {
     it('dashboard情報を返す', async () => {
       // given
       const user = await createActiveUser(db)();

@@ -2,10 +2,10 @@ import { type DrizzleClient, getDrizzleClient } from '@/api/shared/lib/db/drizzl
 import { cleanupDB } from '@/api/shared/test/dbHelper';
 import { createActiveUser } from '@/api/shared/test/testDataFactory';
 import type { HonoEnv } from '@/api/shared/types/hono';
-import lineRoute from '@/app/api/[[...route]]/line.route';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { lineWebhookHandler } from './lineWebhook.handler';
 
 // OpenAI サービスのモック
 vi.mock('@/api/shared/lib/openai', () => {
@@ -31,7 +31,7 @@ vi.mock('@/api/shared/lib/openai', () => {
   };
 });
 
-describe('/api/line', () => {
+describe('POST /api/line/webhook', () => {
   // ========== setup ==========
   const db = getDrizzleClient();
 
@@ -41,7 +41,7 @@ describe('/api/line', () => {
       c.set('db', db);
       await next();
     });
-    const route = app.route('/api/line', lineRoute);
+    const route = app.post('/api/line/webhook', ...lineWebhookHandler);
     return testClient(route);
   };
 
@@ -51,7 +51,7 @@ describe('/api/line', () => {
   });
 
   // ========== test ==========
-  describe('POST /webhook', () => {
+  describe('lineWebhookHandler', () => {
     it('LINEからのメッセージを受け取り、正常にレスポンスを返すこと', async () => {
       // given
       const user = await createActiveUser(db)();

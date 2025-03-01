@@ -6,9 +6,9 @@ import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import userRoute from './user.route';
+import { updateProfileHandler } from './updateProfile.handler';
 
-describe('/api/users', () => {
+describe('PATCH /api/users/me', () => {
   // ========== setup ==========
   const db = getDrizzleClient();
 
@@ -19,7 +19,7 @@ describe('/api/users', () => {
       c.set('sessionUser', sessionUser || null);
       await next();
     });
-    const route = app.route('/api/users', userRoute);
+    const route = app.patch('/api/users/me', ...updateProfileHandler);
     return testClient(route);
   };
 
@@ -30,24 +30,7 @@ describe('/api/users', () => {
 
   // ========== test ==========
 
-  describe('GET /api/users/me', () => {
-    it('ユーザー情報を取得できる', async () => {
-      // given
-      const user = await createActiveUser(db)();
-      // when
-      const client = createTestClient({ db, sessionUser: { id: user.id } });
-      const res = await client.api.users.me.$get();
-      // then
-      expect(res.status).toBe(200);
-      const data = await res.json();
-      expect(data).toMatchObject({
-        id: user.id,
-        nickname: user.nickname,
-      });
-    });
-  });
-
-  describe('PATCH /api/users/me', () => {
+  describe('updateProfileHandler', () => {
     it('ユーザー情報を更新できる', async () => {
       // given
       const user = await createActiveUser(db)();
