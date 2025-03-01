@@ -1,6 +1,7 @@
 import { LineService } from '@/api/shared/lib/line';
 import { OpenAIService } from '@/api/shared/lib/openai';
 import type { HonoEnv } from '@/api/shared/types/hono';
+import { LINE_SIGNATURE_HTTP_HEADER_NAME } from '@line/bot-sdk';
 import { createFactory } from 'hono/factory';
 import { LineWebhookUsecase } from './lineWebhook.usecase';
 
@@ -10,7 +11,7 @@ export const lineWebhookHandler = factory.createHandlers(async (c) => {
   try {
     const db = c.var.db;
     const rawBody = await c.req.raw.text();
-    const signature = c.req.header('x-line-signature');
+    const signature = c.req.header(LINE_SIGNATURE_HTTP_HEADER_NAME);
 
     const lineService = LineService.new();
     // シグネチャの検証

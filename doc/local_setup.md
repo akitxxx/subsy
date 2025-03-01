@@ -27,10 +27,10 @@ pnpm install
 
 ### 2. 環境変数の設定
 
-`.env.development`ファイルを`.env`としてコピーします：
+`.env.example`ファイルを`.env`としてコピーします：
 
 ```bash
-cp .env.development .env
+cp .env.example.env
 ```
 
 必要に応じて`.env`ファイル内の値を編集してください。特に以下の項目は個別に設定が必要な場合があります：
