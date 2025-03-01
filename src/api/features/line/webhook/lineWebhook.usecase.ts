@@ -64,55 +64,59 @@ const handleMessageEvent = async (db: DrizzleClient, lineService: LineService, o
     // OpenAI APIでメッセージをパースし、適切な操作を決定
     const result = await openAiService.parseSubscriptionIntent(messageText);
 
-    if (result.functionCall) {
-      const { name, args } = result.functionCall;
-      let responseMessage = '';
+    // resultがnullまたはundefinedでないことを確認
+    if (!result?.functionCall) {
+      console.error('OpenAI APIの戻り値が不正です', result);
+      throw new Error('エラーが発生しました');
+    }
 
-      // 各関数に応じた処理を実行
-      switch (name) {
-        case 'createSubscription': {
-          // 本番環境では実際にDBにサブスクリプションを作成する処理を実装
-          const subArgs = args as SubscriptionFunctionArgs;
-          console.log('サブスクリプション作成:', subArgs);
-          responseMessage = `「${subArgs.name}」のサブスクリプションを登録しました。金額: ${subArgs.price}${subArgs.currency}/月`;
-          // TODO: 実際のサブスクリプション作成処理を実装
-          break;
-        }
+    const { name, args } = result.functionCall;
+    let responseMessage = '';
 
-        case 'getSubscriptions': {
-          // 本番環境では実際にDBからサブスクリプションを取得する処理を実装
-          console.log('サブスクリプション取得');
-          responseMessage = 'あなたのサブスクリプション一覧です。\n' + '（ここには実際のサブスクリプション情報が表示されます）';
-          // TODO: 実際のサブスクリプション取得処理を実装
-          break;
-        }
-
-        case 'updateSubscription': {
-          // 本番環境では実際にDBのサブスクリプションを更新する処理を実装
-          const updateArgs = args as UpdateSubscriptionFunctionArgs;
-          console.log('サブスクリプション更新:', updateArgs);
-          responseMessage = 'サブスクリプション情報を更新しました。';
-          // TODO: 実際のサブスクリプション更新処理を実装
-          break;
-        }
-
-        case 'deleteSubscription': {
-          // 本番環境では実際にDBからサブスクリプションを削除する処理を実装
-          const deleteArgs = args as DeleteSubscriptionFunctionArgs;
-          console.log('サブスクリプション削除:', deleteArgs.id);
-          responseMessage = 'サブスクリプションを削除しました。';
-          // TODO: 実際のサブスクリプション削除処理を実装
-          break;
-        }
+    // 各関数に応じた処理を実行
+    switch (name) {
+      case 'createSubscription': {
+        // 本番環境では実際にDBにサブスクリプションを作成する処理を実装
+        const subArgs = args as SubscriptionFunctionArgs;
+        console.log('サブスクリプション作成:', subArgs);
+        responseMessage = `「${subArgs.name}」のサブスクリプションを登録しました。金額: ${subArgs.price}${subArgs.currency}/月`;
+        // TODO: 実際のサブスクリプション作成処理を実装
+        break;
       }
 
-      // 結果をLINEで返信
-      if (responseMessage && event.replyToken) {
-        await lineService.replyMessage({
-          replyToken: event.replyToken,
-          message: responseMessage,
-        });
+      case 'getSubscriptions': {
+        // 本番環境では実際にDBからサブスクリプションを取得する処理を実装
+        console.log('サブスクリプション取得');
+        responseMessage = 'あなたのサブスクリプション一覧です。\n' + '（ここには実際のサブスクリプション情報が表示されます）';
+        // TODO: 実際のサブスクリプション取得処理を実装
+        break;
       }
+
+      case 'updateSubscription': {
+        // 本番環境では実際にDBのサブスクリプションを更新する処理を実装
+        const updateArgs = args as UpdateSubscriptionFunctionArgs;
+        console.log('サブスクリプション更新:', updateArgs);
+        responseMessage = 'サブスクリプション情報を更新しました。';
+        // TODO: 実際のサブスクリプション更新処理を実装
+        break;
+      }
+
+      case 'deleteSubscription': {
+        // 本番環境では実際にDBからサブスクリプションを削除する処理を実装
+        const deleteArgs = args as DeleteSubscriptionFunctionArgs;
+        console.log('サブスクリプション削除:', deleteArgs.id);
+        responseMessage = 'サブスクリプションを削除しました。';
+        // TODO: 実際のサブスクリプション削除処理を実装
+        break;
+      }
+    }
+
+    // 結果をLINEで返信
+    if (responseMessage && event.replyToken) {
+      await lineService.replyMessage({
+        replyToken: event.replyToken,
+        message: responseMessage,
+      });
     }
   } catch (error) {
     console.error('OpenAI API呼び出しエラー:', error);
