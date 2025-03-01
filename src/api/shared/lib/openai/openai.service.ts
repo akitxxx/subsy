@@ -1,4 +1,5 @@
 import type { SubscriptionEntity } from '@/api/shared/domain/subscription';
+import { DateUtils } from '@/shared/utils/date.util';
 import OpenAI from 'openai';
 import type { OpenAIClientOptions, OpenAIServiceResult, ToolCallResult } from './openai.types';
 import { FunctionName, subscriptionFunctions } from './subscription-functions';
@@ -20,6 +21,8 @@ const _createOpenAIClient = (options?: OpenAIClientOptions): OpenAI => {
 const parseSubscriptionIntent =
   (client: OpenAI) =>
   async (p: { userMessage: string; subscriptions: SubscriptionEntity[] }): Promise<OpenAIServiceResult> => {
+    const now = DateUtils.create.now();
+
     try {
       console.time('OpenAIService.parseSubscriptionIntent client.chat.completions.create');
       const response = await client.chat.completions.create({
@@ -48,7 +51,7 @@ ${p.subscriptions.map((sub) => `- ID: ${sub.id}, 名前: ${sub.name}, 料金: ${
 - ${FunctionName.createSubscription}
   - 特定の名前がある
   - 「登録」「追加」「作成」「申し込み」などの表現
-  - 開始日の指定がない場合は当日とする
+  - 開始日の指定がない場合は${now.toISOString()}とする
 - ${FunctionName.getSubscriptions}
   - 特定の名前なし
   - 「一覧」「確認」「表示」「見せて」「教えて」などの表現
