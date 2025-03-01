@@ -68,7 +68,7 @@ const handleCreateSubscription = async (inject: Inject, userId: string, args: Su
     price: args.price,
     currency: args.currency,
     cycle: args.cycle,
-    startedAt: DateUtils.create.fromISOString(args.startedAt),
+    startedAt: args.startedAt ? DateUtils.create.fromISOString(args.startedAt) : DateUtils.create.now(),
     cancelledAt: args.cancelledAt ? DateUtils.create.fromISOString(args.cancelledAt) : null,
     description: args.description ?? null,
   });

@@ -9,10 +9,9 @@ import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
 import { DateUtils } from '@/shared/utils/date.util';
-import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { lineWebhookHandler } from './lineWebhook.handler';
 
 // LineServiceのモック
