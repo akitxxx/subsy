@@ -63,7 +63,7 @@ const _calculateNextPaymentAt = (p: {
   cancelledAt: Date | null;
   now: Date;
 }): Date => {
-  if (p.now <= p.startedAt) return p.startedAt;
+  if (p.now < p.startedAt) return p.startedAt;
   // サイクルに応じて月数を計算
   const monthsPerCycle: number = SubscriptionUtils.calculate.getMonthsFromCycle(p.cycle);
   if (!monthsPerCycle) throw new Error(`Invalid subscription cycle: ${p.cycle}`);
