@@ -83,11 +83,7 @@ const handleMessageEvent = async ({
     // userレコード取得
     const user = await userRepository.findByLineUserId({ lineUserId });
     if (!user) {
-      await CreateUserDomainService.run({ userRepository })({
-        nickname: '名無し',
-        provider: ProviderEnum.Line,
-        providerId: lineUserId,
-      });
+      await CreateUserDomainService.run({ userRepository })({ provider: ProviderEnum.Line, providerId: lineUserId });
       return;
     }
 

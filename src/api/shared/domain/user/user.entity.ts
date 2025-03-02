@@ -5,7 +5,6 @@ import { z } from 'zod';
 // BaseSchema
 export const userModelBaseSchema = z.object({
   id: z.string(),
-  nickname: z.string(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   deletedAt: z.coerce.date().nullable(),

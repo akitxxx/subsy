@@ -7,7 +7,6 @@ type Inject = {
 };
 
 type Input = {
-  nickname: string;
   provider: ProviderEnum;
   providerId: string;
 };
@@ -16,7 +15,6 @@ const run =
   ({ userRepository }: Inject) =>
   async (input: Input) => {
     const newUser = User.newUser({
-      nickname: input.nickname,
       userAuth: { provider: input.provider, providerId: input.providerId },
     });
 

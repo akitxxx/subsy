@@ -8,10 +8,7 @@ import { DateUtils } from '@/shared/utils/date.util';
 export const createActiveUser = (db: DrizzleClient) => async (p?: Partial<InsertUser> & { userAuth: Partial<InsertUserAuth> }) => {
   const [user] = await db
     .insert(usersTable)
-    .values({
-      nickname: 'test',
-      ...p,
-    })
+    .values({ ...p })
     .returning();
   await db.insert(userAuthsTable).values({
     userId: user.id,

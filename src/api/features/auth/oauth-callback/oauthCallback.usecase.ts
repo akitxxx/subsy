@@ -36,7 +36,6 @@ const run =
     // DBにUserレコードがなければ作成する
     if (!user) {
       await CreateUserDomainService.run({ userRepository })({
-        nickname: data.user.user_metadata.name,
         provider: ProviderEnum.Google, // TODO: プロバイダーによって変える
         providerId: data.user.id,
       });

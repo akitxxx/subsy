@@ -3,19 +3,12 @@ import type { SelectUser } from '@/api/shared/lib/db/schema';
 import { DateUtils } from '@/shared/utils/date.util';
 import type { UserAuthEntity, UserEntity } from './user.entity';
 
-const updateProfile =
-  (before: UserEntity) =>
-  ({ nickname }: { nickname: string }): UserEntity => {
-    return { ...before, nickname };
-  };
-
-type UserCreateProps = Pick<UserEntity, 'nickname'> & { userAuth: Pick<UserAuthEntity, 'provider' | 'providerId'> };
+type UserCreateProps = { userAuth: Pick<UserAuthEntity, 'provider' | 'providerId'> };
 const newUser = (p: UserCreateProps) => {
   const id = randomUUID();
   const now = DateUtils.create.now();
   return {
     id,
-    nickname: p.nickname,
     createdAt: now,
     updatedAt: now,
     deletedAt: null,
@@ -34,7 +27,6 @@ const parseEntity = (data: SelectUser): UserEntity => {
 };
 
 export const User = {
-  updateProfile,
   newUser,
   parseEntity,
 };
