@@ -79,6 +79,12 @@ describe('Subscription', () => {
             mockNow: new Date('2025-02-15T00:00:00.000Z'),
             expected: new Date('2025-02-28T00:00:00.000Z'),
           },
+          {
+            name: '必ず指定日時より未来になること',
+            startedAt: new Date('2025-01-31T00:00:00.000Z'),
+            mockNow: new Date('2025-02-28T23:59:59.999Z'),
+            expected: new Date('2025-03-31T00:00:00.000Z'),
+          },
         ],
       },
 

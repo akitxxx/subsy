@@ -63,6 +63,7 @@ const _calculateNextPaymentAt = (p: {
   cancelledAt: Date | null;
   now: Date;
 }): Date => {
+  if (p.now <= p.startedAt) return p.startedAt;
   // サイクルに応じて月数を計算
   const monthsPerCycle: number = SubscriptionUtils.calculate.getMonthsFromCycle(p.cycle);
   if (!monthsPerCycle) throw new Error(`Invalid subscription cycle: ${p.cycle}`);
@@ -125,9 +126,9 @@ const _calculateExpiredAt = (p: {
 /**
  * 指定月内のすべての支払日を取得
  */
-const getPaymentDatesInMonth = (e: SubscriptionEntity) => (now: Date) => {
-  const startOfMonth = DateUtils.create.startOfMonth(now);
-  const endOfMonth = DateUtils.modify.addMilliseconds(DateUtils.create.startOfMonth(DateUtils.modify.addMonths(now, 1)), -1);
+const getPaymentDatesInMonth = (e: SubscriptionEntity) => (targetDate: Date) => {
+  const startOfMonth = DateUtils.create.startOfMonth(targetDate);
+  const endOfMonth = DateUtils.modify.addMilliseconds(DateUtils.create.startOfMonth(DateUtils.modify.addMonths(targetDate, 1)), -1);
   // 前月のendOfMonth
   const prevEndOfMonth = DateUtils.modify.addMilliseconds(startOfMonth, -1);
 
