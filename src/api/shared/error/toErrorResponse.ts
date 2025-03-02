@@ -37,6 +37,11 @@ const errorMappings: Record<string, ErrorMapping> = {
     status: 404,
     title: 'Resource Not Found',
   },
+  ConflictError: {
+    type: 'CONFLICT',
+    status: 409,
+    title: 'Resource Already Exists',
+  },
 };
 
 export const toErrorResponse = (error: Error): ErrorResponse => {
