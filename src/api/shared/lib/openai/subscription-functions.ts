@@ -150,7 +150,7 @@ export const subscriptionFunctions = [
   },
   {
     name: FunctionName.getMonthlyTotal,
-    description: '指定された月（デフォルトは今月）の支払い予定の合計金額を取得する',
+    description: '指定された月の支払い予定の合計金額を取得する',
     parameters: {
       type: 'object',
       properties: {
