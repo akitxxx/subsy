@@ -16,7 +16,7 @@ export const TABLE_NAMES = {
  */
 export const ALL_TABLES = Object.values(TABLE_NAMES);
 
-// usersテーブル
+// ===== usersテーブル =====
 export const usersTable = pgTable(TABLE_NAMES.User, {
   id: uuid('id').primaryKey().defaultRandom(),
   nickname: varchar('nickname', { length: 255 }).notNull(),
@@ -26,7 +26,7 @@ export const usersTable = pgTable(TABLE_NAMES.User, {
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });
 export const usersRelations = relations(usersTable, ({ one, many }) => ({
-  userAuth: one(userAuthsTable, { fields: [usersTable.id], references: [userAuthsTable.userId] }),
+  userAuths: many(userAuthsTable),
   subscriptions: many(subscriptionsTable),
 }));
 export type SelectUser = typeof usersTable.$inferSelect;
@@ -53,6 +53,8 @@ export const userAuthsTable = pgTable(
     pk: primaryKey({ columns: [table.userId, table.provider] }),
     providerIdIdx: index('user_auths_provider_id_idx').on(table.providerId),
     uniqueProviderConstraint: unique('user_auths_provider_unique_idx').on(table.provider, table.providerId),
+    uniqueUserIdAndProviderIdConstraint: unique('user_auths_user_id_provider_id_unique_idx').on(table.userId, table.providerId),
+    uniqueUserIdAndProviderConstraint: unique('user_auths_user_id_provider_unique_idx').on(table.userId, table.provider),
   }),
 );
 export const userAuthsRelations = relations(userAuthsTable, ({ one }) => ({
@@ -86,7 +88,10 @@ export const subscriptionsTable = pgTable(
   // index
   (table) => ({
     userIdIdx: index('subscriptions_user_id_idx').on(table.userId),
+    startedAtIdx: index('subscriptions_started_at_idx').on(table.startedAt),
+    cancelledAtIdx: index('subscriptions_cancelled_at_idx').on(table.cancelledAt),
     expiredAtIdx: index('subscriptions_expired_at_idx').on(table.expiredAt),
+    uniqueUserIdAndNameConstraint: unique('subscriptions_user_id_name_unique_idx').on(table.userId, table.name),
   }),
 );
 export const subscriptionsRelations = relations(subscriptionsTable, ({ one }) => ({
