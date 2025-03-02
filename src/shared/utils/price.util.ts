@@ -126,6 +126,90 @@ const conversion = {
     // 簡易的な変換レート: 150円 = 1ドル
     return jpyAmount / 150;
   },
+
+  /**
+   * APIから最新の為替レートを取得
+   *
+   * FrankfurterAPIを使用
+   * @see https://www.frankfurter.app/
+   */
+  fetchLatestRate: async (): Promise<{ [key: string]: number } | null> => {
+    try {
+      // FrankfurterAPIは無料で制限なしで使用可能
+      const response = await fetch('https://api.frankfurter.app/latest?from=USD&to=JPY');
+      const data = await response.json();
+
+      return data.rates;
+    } catch (error) {
+      console.error('為替レート取得エラー:', error);
+      return null;
+    }
+  },
+
+  /**
+   * APIを使って最新のレートでUSDからJPYへ変換
+   */
+  usdToJpyWithLiveRate: async (usdAmount: number): Promise<number> => {
+    try {
+      const rates = await conversion.rateCache.getRates();
+
+      if (rates?.JPY) {
+        return usdAmount * rates.JPY;
+      }
+
+      // APIが失敗した場合はフォールバック
+      return conversion.usdToJpy(usdAmount);
+    } catch (error) {
+      console.error('為替換算エラー:', error);
+      // 例外発生時はフォールバック
+      return conversion.usdToJpy(usdAmount);
+    }
+  },
+
+  /**
+   * APIを使って最新のレートでJPYからUSDへ変換
+   */
+  jpyToUsdWithLiveRate: async (jpyAmount: number): Promise<number> => {
+    try {
+      const rates = await conversion.rateCache.getRates();
+
+      if (rates?.JPY) {
+        return jpyAmount / rates.JPY;
+      }
+
+      // APIが失敗した場合はフォールバック
+      return conversion.jpyToUsd(jpyAmount);
+    } catch (error) {
+      console.error('為替換算エラー:', error);
+      // 例外発生時はフォールバック
+      return conversion.jpyToUsd(jpyAmount);
+    }
+  },
+
+  /**
+   * 為替レートをキャッシュするためのオブジェクト
+   */
+  rateCache: {
+    rates: null as { [key: string]: number } | null,
+    timestamp: 0,
+    // キャッシュの有効期限（1時間）
+    expirationTime: 60 * 60 * 1000,
+
+    /**
+     * キャッシュされたレートを取得（期限切れの場合は更新）
+     */
+    async getRates(): Promise<{ [key: string]: number } | null> {
+      const now = Date.now();
+
+      // キャッシュが期限切れまたは未設定の場合、更新
+      if (!this.rates || now - this.timestamp > this.expirationTime) {
+        this.rates = await conversion.fetchLatestRate();
+        this.timestamp = now;
+      }
+
+      return this.rates;
+    },
+  },
 };
 
 // 公開API
