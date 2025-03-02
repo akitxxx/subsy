@@ -139,12 +139,11 @@ const getPaymentDatesInMonth = (e: SubscriptionEntity) => (targetDate: Date) => 
    * @returns 指定月内のすべての支払日
    */
   const _collectPaymentDatesRecursively = (currentBaseDate: Date, dates: Date[] = [], depth = 0): Date[] => {
-    // 最大再帰深度を超えた場合は終了
-    if (depth > 100) return dates;
+    // 最大再帰深度を超えた場合は終了。通常ありえない
+    if (depth > 10) return dates;
 
     // 以下、既存のロジック
     const nextPaymentDate = getNextPaymentAt(e)(currentBaseDate);
-    console.log({ depth, currentBaseDate, nextPaymentDate });
     if (nextPaymentDate > endOfMonth) return dates;
     return _collectPaymentDatesRecursively(DateUtils.modify.addDays(nextPaymentDate, 1), [...dates, nextPaymentDate], depth + 1);
   };
