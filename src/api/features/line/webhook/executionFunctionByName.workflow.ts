@@ -209,7 +209,13 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
   })();
 
   // 言語に応じたメッセージを作成して返す
-  return createResponseMessage(totalJpy, totalUsd, yearMonthStr, subscriptionCount, isJapanese);
+  // 日本語の場合はドルを円に変換
+  const convertedUsd = PriceUtils.conversion.usdToJpy(totalUsd);
+  const grandTotal = totalJpy + convertedUsd;
+
+  return {
+    message: `${yearMonthStr}の支払い予定合計: ¥${Math.floor(grandTotal).toLocaleString()}（${subscriptionCount}件）`,
+  };
 };
 
 // ============================================================================
@@ -340,31 +346,4 @@ const getCycleMonths = (cycle: SubscriptionCycleEnum): string => {
     default:
       return '月';
   }
-};
-
-// ============================================================================
-// レスポンス生成関数
-// ============================================================================
-
-/**
- * 言語に応じたレスポンスメッセージを作成する
- */
-const createResponseMessage = (totalJpy: number, totalUsd: number, yearMonthStr: string, subscriptionCount: number, isJapanese: boolean): Output => {
-  if (isJapanese) {
-    // 日本語の場合はドルを円に変換
-    const convertedUsd = PriceUtils.conversion.usdToJpy(totalUsd);
-    const grandTotal = totalJpy + convertedUsd;
-
-    return {
-      message: `${yearMonthStr}の支払い予定合計: ¥${Math.floor(grandTotal).toLocaleString()}（${subscriptionCount}件）`,
-    };
-  }
-
-  // 英語の場合は円をドルに変換
-  const convertedJpy = PriceUtils.conversion.jpyToUsd(totalJpy);
-  const grandTotal = totalUsd + convertedJpy;
-
-  return {
-    message: `Total payments due for ${yearMonthStr}: $${grandTotal.toFixed(2).toLocaleString()} (${subscriptionCount} subscriptions)`,
-  };
 };
