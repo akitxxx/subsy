@@ -143,6 +143,7 @@ const getPaymentDatesInMonth = (e: SubscriptionEntity) => (now: Date) => {
 
     // 以下、既存のロジック
     const nextPaymentDate = getNextPaymentAt(e)(currentBaseDate);
+    console.log({ depth, currentBaseDate, nextPaymentDate });
     if (nextPaymentDate > endOfMonth) return dates;
     return _collectPaymentDatesRecursively(DateUtils.modify.addDays(nextPaymentDate, 1), [...dates, nextPaymentDate], depth + 1);
   };
