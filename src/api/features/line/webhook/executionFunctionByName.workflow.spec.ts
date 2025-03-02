@@ -14,7 +14,7 @@ import { executeFunctionByName } from './executionFunctionByName.workflow';
 describe('executeFunctionByName', () => {
   // ========== setup ==========
   const db = getDrizzleClient();
-  const subscriptionRepository = SubscriptionRepository({ db });
+  const subscriptionRepository = SubscriptionRepository.new({ db });
 
   // 現在の日付をモック
   const now = new Date('2025-03-15T00:00:00.000Z');

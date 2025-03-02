@@ -19,7 +19,10 @@ export const deleteSubscriptionHandler = factory.createHandlers(zValidator('para
     const db = c.var.db;
     const params = paramSchema.parse(c.req.param());
 
-    await DeleteSubscriptionUsecase.run({ sessionUser, subscriptionRepository: SubscriptionRepository({ db }) })({ subscriptionId: params.id });
+    await DeleteSubscriptionUsecase.run({
+      sessionUser,
+      subscriptionRepository: SubscriptionRepository.new({ db }),
+    })({ subscriptionId: params.id });
     return c.json({}, 200);
   } catch (e) {
     if (e instanceof Error) {

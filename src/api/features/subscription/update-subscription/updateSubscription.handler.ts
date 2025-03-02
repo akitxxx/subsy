@@ -25,7 +25,7 @@ export const updateSubscriptionHandler = factory.createHandlers(
       const params = paramSchema.parse(c.req.param());
       const input = createOrUpdateSubscriptionInputSchema.parse(await c.req.json());
 
-      const result = await UpdateSubscriptionUsecase.run({ db, sessionUser, subscriptionRepository: SubscriptionRepository({ db }) })({
+      const result = await UpdateSubscriptionUsecase.run({ sessionUser, subscriptionRepository: SubscriptionRepository.new({ db }) })({
         ...input,
         subscriptionId: params.id,
       });

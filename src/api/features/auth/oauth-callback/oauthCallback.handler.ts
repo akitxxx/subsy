@@ -22,7 +22,7 @@ export const oauthCallbackHandler = factory.createHandlers(async (c) => {
     db,
     supabase,
     authCode: code,
-    userRepository: UserRepository({ db }),
+    userRepository: UserRepository.new({ db }),
   })();
 
   if (error) {

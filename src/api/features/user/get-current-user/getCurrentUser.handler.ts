@@ -13,7 +13,11 @@ export const getCurrentUserHandler = factory.createHandlers(async (c) => {
     const sessionUser = checkSessionUser(c);
     const db = c.var.db;
 
-    const result = await GetCurrentUserUsecase.run({ db, sessionUser, userRepository: UserRepository({ db }) })();
+    const result = await GetCurrentUserUsecase.run({
+      db,
+      sessionUser,
+      userRepository: UserRepository.new({ db }),
+    })();
     return c.json(mapUserEntityToViewModel(result.user), 200);
   } catch (e: unknown) {
     if (e instanceof Error) {

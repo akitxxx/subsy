@@ -115,15 +115,17 @@ const deleteOne =
     tx ? await fDelete(tx) : await db.transaction(fDelete);
   };
 
-export const SubscriptionRepository = (inject: Inject) => ({
-  create: create(inject),
-  update: update(inject),
-  delete: deleteOne(inject),
-  findByIdAndUserId: findByIdAndUserId(inject),
-  countByUserIdAndName: countByUserIdAndName(inject),
-  findManyByUserId: findManyByUserId(inject),
-  findManyActiveAndRecentlyExpired: findManyActiveAndRecentlyExpired(inject),
-  findManyWillNextPaymentByUserId: findManyWillNextPaymentByUserId(inject),
-});
+export const SubscriptionRepository = {
+  new: (inject: Inject) => ({
+    create: create(inject),
+    update: update(inject),
+    delete: deleteOne(inject),
+    findByIdAndUserId: findByIdAndUserId(inject),
+    countByUserIdAndName: countByUserIdAndName(inject),
+    findManyByUserId: findManyByUserId(inject),
+    findManyActiveAndRecentlyExpired: findManyActiveAndRecentlyExpired(inject),
+    findManyWillNextPaymentByUserId: findManyWillNextPaymentByUserId(inject),
+  }),
+};
 
-export type SubscriptionRepository = ReturnType<typeof SubscriptionRepository>;
+export type SubscriptionRepository = ReturnType<typeof SubscriptionRepository.new>;

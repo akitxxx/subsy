@@ -15,7 +15,7 @@ export const getDashboardHandler = factory.createHandlers(async (c) => {
 
     const result = await GetDashboardUsecase.run({
       sessionUser,
-      subscriptionRepository: SubscriptionRepository({ db }),
+      subscriptionRepository: SubscriptionRepository.new({ db }),
     })();
 
     return c.json(

@@ -19,8 +19,8 @@ export const createSubscriptionHandler = factory.createHandlers(zValidator('json
 
     const result = await CreateSubscriptionUsecase.run({
       sessionUser,
-      userRepository: UserRepository({ db }),
-      subscriptionRepository: SubscriptionRepository({ db }),
+      userRepository: UserRepository.new({ db }),
+      subscriptionRepository: SubscriptionRepository.new({ db }),
     })(input);
     return c.json({ subscription: mapSubscriptionEntityToViewModel(result.subscription) }, 201);
   } catch (e) {

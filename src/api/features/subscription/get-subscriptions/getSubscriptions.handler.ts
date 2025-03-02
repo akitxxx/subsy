@@ -12,7 +12,10 @@ export const getSubscriptionsHandler = factory.createHandlers(async (c) => {
   try {
     const sessionUser = checkSessionUser(c);
     const db = c.var.db;
-    const result = await GetSubscriptionsUsecase.run({ db, subscriptionRepository: SubscriptionRepository({ db }) })({ userId: sessionUser.id });
+    const result = await GetSubscriptionsUsecase.run({
+      db,
+      subscriptionRepository: SubscriptionRepository.new({ db }),
+    })({ userId: sessionUser.id });
     return c.json({ subscriptions: mapSubscriptionEntitiesToViewModels(result.subscriptions) }, 200);
   } catch (e) {
     if (e instanceof Error) {

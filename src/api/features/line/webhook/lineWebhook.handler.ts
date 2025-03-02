@@ -27,8 +27,8 @@ export const lineWebhookHandler = factory.createHandlers(async (c) => {
     // LINE Webhookのリクエストを処理
     await LineWebhookUsecase.run({
       db,
-      userRepository: UserRepository({ db }),
-      subscriptionRepository: SubscriptionRepository({ db }),
+      userRepository: UserRepository.new({ db }),
+      subscriptionRepository: SubscriptionRepository.new({ db }),
       lineService,
       openAiService: OpenAIService.new(),
     })({ payload: requestBody });

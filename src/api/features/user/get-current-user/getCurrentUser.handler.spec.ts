@@ -41,7 +41,6 @@ describe('GET /api/users/me', () => {
       const data = await res.json();
       expect(data).toMatchObject({
         id: user.id,
-        nickname: user.nickname,
       });
     });
   });

@@ -68,11 +68,13 @@ const update =
     tx ? await fUpdate(tx) : await db.transaction(fUpdate);
   };
 
-export const UserRepository = (inject: Inject) => ({
-  findCurrentUserById: findCurrentUserById(inject),
-  findByLineUserId: findByLineUserId(inject),
-  create: create(inject),
-  update: update(inject),
-});
+export const UserRepository = {
+  new: (inject: Inject) => ({
+    findCurrentUserById: findCurrentUserById(inject),
+    findByLineUserId: findByLineUserId(inject),
+    create: create(inject),
+    update: update(inject),
+  }),
+};
 
-export type UserRepository = ReturnType<typeof UserRepository>;
+export type UserRepository = ReturnType<typeof UserRepository.new>;
