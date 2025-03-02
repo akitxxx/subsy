@@ -1,4 +1,5 @@
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
+import { LanguageEnum } from '@/shared/enums/language.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 
 export const FunctionName = {
@@ -8,6 +9,7 @@ export const FunctionName = {
   updateSubscription: 'updateSubscription',
   deleteSubscription: 'deleteSubscription',
   sendMessage: 'sendMessage', // ユーザーにメッセージを送信する
+  getMonthlyTotal: 'getMonthlyTotal', // 月間の支払い合計を取得する
 } as const;
 export type FunctionName = (typeof FunctionName)[keyof typeof FunctionName];
 
@@ -144,6 +146,25 @@ export const subscriptionFunctions = [
         },
       },
       required: ['message'],
+    },
+  },
+  {
+    name: FunctionName.getMonthlyTotal,
+    description: '指定された月（デフォルトは今月）の支払い予定の合計金額を取得する',
+    parameters: {
+      type: 'object',
+      properties: {
+        language: {
+          type: 'string',
+          enum: Object.values(LanguageEnum),
+          description: 'ユーザーの言語（日本語または英語）',
+        },
+        targetDate: {
+          type: 'string',
+          description: 'ISO形式の日付文字列（指定月の任意の日、指定がない場合は現在の日付）',
+        },
+      },
+      required: ['language', 'targetDate'],
     },
   },
 ];
