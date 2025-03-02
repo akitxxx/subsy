@@ -19,7 +19,6 @@ export const ALL_TABLES = Object.values(TABLE_NAMES);
 // ===== usersテーブル =====
 export const usersTable = pgTable(TABLE_NAMES.User, {
   id: uuid('id').primaryKey().defaultRandom(),
-  nickname: varchar('nickname', { length: 255 }).notNull(),
 
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),

@@ -1,8 +1,10 @@
 import type { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
+import { CreateUserDomainService } from '@/api/shared/domain/user/createUser.domainService';
 import type { UserRepository } from '@/api/shared/domain/user/user.repository';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import type { LineService } from '@/api/shared/lib/line';
 import type { OpenAIService } from '@/api/shared/lib/openai';
+import { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
 import type { MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk';
 import { executeFunctionByName } from './executionFunctionByName.workflow';
 
@@ -81,7 +83,11 @@ const handleMessageEvent = async ({
     // userレコード取得
     const user = await userRepository.findByLineUserId({ lineUserId });
     if (!user) {
-      // TODO: signup
+      await CreateUserDomainService.run({ userRepository })({
+        nickname: '名無し',
+        provider: ProviderEnum.Line,
+        providerId: lineUserId,
+      });
       return;
     }
 

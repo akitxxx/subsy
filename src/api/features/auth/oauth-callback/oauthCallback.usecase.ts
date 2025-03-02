@@ -1,5 +1,6 @@
 import { User } from '@/api/shared/domain/user';
 import type { UserRepository } from '@/api/shared/domain/user';
+import { CreateUserDomainService } from '@/api/shared/domain/user/createUser.domainService';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { userAuthsTable, usersTable } from '@/api/shared/lib/db/schema';
 import { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
@@ -34,15 +35,11 @@ const run =
 
     // DBにUserレコードがなければ作成する
     if (!user) {
-      const newUser = User.newUser({
+      await CreateUserDomainService.run({ userRepository })({
         nickname: data.user.user_metadata.name,
-        userAuth: {
-          provider: ProviderEnum.Google, // TODO: プロバイダーによって変える
-          providerId: data.user.id,
-        },
+        provider: ProviderEnum.Google, // TODO: プロバイダーによって変える
+        providerId: data.user.id,
       });
-
-      await userRepository.create({ entity: newUser });
     }
 
     return { error: null };
