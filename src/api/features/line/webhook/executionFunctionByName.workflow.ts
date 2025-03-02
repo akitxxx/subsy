@@ -210,11 +210,12 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
 
   // 言語に応じたメッセージを作成して返す
   // 日本語の場合はドルを円に変換
-  const convertedUsd = PriceUtils.conversion.usdToJpy(totalUsd);
-  const grandTotal = totalJpy + convertedUsd;
+  const grandTotal = isJapanese ? totalJpy + PriceUtils.conversion.usdToJpy(totalUsd) : PriceUtils.conversion.jpyToUsd(totalJpy) + totalUsd;
 
   return {
-    message: `${yearMonthStr}の支払い予定合計: ¥${Math.floor(grandTotal).toLocaleString()}（${subscriptionCount}件）`,
+    message: isJapanese
+      ? `${yearMonthStr}の支払い予定合計: ¥${Math.floor(grandTotal).toLocaleString()}（${subscriptionCount}件）`
+      : `Total payments due for ${yearMonthStr}: $${Math.floor(grandTotal).toLocaleString()}（${subscriptionCount} subscriptions）`,
   };
 };
 
