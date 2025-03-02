@@ -21,10 +21,7 @@ const formatters = {
    * 米ドルのフォーマット
    */
   formatUSD: (numericValue: number): string => {
-    const dollars = Math.floor(numericValue / 100);
-    const cents = numericValue % 100;
-    const paddedCents = cents.toString().padStart(2, '0');
-    return `${dollars.toLocaleString('en-US')}.${paddedCents}`;
+    return numericValue.toLocaleString('en-US');
   },
 };
 
