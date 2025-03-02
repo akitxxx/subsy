@@ -1,4 +1,4 @@
-import { Subscription } from '@/api/shared/domain/subscription';
+import { Subscription, type SubscriptionEntity } from '@/api/shared/domain/subscription';
 import { type DrizzleClient, getDrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { FunctionName } from '@/api/shared/lib/openai/subscription-functions';
 import { cleanupDB } from '@/api/shared/test/dbHelper';
@@ -29,7 +29,7 @@ describe('executeFunctionByName', () => {
     it('日本語で今月の支払い合計を問い合わせた場合、円換算で合計金額を返すこと', async () => {
       // given
       const user = await createActiveUser(db)();
-      await createSubscription(db)({
+      const subscription1 = await createSubscription(db)({
         userId: user.id,
         name: 'Netflix',
         price: '1500',
@@ -37,7 +37,7 @@ describe('executeFunctionByName', () => {
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date('2025-02-15T00:00:00.000Z'),
       });
-      await createSubscription(db)({
+      const subscription2 = await createSubscription(db)({
         userId: user.id,
         name: 'Spotify',
         price: '9.99',
@@ -49,7 +49,10 @@ describe('executeFunctionByName', () => {
       // when
       const result = await executeFunctionByName({ subscriptionRepository })({
         userId: user.id,
-        subscriptions: await subscriptionRepository.findManyByUserId({ userId: user.id }),
+        subscriptions: [
+          subscription1 as unknown as SubscriptionEntity,
+          subscription2 as unknown as SubscriptionEntity
+        ],
         functionCall: {
           name: FunctionName.getMonthlyTotal,
           args: { 
@@ -67,7 +70,7 @@ describe('executeFunctionByName', () => {
     it('英語で今月の支払い合計を問い合わせた場合、ドル換算で合計金額を返すこと', async () => {
       // given
       const user = await createActiveUser(db)();
-      await createSubscription(db)({
+      const subscription1 = await createSubscription(db)({
         userId: user.id,
         name: 'Netflix',
         price: '1500',
@@ -75,7 +78,7 @@ describe('executeFunctionByName', () => {
         cycle: SubscriptionCycleEnum.OneMonth,
         startedAt: new Date('2025-02-15T00:00:00.000Z'),
       });
-      await createSubscription(db)({
+      const subscription2 = await createSubscription(db)({
         userId: user.id,
         name: 'Spotify',
         price: '9.99',
@@ -87,7 +90,10 @@ describe('executeFunctionByName', () => {
       // when
       const result = await executeFunctionByName({ subscriptionRepository })({
         userId: user.id,
-        subscriptions: await subscriptionRepository.findManyByUserId({ userId: user.id }),
+        subscriptions: [
+          subscription1 as unknown as SubscriptionEntity,
+          subscription2 as unknown as SubscriptionEntity
+        ],
         functionCall: {
           name: FunctionName.getMonthlyTotal,
           args: { 
@@ -105,7 +111,7 @@ describe('executeFunctionByName', () => {
     it('特定の月（来月）の支払い合計を問い合わせた場合、その月の合計金額を返すこと', async () => {
       // given
       const user = await createActiveUser(db)();
-      await createSubscription(db)({
+      const subscription1 = await createSubscription(db)({
         userId: user.id,
         name: 'Amazon Prime',
         price: '500',
@@ -120,7 +126,9 @@ describe('executeFunctionByName', () => {
       // when
       const result = await executeFunctionByName({ subscriptionRepository })({
         userId: user.id,
-        subscriptions: await subscriptionRepository.findManyByUserId({ userId: user.id }),
+        subscriptions: [
+          subscription1 as unknown as SubscriptionEntity
+        ],
         functionCall: {
           name: FunctionName.getMonthlyTotal,
           args: { 

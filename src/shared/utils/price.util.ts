@@ -107,8 +107,30 @@ const input = {
   },
 };
 
+/**
+ * 通貨変換
+ */
+const conversion = {
+  /**
+   * USDからJPYへの変換
+   */
+  usdToJpy: (usdAmount: number): number => {
+    // 簡易的な変換レート: 1ドル = 150円
+    return usdAmount * 150;
+  },
+
+  /**
+   * JPYからUSDへの変換
+   */
+  jpyToUsd: (jpyAmount: number): number => {
+    // 簡易的な変換レート: 150円 = 1ドル
+    return jpyAmount / 150;
+  },
+};
+
 // 公開API
 export const PriceUtils = {
   display,
   input,
+  conversion,
 };
