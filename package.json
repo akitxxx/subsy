@@ -25,7 +25,9 @@
     "db:down": "npx supabase stop"
   },
   "dependencies": {
+    "@clerk/backend": "^1.24.3",
     "@clerk/nextjs": "^6.12.2",
+    "@hono/clerk-auth": "^2.0.0",
     "@hono/zod-validator": "^0.4.3",
     "@line/bot-sdk": "^9.7.1",
     "@radix-ui/react-avatar": "^1.1.3",
