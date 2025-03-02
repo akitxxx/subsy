@@ -1,3 +1,4 @@
+import { SubscriptionRepository } from '@/api/shared/domain/subscription';
 import { UserRepository } from '@/api/shared/domain/user';
 import { toErrorResponse } from '@/api/shared/error';
 import { mapSubscriptionEntityToViewModel } from '@/api/shared/presentation/view-model/subscription/mapSubscriptionEntityToViewModel';
@@ -16,7 +17,11 @@ export const createSubscriptionHandler = factory.createHandlers(zValidator('json
     const db = c.var.db;
     const input = createOrUpdateSubscriptionInputSchema.parse(await c.req.json());
 
-    const result = await CreateSubscriptionUsecase.run({ db, sessionUser, userRepository: UserRepository({ db }) })(input);
+    const result = await CreateSubscriptionUsecase.run({
+      sessionUser,
+      userRepository: UserRepository({ db }),
+      subscriptionRepository: SubscriptionRepository({ db }),
+    })(input);
     return c.json({ subscription: mapSubscriptionEntityToViewModel(result.subscription) }, 201);
   } catch (e) {
     if (e instanceof Error) {

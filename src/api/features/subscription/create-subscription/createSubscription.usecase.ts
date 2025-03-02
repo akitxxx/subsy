@@ -1,17 +1,17 @@
 import type { SubscriptionEntity } from '@/api/shared/domain/subscription';
 import { Subscription } from '@/api/shared/domain/subscription';
-import { SubscriptionRepository } from '@/api/shared/domain/subscription';
+import type { SubscriptionRepository } from '@/api/shared/domain/subscription';
 import type { UserRepository } from '@/api/shared/domain/user';
 import { NotFoundError } from '@/api/shared/error';
-import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
+import { ConflictError } from '@/api/shared/error/errors';
 import type { SessionUser } from '@/api/shared/types/sessionUser';
 import type { CurrencyEnum } from '@/shared/enums/currency.enum';
 import type { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 
 type Inject = {
-  db: DrizzleClient;
   sessionUser: SessionUser;
   userRepository: UserRepository;
+  subscriptionRepository: SubscriptionRepository;
 };
 
 type Input = {
@@ -29,10 +29,13 @@ type Output = {
 };
 
 const run =
-  ({ sessionUser, db, userRepository }: Inject) =>
+  ({ sessionUser, userRepository, subscriptionRepository }: Inject) =>
   async (input: Input): Promise<Output> => {
     const user = await userRepository.findCurrentUserById({ id: sessionUser.id });
     if (!user) throw new NotFoundError('ユーザーが見つかりません');
+
+    const existingSubscriptionCount = await subscriptionRepository.countByUserIdAndName({ userId: user.id, name: input.name });
+    if (existingSubscriptionCount > 0) throw new ConflictError('サブスクリプション名が重複しています');
 
     const newSubscription = Subscription.create({
       userId: user.id,
@@ -44,7 +47,7 @@ const run =
       cancelledAt: input.cancelledAt ?? null,
       description: input.description ?? null,
     });
-    await SubscriptionRepository({ db }).create({ entity: newSubscription });
+    await subscriptionRepository.create({ entity: newSubscription });
 
     return { subscription: newSubscription };
   };

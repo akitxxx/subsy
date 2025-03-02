@@ -2,7 +2,7 @@ import { Subscription } from '@/api/shared/domain/subscription';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { subscriptionsTable } from '@/api/shared/lib/db/schema';
 import type { Tx } from '@/api/shared/types/tx';
-import { and, asc, eq, gt, isNull, lt, or } from 'drizzle-orm';
+import { and, asc, count, eq, gt, isNull, lt, or } from 'drizzle-orm';
 import type { SubscriptionEntity } from './subscription.entity';
 
 type Inject = {
@@ -17,6 +17,16 @@ const findByIdAndUserId =
       where: and(eq(subscriptionsTable.id, id), eq(subscriptionsTable.userId, userId)),
     });
     return subscription ? Subscription.parseEntity(subscription) : null;
+  };
+
+const countByUserIdAndName =
+  ({ db }: Inject) =>
+  async ({ userId, name }: { userId: string; name: string }): Promise<number> => {
+    const result = await db
+      .select({ count: count() })
+      .from(subscriptionsTable)
+      .where(and(eq(subscriptionsTable.userId, userId), eq(subscriptionsTable.name, name)));
+    return result[0].count;
   };
 
 const findManyByUserId =
@@ -110,6 +120,7 @@ export const SubscriptionRepository = (inject: Inject) => ({
   update: update(inject),
   delete: deleteOne(inject),
   findByIdAndUserId: findByIdAndUserId(inject),
+  countByUserIdAndName: countByUserIdAndName(inject),
   findManyByUserId: findManyByUserId(inject),
   findManyActiveAndRecentlyExpired: findManyActiveAndRecentlyExpired(inject),
   findManyWillNextPaymentByUserId: findManyWillNextPaymentByUserId(inject),
