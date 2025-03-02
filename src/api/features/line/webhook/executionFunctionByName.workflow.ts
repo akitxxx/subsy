@@ -193,12 +193,12 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
   // 現在の日付を取得
   const now = DateUtils.create.now();
   
-  // 年月の指定
-  const targetYear = args.year;
-  const targetMonth = args.month; // JavaScriptの月は0始まり（1-12に変換）
+  // 対象日付を取得（指定がなければ現在の日付を使用）
+  const targetDate = args.targetDate 
+    ? DateUtils.create.fromISOString(args.targetDate)
+    : now;
   
-  // 対象年月の日付オブジェクトを作成（DateUtilsを使用）
-  const targetDate = DateUtils.modify.setDatePart(now, targetYear, targetMonth, 1);
+  // 対象月の開始日と終了日を取得
   const startDate = DateUtils.create.startOfMonth(targetDate);
   const endDate = DateUtils.create.endOfMonth(targetDate);
   
@@ -228,7 +228,7 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
     .reduce((total, subscription) => total + Number(subscription.price), 0);
   
   // 年月の表示用文字列を生成
-  const yearMonthStr = formatYearMonthString(targetYear, targetMonth, now, isJapanese);
+  const yearMonthStr = formatYearMonthString(targetDate, now, isJapanese);
   
   // 言語に応じてメッセージを作成
   if (isJapanese) {
@@ -292,14 +292,14 @@ const formatPrice = (price: string, currency: CurrencyEnum): string => {
 /**
  * 年月の表示用文字列を生成する補助関数
  */
-const formatYearMonthString = (year: number, month: number, now: Date, isJapanese: boolean): string => {
-  const isCurrentMonth = year === now.getFullYear() && month === now.getMonth() + 1;
+const formatYearMonthString = (date: Date, now: Date, isJapanese: boolean): string => {
+  const isCurrentMonth = DateUtils.compare.isSameMonth(date, now);
   
   if (isJapanese) {
-    return isCurrentMonth ? '今月' : `${year}年${month}月`;
+    return isCurrentMonth ? '今月' : `${date.getFullYear()}年${date.getMonth() + 1}月`;
   }
   
-  return isCurrentMonth ? 'this month' : `${month}/${year}`;
+  return isCurrentMonth ? 'this month' : `${date.getMonth() + 1}/${date.getFullYear()}`;
 };
 
 /**

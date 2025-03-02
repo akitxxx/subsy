@@ -159,16 +159,12 @@ export const subscriptionFunctions = [
           enum: Object.values(LanguageEnum),
           description: 'ユーザーの言語（日本語または英語）',
         },
-        year: {
-          type: 'number',
-          description: '年（指定がない場合は現在の年）',
-        },
-        month: {
-          type: 'number',
-          description: '月（1-12、指定がない場合は現在の月）',
+        targetDate: {
+          type: 'string',
+          description: 'ISO形式の日付文字列（指定月の任意の日、指定がない場合は現在の日付）',
         },
       },
-      required: ['language', 'year', 'month'],
+      required: ['language', 'targetDate'],
     },
   },
 ];

@@ -36,8 +36,7 @@ export interface SendMessageFunctionArgs {
 
 export interface GetMonthlyTotalFunctionArgs {
   language: LanguageEnum;
-  year: number;
-  month: number;
+  targetDate: string; // ISO形式の日付文字列（指定月の任意の日）
 }
 
 export type ToolCallResult = {
