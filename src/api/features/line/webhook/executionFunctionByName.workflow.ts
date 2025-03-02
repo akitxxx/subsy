@@ -12,7 +12,6 @@ import { CurrencyEnum, getCurrentPrefix } from '@/shared/enums/currency.enum';
 import { LanguageEnum } from '@/shared/enums/language.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
-import { LanguageUtils } from '@/shared/utils/language.util';
 import { PriceUtils } from '@/shared/utils/price.util';
 
 type Inject = {
@@ -28,6 +27,10 @@ type Input = {
 type Output = {
   message: string;
 };
+
+// ============================================================================
+// メイン実行関数
+// ============================================================================
 
 /**
  * 機能名に応じた処理を実行
@@ -61,6 +64,10 @@ export const executeFunctionByName =
       return { message: `処理中にエラーが発生しました: ${(error as Error).message}` };
     }
   };
+
+// ============================================================================
+// 機能ハンドラー関数
+// ============================================================================
 
 /**
  * サブスクリプション作成処理
@@ -111,10 +118,8 @@ ${subscriptions.map((subscription, index) => `・${subscription.name}`).join('\n
 const handleGetSubscriptionDetail = async (subscriptions: SubscriptionEntity[], args: GetSubscriptionDetailFunctionArgs): Promise<Output> => {
   console.dir({ 'サブスクリプション詳細取得:': { args } }, { depth: null });
 
-  const subscription = findSubscriptionById(subscriptions, args.id);
-  if (!subscription) {
-    return { message: 'サブスクリプションが見つかりません' };
-  }
+  const subscription = subscriptions.find((s) => s.id === args.id);
+  if (!subscription) return { message: 'サブスクリプションが見つかりません' };
 
   return {
     message: `サブスクリプション情報：\n\n${formatSubscriptionDetails(subscription)}`,
@@ -131,7 +136,7 @@ const handleUpdateSubscription = async (
 ): Promise<Output> => {
   console.dir({ 'サブスクリプション更新:': { subscriptions, args } }, { depth: null });
 
-  const subscription = findSubscriptionById(subscriptions, args.id);
+  const subscription = subscriptions.find((s) => s.id === args.id);
   if (!subscription) {
     return { message: 'サブスクリプションが見つかりません' };
   }
@@ -164,10 +169,8 @@ const handleDeleteSubscription = async (
 ): Promise<Output> => {
   console.dir({ 'サブスクリプション削除:': { userId, args } }, { depth: null });
 
-  const subscription = findSubscriptionById(subscriptions, args.id);
-  if (!subscription) {
-    return { message: 'サブスクリプションが見つかりません' };
-  }
+  const subscription = subscriptions.find((s) => s.id === args.id);
+  if (!subscription) return { message: 'サブスクリプションが見つかりません' };
 
   await inject.subscriptionRepository.delete({ id: args.id, userId });
 
@@ -181,7 +184,6 @@ const handleDeleteSubscription = async (
  */
 const handleSendMessage = async (inject: Inject, args: SendMessageFunctionArgs): Promise<Output> => {
   console.dir({ 'メッセージ送信:': { args } }, { depth: null });
-
   return { message: args.message };
 };
 
@@ -193,95 +195,99 @@ const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: 
 
   // 基本情報の取得
   const now = DateUtils.create.now();
-  const targetDate = getTargetDate(args.targetDate);
+  const targetDate = args.targetDate ? DateUtils.create.fromISOString(args.targetDate) : now;
   const isJapanese = args.language === LanguageEnum.Japanese;
-  
-  // 対象月のサブスクリプションを取得
-  const targetMonthSubscriptions = getTargetMonthSubscriptions(subscriptions, targetDate, now);
-  
-  // 通貨別の合計金額を計算
-  const { totalJpy, totalUsd } = calculateTotalsByCurrency(targetMonthSubscriptions);
-  
+
+  // 対象月のサブスクリプション支払いを計算
+  const { totalJpy, totalUsd, subscriptionCount } = calculateMonthlyPayments(subscriptions, targetDate, now);
+
   // 表示用の年月文字列を生成
-  const yearMonthStr = formatYearMonthString(targetDate, now, isJapanese);
-  
+  const yearMonthStr = (() => {
+    const isCurrentMonth = DateUtils.compare.isSameMonth(targetDate, now);
+    if (isJapanese) return isCurrentMonth ? '今月' : `${targetDate.getFullYear()}年${targetDate.getMonth() + 1}月`;
+    return isCurrentMonth ? 'this month' : `${targetDate.getMonth() + 1}/${targetDate.getFullYear()}`;
+  })();
+
   // 言語に応じたメッセージを作成して返す
-  return createResponseMessage(totalJpy, totalUsd, yearMonthStr, targetMonthSubscriptions.length, isJapanese);
+  return createResponseMessage(totalJpy, totalUsd, yearMonthStr, subscriptionCount, isJapanese);
+};
+
+// ============================================================================
+// 支払い計算関連関数
+// ============================================================================
+
+/**
+ * 対象月のサブスクリプション支払いを計算する
+ */
+const calculateMonthlyPayments = (
+  subscriptions: SubscriptionEntity[],
+  targetDate: Date,
+  now: Date,
+): { totalJpy: number; totalUsd: number; subscriptionCount: number } => {
+  // データ処理パイプライン
+  const payments = subscriptions
+    // 有効なサブスクリプションのみをフィルタリング
+    .filter((subscription) => !(subscription.expiredAt && DateUtils.compare.isBefore(subscription.expiredAt, now)))
+    // 各サブスクリプションの支払い情報を計算
+    .map((subscription) => calculateSubscriptionPayment(subscription, targetDate));
+
+  // 支払い情報を集計
+  return aggregatePayments(payments);
 };
 
 /**
- * 対象日付を取得する
+ * サブスクリプションの対象月の支払い情報を計算する
  */
-const getTargetDate = (targetDateStr?: string): Date => {
-  const now = DateUtils.create.now();
-  return targetDateStr 
-    ? DateUtils.create.fromISOString(targetDateStr)
-    : now;
-};
+const calculateSubscriptionPayment = (subscription: SubscriptionEntity, targetDate: Date): PaymentInfo | null => {
+  const paymentDates = Subscription.getPaymentDatesInMonth(subscription)(targetDate);
 
-/**
- * 対象月のサブスクリプションを取得する
- */
-const getTargetMonthSubscriptions = (
-  subscriptions: SubscriptionEntity[], 
-  targetDate: Date, 
-  now: Date
-): SubscriptionEntity[] => {
-  return subscriptions.filter(subscription => {
-    // 期限切れしているものは除外
-    if (Subscription.getIsExpired(subscription)(now)) return false;
-    
-    // 次回支払日を取得
-    const nextPaymentAt = Subscription.getNextPaymentAt(subscription)(now);
-    
-    // 指定月の支払いかどうかをチェック
-    return DateUtils.compare.isSameMonth(nextPaymentAt, targetDate);
-  });
-};
-
-/**
- * 通貨別の合計金額を計算する
- */
-const calculateTotalsByCurrency = (subscriptions: SubscriptionEntity[]): { totalJpy: number, totalUsd: number } => {
-  const totalJpy = subscriptions
-    .filter(subscription => subscription.currency === CurrencyEnum.Jpy)
-    .reduce((total, subscription) => total + Number(subscription.price), 0);
-  
-  const totalUsd = subscriptions
-    .filter(subscription => subscription.currency === CurrencyEnum.Usd)
-    .reduce((total, subscription) => total + Number(subscription.price), 0);
-  
-  return { totalJpy, totalUsd };
-};
-
-/**
- * 言語に応じたレスポンスメッセージを作成する
- */
-const createResponseMessage = (
-  totalJpy: number, 
-  totalUsd: number, 
-  yearMonthStr: string, 
-  subscriptionCount: number, 
-  isJapanese: boolean
-): Output => {
-  if (isJapanese) {
-    // 日本語の場合はドルを円に変換
-    const convertedUsd = PriceUtils.conversion.usdToJpy(totalUsd);
-    const grandTotal = totalJpy + convertedUsd;
-    
-    return {
-      message: `${yearMonthStr}の支払い予定合計: ¥${Math.floor(grandTotal).toLocaleString()}（${subscriptionCount}件）`,
-    };
+  if (paymentDates.length === 0) {
+    return null;
   }
-  
-  // 英語の場合は円をドルに変換
-  const convertedJpy = PriceUtils.conversion.jpyToUsd(totalJpy);
-  const grandTotal = totalUsd + convertedJpy;
-  
+
   return {
-    message: `Total payments due for ${yearMonthStr}: $${grandTotal.toFixed(2).toLocaleString()} (${subscriptionCount} subscriptions)`,
+    amount: Number(subscription.price) * paymentDates.length,
+    currency: subscription.currency,
+    count: 1,
   };
 };
+
+/**
+ * 支払い情報を集計する
+ */
+type AggregatedPayments = {
+  totalJpy: number;
+  totalUsd: number;
+  subscriptionCount: number;
+};
+
+type PaymentInfo = {
+  amount: number;
+  currency: CurrencyEnum;
+  count: number;
+};
+
+const aggregatePayments = (payments: (PaymentInfo | null)[]): AggregatedPayments => {
+  const validPayments = payments.filter((payment): payment is PaymentInfo => payment !== null);
+
+  return validPayments.reduce(
+    (acc, payment) => {
+      if (payment.currency === CurrencyEnum.Jpy) {
+        acc.totalJpy += payment.amount;
+      } else if (payment.currency === CurrencyEnum.Usd) {
+        acc.totalUsd += payment.amount;
+      }
+
+      acc.subscriptionCount += payment.count;
+      return acc;
+    },
+    { totalJpy: 0, totalUsd: 0, subscriptionCount: 0 },
+  );
+};
+
+// ============================================================================
+// フォーマット関連関数
+// ============================================================================
 
 /**
  * サブスクリプション詳細を整形する
@@ -299,19 +305,15 @@ ${nextPayment}${cancelInfo}${expireInfo}`.trim();
 };
 
 /**
- * IDでサブスクリプションを検索
- */
-const findSubscriptionById = (subscriptions: SubscriptionEntity[], id: string): SubscriptionEntity | undefined => {
-  return subscriptions.find((s) => s.id === id);
-};
-
-/**
  * 日付をフォーマットする補助関数
  */
 const formatDate = (date: Date): string => {
   return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
 };
 
+/**
+ * 価格をフォーマットする補助関数
+ */
 const formatPrice = (price: string, currency: CurrencyEnum): string => {
   switch (currency) {
     case CurrencyEnum.Jpy:
@@ -320,19 +322,6 @@ const formatPrice = (price: string, currency: CurrencyEnum): string => {
     case CurrencyEnum.Usd:
       return `${getCurrentPrefix(currency)}${price.toLocaleString()}`;
   }
-};
-
-/**
- * 年月の表示用文字列を生成する補助関数
- */
-const formatYearMonthString = (date: Date, now: Date, isJapanese: boolean): string => {
-  const isCurrentMonth = DateUtils.compare.isSameMonth(date, now);
-  
-  if (isJapanese) {
-    return isCurrentMonth ? '今月' : `${date.getFullYear()}年${date.getMonth() + 1}月`;
-  }
-  
-  return isCurrentMonth ? 'this month' : `${date.getMonth() + 1}/${date.getFullYear()}`;
 };
 
 /**
@@ -351,4 +340,31 @@ const getCycleMonths = (cycle: SubscriptionCycleEnum): string => {
     default:
       return '月';
   }
+};
+
+// ============================================================================
+// レスポンス生成関数
+// ============================================================================
+
+/**
+ * 言語に応じたレスポンスメッセージを作成する
+ */
+const createResponseMessage = (totalJpy: number, totalUsd: number, yearMonthStr: string, subscriptionCount: number, isJapanese: boolean): Output => {
+  if (isJapanese) {
+    // 日本語の場合はドルを円に変換
+    const convertedUsd = PriceUtils.conversion.usdToJpy(totalUsd);
+    const grandTotal = totalJpy + convertedUsd;
+
+    return {
+      message: `${yearMonthStr}の支払い予定合計: ¥${Math.floor(grandTotal).toLocaleString()}（${subscriptionCount}件）`,
+    };
+  }
+
+  // 英語の場合は円をドルに変換
+  const convertedJpy = PriceUtils.conversion.jpyToUsd(totalJpy);
+  const grandTotal = totalUsd + convertedJpy;
+
+  return {
+    message: `Total payments due for ${yearMonthStr}: $${grandTotal.toFixed(2).toLocaleString()} (${subscriptionCount} subscriptions)`,
+  };
 };

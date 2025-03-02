@@ -123,13 +123,40 @@ const _calculateExpiredAt = (p: {
 };
 
 /**
+ * 指定月内のすべての支払日を取得
+ */
+const getPaymentDatesInMonth = (e: SubscriptionEntity) => (now: Date) => {
+  const startOfMonth = DateUtils.create.startOfMonth(now);
+  const endOfMonth = DateUtils.modify.addMilliseconds(DateUtils.create.startOfMonth(DateUtils.modify.addMonths(now, 1)), -1);
+  // 前月のendOfMonth
+  const prevEndOfMonth = DateUtils.modify.addMilliseconds(startOfMonth, -1);
+
+  /**
+   * 再帰的に支払日を収集する内部関数
+   * @param currentBaseDate 現在の参照日
+   * @param dates 収集された支払日の配列
+   * @returns 指定月内のすべての支払日
+   */
+  const _collectPaymentDatesRecursively = (currentBaseDate: Date, dates: Date[] = []): Date[] => {
+    // 次回支払日を計算
+    const nextPaymentDate = getNextPaymentAt(e)(currentBaseDate);
+    // 月末を超えた場合は収集終了
+    if (nextPaymentDate > endOfMonth) return dates;
+    // 月内の支払日の場合は配列に追加して次を検索
+    return _collectPaymentDatesRecursively(nextPaymentDate, [...dates, nextPaymentDate]);
+  };
+
+  // 前月のendOfMonthから収集開始
+  return _collectPaymentDatesRecursively(prevEndOfMonth);
+};
+
+/**
  * サブスクリプションの新規作成に必要なプロパティ
  */
 type SubscriptionCreateProps = Pick<
   SubscriptionEntity,
   'userId' | 'name' | 'price' | 'currency' | 'cycle' | 'startedAt' | 'cancelledAt' | 'description'
 >;
-
 /**
  * 新しいサブスクリプションを作成
  */
@@ -181,6 +208,7 @@ export const Subscription = {
   getIsCancelled,
   getIsExpired,
   getNextPaymentAt,
+  getPaymentDatesInMonth,
   create,
   update,
   parseEntity,

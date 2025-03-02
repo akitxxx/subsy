@@ -40,7 +40,6 @@ const createSubscription = (params: Partial<SubscriptionEntity> & Pick<Subscript
 
 // ===== テスト本体 =====
 describe('Subscription', () => {
-  // ----- getNextPaymentAt のテスト -----
   describe('getNextPaymentAt', () => {
     // サイクルごとのテストケース定義
     interface NextPaymentTestCase {
@@ -191,7 +190,16 @@ describe('Subscription', () => {
     });
   });
 
-  // ----- update メソッドのテスト -----
+  describe('getPaymentDatesInMonth', () => {
+    // 指定した月での支払日をすべて取得する
+    it('指定した月での支払日をすべて取得する', () => {
+      const subscription = createSubscription({ cycle: SubscriptionCycleEnum.OneMonth, startedAt: new Date('2025-01-01T00:00:00.000Z') });
+
+      const result = Subscription.getPaymentDatesInMonth(subscription)(MOCK_NOW);
+      expect(result).toEqual([subscription.startedAt]);
+    });
+  });
+
   describe('update', () => {
     // 基本的な更新シナリオをテスト
     describe('基本的な更新', () => {
