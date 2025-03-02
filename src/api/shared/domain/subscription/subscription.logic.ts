@@ -137,13 +137,14 @@ const getPaymentDatesInMonth = (e: SubscriptionEntity) => (now: Date) => {
    * @param dates 収集された支払日の配列
    * @returns 指定月内のすべての支払日
    */
-  const _collectPaymentDatesRecursively = (currentBaseDate: Date, dates: Date[] = []): Date[] => {
-    // 次回支払日を計算
+  const _collectPaymentDatesRecursively = (currentBaseDate: Date, dates: Date[] = [], depth = 0): Date[] => {
+    // 最大再帰深度を超えた場合は終了
+    if (depth > 100) return dates;
+
+    // 以下、既存のロジック
     const nextPaymentDate = getNextPaymentAt(e)(currentBaseDate);
-    // 月末を超えた場合は収集終了
     if (nextPaymentDate > endOfMonth) return dates;
-    // 月内の支払日の場合は配列に追加して次を検索(1日後以降で探す)
-    return _collectPaymentDatesRecursively(DateUtils.modify.addDays(nextPaymentDate, 1), [...dates, nextPaymentDate]);
+    return _collectPaymentDatesRecursively(DateUtils.modify.addDays(nextPaymentDate, 1), [...dates, nextPaymentDate], depth + 1);
   };
 
   // 前月のendOfMonthから収集開始
