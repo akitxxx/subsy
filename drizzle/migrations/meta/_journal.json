@@ -15,6 +15,13 @@
       "when": 1740232830191,
       "tag": "0001_heavy_arclight",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1740905137403,
+      "tag": "0002_burly_quentin_quire",
+      "breakpoints": true
     }
   ]
 }
