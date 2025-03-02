@@ -142,7 +142,7 @@ const getPaymentDatesInMonth = (e: SubscriptionEntity) => (now: Date) => {
     const nextPaymentDate = getNextPaymentAt(e)(currentBaseDate);
     // 月末を超えた場合は収集終了
     if (nextPaymentDate > endOfMonth) return dates;
-    // 月内の支払日の場合は配列に追加して次を検索
+    // 月内の支払日の場合は配列に追加して次を検索(1日後以降で探す)
     return _collectPaymentDatesRecursively(DateUtils.modify.addDays(nextPaymentDate, 1), [...dates, nextPaymentDate]);
   };
 
