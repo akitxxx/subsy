@@ -2,10 +2,10 @@
   "name": "subsy",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.5.1",
+  "packageManager": "pnpm@10.5.2",
   "engines": {
     "node": ">=20.0.0",
-    "pnpm": ">=10.5.1"
+    "pnpm": ">=10.5.2"
   },
   "scripts": {
     "dev": "next dev --turbopack",
@@ -25,6 +25,7 @@
     "db:down": "npx supabase stop"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.12.2",
     "@hono/zod-validator": "^0.4.3",
     "@line/bot-sdk": "^9.7.1",
     "@radix-ui/react-avatar": "^1.1.3",
