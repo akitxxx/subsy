@@ -2,20 +2,19 @@ import { signOut } from '@/frontend/features/auth/actions/signOut.action';
 import { Avatar, AvatarFallback, AvatarImage } from '@/frontend/shared/components/ui/avatar';
 import { Button } from '@/frontend/shared/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/frontend/shared/components/ui/dropdown-menu';
+import { SignedIn } from '@clerk/nextjs';
 import Link from 'next/link';
 
-type Props = {
-  isLoggedIn: boolean;
-};
-
-export function Header({ isLoggedIn }: Props) {
+export function Header() {
   return (
     <header className="bg-primary text-primary-foreground py-3">
       <div className="container mx-auto flex justify-between items-center">
         <Link href="/" className="text-2xl font-bold">
           Subsy
         </Link>
-        {isLoggedIn && <MyMenu />}
+        <SignedIn>
+          <MyMenu />
+        </SignedIn>
       </div>
     </header>
   );

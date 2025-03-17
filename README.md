@@ -11,14 +11,14 @@ Use it for AI development support and onboarding new team members.
    - Data flow
    - State management strategy
 
-2. [Coding Standards](./coding_standards.md)
+2. [Coding Standards](./coding-standards.md)
    - File organization and naming conventions
    - Component design
    - Type system usage
    - Testing strategy
    - Styling guidelines
 
-3. [ローカル環境構築手順](./local_setup.md)
+3. [ローカル環境構築手順](./local-setup.md)
    - 前提条件
    - 環境構築手順
    - トラブルシューティング

@@ -1,4 +1,5 @@
 import type { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
+import type { UserEntity } from '@/api/shared/domain/user';
 import { CreateUserDomainService } from '@/api/shared/domain/user/createUser.domainService';
 import type { UserRepository } from '@/api/shared/domain/user/user.repository';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
@@ -81,10 +82,9 @@ const handleMessageEvent = async ({
     const { userId: lineUserId, messageText } = validationResult;
 
     // userレコード取得
-    const user = await userRepository.findByLineUserId({ lineUserId });
+    let user: UserEntity | null = await userRepository.findByLineUserId({ lineUserId });
     if (!user) {
-      await CreateUserDomainService.run({ userRepository })({ provider: ProviderEnum.Line, providerId: lineUserId });
-      return;
+      user = await CreateUserDomainService.run({ userRepository })({ provider: ProviderEnum.Line, providerId: lineUserId });
     }
 
     // サブスクリプション一覧取得

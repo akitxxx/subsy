@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/frontend/shared/components/Header';
 import { createSupabaseServerClient } from '@/shared/lib/supabase/supabase';
+import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
@@ -26,21 +27,17 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-  const isLoggedIn = !!session;
-
   return (
-    <html lang="ja">
-      <head>{process.env.NEXT_PUBLIC_APP_ENV === 'development' && <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />}</head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Header isLoggedIn={isLoggedIn} />
-        <main className="mx-auto max-w-[800px]">{children}</main>
-        <Analytics />
-        <SpeedInsights />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="ja">
+        <head>{process.env.NEXT_PUBLIC_APP_ENV === 'development' && <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />}</head>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <Header />
+          <main className="mx-auto max-w-[800px]">{children}</main>
+          <Analytics />
+          <SpeedInsights />
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

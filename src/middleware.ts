@@ -1,45 +1,18 @@
-import { createSupabaseServerClient, updateSession } from '@/shared/lib/supabase/supabase';
-import type { User } from '@supabase/supabase-js';
-import { type NextRequest, NextResponse } from 'next/server';
-import { honoClient } from './shared/lib/hono/hono';
-
-// 認証をスキップするパス
-const PUBLIC_PATHS = {
-  pages: ['/sign-in'],
-  system: ['/_next', '/favicon.ico'],
-};
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
 export const config = {
-  matcher: '/((?!_next/static|_next/image|favicon.ico).*)',
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+  ],
 };
 
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+// apiはhono側のmiddlewareにて処理を行うため対象外とする
+const isPublicRoute = createRouteMatcher(['/_next', '/favicon.ico', '/sign-in(.*)', '/sign-up(.*)', '/api(.*)']);
 
-  // apiはhono側のmiddlewareにて処理を行うため対象外とする
-  if (pathname.startsWith('/api')) return NextResponse.next();
-
+export default clerkMiddleware(async (auth, req) => {
   // 公開パスはスキップ
-  if (isPublicPath(pathname)) return NextResponse.next();
-
-  const onAfterGetSessionUser = async ({ sessionUser }: { sessionUser: User | null }) => {
-    // session userが取得できない場合はsign-inにリダイレクト
-    if (!sessionUser) {
-      const url = req.nextUrl.clone();
-      url.pathname = '/sign-in';
-      return NextResponse.redirect(url);
-    }
-
-    return undefined;
-  };
-
-  // セッションの更新
-  return await updateSession({ request: req, onAfterGetSessionUser });
-}
-
-// ========== private ==========
-
-// ヘルパー関数
-function isPublicPath(pathname: string): boolean {
-  return Object.values(PUBLIC_PATHS).some((paths) => paths.some((path) => pathname.startsWith(path)));
-}
+  if (!isPublicRoute(req)) {
+    await auth.protect();
+  }
+});

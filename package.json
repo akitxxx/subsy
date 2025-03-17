@@ -2,10 +2,10 @@
   "name": "subsy",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@10.5.2",
+  "packageManager": "pnpm@10.6.1",
   "engines": {
     "node": ">=20.0.0",
-    "pnpm": ">=10.5.2"
+    "pnpm": ">=10.6.1"
   },
   "scripts": {
     "dev": "next dev --turbopack",
@@ -52,6 +52,7 @@
     "postgres": "^3.4.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "svix": "^1.61.3",
     "swr": "^2.3.2",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",

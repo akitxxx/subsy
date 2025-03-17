@@ -42,30 +42,32 @@ const findByLineUserId =
 
 const create =
   ({ db }: Inject) =>
-  async ({ tx, entity }: { tx?: Tx; entity: UserEntity & { userAuth: InsertUserAuth } }): Promise<void> => {
+  async ({ tx, entity }: { tx?: Tx; entity: UserEntity & { userAuth: InsertUserAuth } }): Promise<UserEntity> => {
     const fCreate = async (tx: Tx) => {
       const [createdUser] = await tx
         .insert(usersTable)
         .values({ ...entity })
         .returning();
       await tx.insert(userAuthsTable).values({ ...entity.userAuth });
-      return createdUser;
+      return User.parseEntity(createdUser);
     };
 
-    tx ? await fCreate(tx) : await db.transaction(fCreate);
+    return tx ? await fCreate(tx) : await db.transaction(fCreate);
   };
 
 const update =
   ({ db }: Inject) =>
-  async ({ tx, entity }: { tx?: Tx; entity: UserEntity }): Promise<void> => {
+  async ({ tx, entity }: { tx?: Tx; entity: UserEntity }): Promise<UserEntity> => {
     const fUpdate = async (tx: Tx) => {
-      await tx
+      const [updatedUser] = await tx
         .update(usersTable)
         .set({ ...entity })
-        .where(eq(usersTable.id, entity.id));
+        .where(eq(usersTable.id, entity.id))
+        .returning();
+      return User.parseEntity(updatedUser);
     };
 
-    tx ? await fUpdate(tx) : await db.transaction(fUpdate);
+    return tx ? await fUpdate(tx) : await db.transaction(fUpdate);
   };
 
 export const UserRepository = {

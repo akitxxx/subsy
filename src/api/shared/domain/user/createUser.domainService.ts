@@ -1,4 +1,5 @@
 import type { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
+import type { UserEntity } from './user.entity';
 import { User } from './user.logic';
 import type { UserRepository } from './user.repository';
 
@@ -13,12 +14,12 @@ type Input = {
 
 const run =
   ({ userRepository }: Inject) =>
-  async (input: Input) => {
+  async (input: Input): Promise<UserEntity> => {
     const newUser = User.newUser({
       userAuth: { provider: input.provider, providerId: input.providerId },
     });
 
-    await userRepository.create({ entity: newUser });
+    return await userRepository.create({ entity: newUser });
   };
 
 export const CreateUserDomainService = { run };
