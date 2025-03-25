@@ -11,6 +11,7 @@ import { FunctionName } from '@/api/shared/lib/openai/subscription-functions';
 import { CurrencyEnum, getCurrentPrefix } from '@/shared/enums/currency.enum';
 import { LanguageEnum } from '@/shared/enums/language.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
+import { SubscriptionStatusEnum } from '@/shared/enums/subscription/subscriptionStatus.enum';
 import { DateUtils } from '@/shared/utils/date.util';
 import { PriceUtils } from '@/shared/utils/price.util';
 
@@ -305,7 +306,20 @@ const formatSubscriptionDetails = (subscription: SubscriptionEntity): string => 
   const cancelInfo = subscription.cancelledAt ? `キャンセル: ${formatDate(subscription.cancelledAt)}\n` : '';
   const expireInfo = subscription.expiredAt ? `期限切れ: ${formatDate(subscription.expiredAt)}\n` : '';
 
+  const statusStr = (() => {
+    const status = Subscription.getStatus(subscription)(now);
+    switch (status) {
+      case SubscriptionStatusEnum.Cancelled:
+        return 'キャンセル済み';
+      case SubscriptionStatusEnum.Expired:
+        return '期限切れ';
+      default:
+        return '利用中';
+    }
+  })();
+
   return `名前: ${subscription.name}
+ステータス: ${statusStr}
 金額: ${formatPrice(subscription.price, subscription.currency)}/${getCycleMonths(subscription.cycle)}
 開始: ${formatDate(subscription.startedAt)}
 ${nextPayment}${cancelInfo}${expireInfo}`.trim();
