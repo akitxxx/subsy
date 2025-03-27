@@ -78,8 +78,8 @@ importers:
         specifier: 15.1.4
         version: 15.1.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       openai:
-        specifier: ^4.86.1
-        version: 4.86.1(ws@8.18.0)(zod@3.24.2)
+        specifier: ^4.89.1
+        version: 4.89.1(ws@8.18.0)(zod@3.24.2)
       postgres:
         specifier: ^3.4.5
         version: 3.4.5
@@ -2362,8 +2362,8 @@ packages:
     resolution: {integrity: sha512-RSn9F68PjH9HqtltsSnqYC1XXoWe9Bju5+213R98cNGttag9q9yAOTzdbsqvIa7aNm5WffBZFpWYr2aWrklWAw==}
     engines: {node: '>= 6'}
 
-  openai@4.86.1:
-    resolution: {integrity: sha512-x3iCLyaC3yegFVZaxOmrYJjitKxZ9hpVbLi+ZlT5UHuHTMlEQEbKXkGOM78z9qm2T5GF+XRUZCP2/aV4UPFPJQ==}
+  openai@4.89.1:
+    resolution: {integrity: sha512-k6t7WfnodIctPo40/9sy7Ww4VypnfkKi/urO2VQx4trCIwgzeroO1jkaCL2f5MyTS1H3HT9X+M2qLsc7NSXwTw==}
     hasBin: true
     peerDependencies:
       ws: ^8.18.0
@@ -4672,7 +4672,7 @@ snapshots:
 
   object-hash@3.0.0: {}
 
-  openai@4.86.1(ws@8.18.0)(zod@3.24.2):
+  openai@4.89.1(ws@8.18.0)(zod@3.24.2):
     dependencies:
       '@types/node': 18.19.76
       '@types/node-fetch': 2.6.12
