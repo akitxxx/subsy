@@ -25,6 +25,44 @@ describe('executeFunctionByName', () => {
   });
 
   // ========== test ==========
+  describe('handleGetSubscriptions', () => {
+    it('サブスクリプション一覧取得時に、名前と金額と支払いサイクルが正しく表示されること', async () => {
+      // given
+      const user = await createActiveUser(db)();
+      const subscription1 = await createSubscription(db)({
+        userId: user.id,
+        name: 'Netflix',
+        price: '1500',
+        currency: CurrencyEnum.Jpy,
+        cycle: SubscriptionCycleEnum.OneMonth,
+        startedAt: new Date('2025-02-15T00:00:00.000Z'),
+      });
+      const subscription2 = await createSubscription(db)({
+        userId: user.id,
+        name: 'Spotify',
+        price: '9.99',
+        currency: CurrencyEnum.Usd,
+        cycle: SubscriptionCycleEnum.ThreeMonths,
+        startedAt: new Date('2025-02-20T00:00:00.000Z'),
+      });
+
+      // when
+      const result = await executeFunctionByName({ subscriptionRepository })({
+        userId: user.id,
+        subscriptions: [Subscription.parseEntity(subscription1), Subscription.parseEntity(subscription2)],
+        functionCall: {
+          name: FunctionName.getSubscriptions,
+          args: {},
+        },
+      });
+
+      // then
+      expect(result.message).toContain('・Netflix');
+      expect(result.message).toContain('　・¥1,500/月');
+      expect(result.message).toContain('・Spotify');
+      expect(result.message).toContain('　・$9.99/3ヶ月');
+    });
+  });
   describe('handleGetMonthlyTotal', () => {
     it('日本語で今月の支払い合計を問い合わせた場合、円換算で合計金額を返すこと', async () => {
       // given
