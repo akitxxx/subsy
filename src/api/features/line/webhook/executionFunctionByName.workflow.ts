@@ -173,29 +173,24 @@ const handleDeleteSubscription = async (
   subscriptions: SubscriptionEntity[],
   args: DeleteSubscriptionFunctionArgs,
 ): Promise<Output> => {
-  console.dir({ 'サブスクリプション削除:': { args } }, { depth: null });
+  console.dir({ 'サブスクリプション削除:': { userId, args } }, { depth: null });
 
   const subscription = subscriptions.find((s) => s.id === args.id);
-  if (!subscription) {
-    return { message: 'サブスクリプションが見つかりません' };
-  }
+  if (!subscription) return { message: 'サブスクリプションが見つかりません' };
 
-  await inject.subscriptionRepository.delete({ id: subscription.id, userId });
+  await inject.subscriptionRepository.delete({ id: args.id, userId });
 
   return {
-    message: `サブスクリプション「${subscription.name}」を削除しました。`,
+    message: `サブスクリプションを削除しました。\n\n${formatSubscriptionDetails(subscription)}`,
   };
 };
 
 /**
- * ユーザーメッセージ処理
+ * メッセージ送信処理
  */
 const handleSendMessage = async (inject: Inject, args: SendMessageFunctionArgs): Promise<Output> => {
   console.dir({ 'メッセージ送信:': { args } }, { depth: null });
-
-  return {
-    message: args.message,
-  };
+  return { message: args.message };
 };
 
 /**
@@ -204,7 +199,7 @@ const handleSendMessage = async (inject: Inject, args: SendMessageFunctionArgs):
 const handleGetMonthlyTotal = async (subscriptions: SubscriptionEntity[], args: GetMonthlyTotalFunctionArgs): Promise<Output> => {
   console.dir({ '月間支払い合計取得:': { args } }, { depth: null });
 
-  // 引数の処理
+  // 基本情報の取得
   const now = DateUtils.create.now();
   const targetDate = args.targetDate ? DateUtils.create.fromISOString(args.targetDate) : now;
   const isJapanese = args.language === LanguageEnum.Japanese;
