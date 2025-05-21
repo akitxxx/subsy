@@ -104,16 +104,10 @@ const handleGetSubscriptions = async (subscriptions: SubscriptionEntity[]): Prom
     return { message: 'サブスクリプションの登録がありません。' };
   }
 
-  const formattedSubscriptions = subscriptions.map((subscription) => {
-    const priceFormatted = formatPrice(subscription.price, subscription.currency);
-    const cycleFormatted = getCycleMonths(subscription.cycle);
-    return `・${subscription.name}\n　・${priceFormatted}/${cycleFormatted}`;
-  }).join('\n');
-
   return {
     message: `登録済みサブスクリプション（${subscriptions.length}件）
 
-${formattedSubscriptions}
+${subscriptions.map((subscription, index) => `・${subscription.name}`).join('\n')}
 
 サブスクリプション名を指定すると詳細を確認できます。`,
   };
