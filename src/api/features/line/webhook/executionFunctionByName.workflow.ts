@@ -107,7 +107,12 @@ const handleGetSubscriptions = async (subscriptions: SubscriptionEntity[]): Prom
   return {
     message: `登録済みサブスクリプション（${subscriptions.length}件）
 
-${subscriptions.map((subscription, index) => `・${subscription.name}`).join('\n')}
+${subscriptions
+  .map(
+    (subscription) => `・${subscription.name}
+　・${formatPrice(subscription.price, subscription.currency)}/${getCycleMonths(subscription.cycle)}`,
+  )
+  .join('\n')}
 
 サブスクリプション名を指定すると詳細を確認できます。`,
   };

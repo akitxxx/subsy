@@ -41,7 +41,12 @@ export interface GetMonthlyTotalFunctionArgs {
 
 export type ToolCallResult = {
   name: string;
-  args: SubscriptionFunctionArgs | UpdateSubscriptionFunctionArgs | DeleteSubscriptionFunctionArgs | GetMonthlyTotalFunctionArgs | Record<string, never>;
+  args:
+    | SubscriptionFunctionArgs
+    | UpdateSubscriptionFunctionArgs
+    | DeleteSubscriptionFunctionArgs
+    | GetMonthlyTotalFunctionArgs
+    | Record<string, never>;
 } | null;
 
 export type FunctionCallResult = ToolCallResult;
