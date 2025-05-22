@@ -1,4 +1,5 @@
 import { DeleteConfirmDialog } from '@/frontend/features/subscriptions/components/DeleteConfirmDialog';
+import { StatusBadge } from '@/frontend/features/subscriptions/components/StatusBadge';
 import { SubscriptionModal } from '@/frontend/features/subscriptions/components/SubscriptionModal';
 import { Button } from '@/frontend/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/frontend/shared/components/ui/card';
@@ -58,6 +59,7 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                 <TableHead>金額</TableHead>
                 <TableHead>支払いサイクル</TableHead>
                 <TableHead>次回支払い日</TableHead>
+                <TableHead>ステータス</TableHead>
                 <TableHead />
               </TableRow>
             </TableHeader>
@@ -141,12 +143,14 @@ const SubscriptionTableRow = ({ subscription, onOpenDetailModal, onOpenEditModal
       }}
     >
       <TableCell className="font-medium">{subscription.name}</TableCell>
-      <TableCell>
-        {currencySymbol}
+      <TableCell>{currencySymbol}
         {PriceUtils.display.format(subscription.price, subscription.currency)}
       </TableCell>
       <TableCell>{SubscriptionUtils.display.formatCycle(subscription.cycle)}</TableCell>
       <TableCell>{DateUtils.format.custom(subscription.nextPaymentAt, 'YYYY/MM/DD')}</TableCell>
+      <TableCell>
+        <StatusBadge subscription={subscription} />
+      </TableCell>
       <TableCell>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

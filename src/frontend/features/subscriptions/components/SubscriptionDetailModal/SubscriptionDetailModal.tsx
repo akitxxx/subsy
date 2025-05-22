@@ -1,13 +1,13 @@
 import { CancelButton, PrimaryButton } from '@/frontend/shared/components/button';
 import { Card, CardContent } from '@/frontend/shared/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/frontend/shared/components/ui/dialog';
+import { StatusBadge } from '@/frontend/features/subscriptions/components/StatusBadge';
 import type { SubscriptionViewModel } from '@/shared/domain/subscription/subscription.viewModel';
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { DateUtils } from '@/shared/utils/date.util';
 import { PriceUtils } from '@/shared/utils/price.util';
 import { SubscriptionUtils } from '@/shared/utils/subscription.util';
-import { AlertCircleIcon, CalendarIcon, CheckIcon, ClockIcon, CreditCardIcon, InfoIcon, PencilIcon, TagIcon, XIcon } from 'lucide-react';
-import { useMemo } from 'react';
+import { CalendarIcon, CreditCardIcon, InfoIcon, PencilIcon, TagIcon } from 'lucide-react';
 
 type SubscriptionDetailModalProps = {
   subscription: SubscriptionViewModel | null;
@@ -19,32 +19,6 @@ type SubscriptionDetailModalProps = {
 export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit }: SubscriptionDetailModalProps) => {
   // subscription がnullの場合は何も表示しない
   if (!subscription) return null;
-
-  // サブスクリプションのステータス情報を生成
-  const statusInfo = useMemo(() => {
-    if (subscription.isExpired) {
-      return {
-        label: '期限切れ',
-        color: 'text-gray-500',
-        bgColor: 'bg-gray-100',
-        icon: <AlertCircleIcon className="h-4 w-4" />,
-      };
-    }
-    if (subscription.isCancelled) {
-      return {
-        label: 'キャンセル済み',
-        color: 'text-orange-500',
-        bgColor: 'bg-orange-100',
-        icon: <XIcon className="h-4 w-4" />,
-      };
-    }
-    return {
-      label: '利用中',
-      color: 'text-green-500',
-      bgColor: 'bg-green-100',
-      icon: <CheckIcon className="h-4 w-4" />,
-    };
-  }, [subscription]);
 
   // 通貨記号を決定
   const currencySymbol = subscription.currency === CurrencyEnum.Usd ? '$' : '¥';
@@ -63,10 +37,7 @@ export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit 
           {/* ヘッダー部分 */}
           <div className="mb-6">
             <h3 className="text-xl font-bold mb-2">{subscription.name}</h3>
-            <div className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusInfo.bgColor} ${statusInfo.color}`}>
-              {statusInfo.icon}
-              <span className="ml-1">{statusInfo.label}</span>
-            </div>
+            <StatusBadge subscription={subscription} />
           </div>
 
           {/* 金額と支払いサイクル */}
