@@ -104,13 +104,16 @@ const handleGetSubscriptions = async (subscriptions: SubscriptionEntity[]): Prom
     return { message: 'サブスクリプションの登録がありません。' };
   }
 
+  const now = DateUtils.create.now();
+
   return {
     message: `登録済みサブスクリプション（${subscriptions.length}件）
 
 ${subscriptions
   .map(
     (subscription) => `・${subscription.name}
-　・${formatPrice(subscription.price, subscription.currency)}/${getCycleMonths(subscription.cycle)}`,
+　・${formatPrice(subscription.price, subscription.currency)}/${getCycleMonths(subscription.cycle)}
+　・${Subscription.getStatus(subscription)(now)}`,
   )
   .join('\n')}
 
