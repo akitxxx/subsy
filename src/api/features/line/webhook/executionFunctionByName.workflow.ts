@@ -104,13 +104,16 @@ const handleGetSubscriptions = async (subscriptions: SubscriptionEntity[]): Prom
     return { message: 'サブスクリプションの登録がありません。' };
   }
 
+  const now = DateUtils.create.now();
+
   return {
     message: `登録済みサブスクリプション（${subscriptions.length}件）
 
 ${subscriptions
   .map(
     (subscription) => `・${subscription.name}
-　・${formatPrice(subscription.price, subscription.currency)}/${getCycleMonths(subscription.cycle)}`,
+　・${formatPrice(subscription.price, subscription.currency)}/${getCycleMonths(subscription.cycle)}
+　・${getStatusForList(subscription, now)}`,
   )
   .join('\n')}
 
@@ -301,6 +304,21 @@ const aggregatePayments = (payments: (PaymentInfo | null)[]): AggregatedPayments
 // ============================================================================
 // フォーマット関連関数
 // ============================================================================
+
+/**
+ * サブスクリプション一覧用のステータス表示を取得
+ */
+const getStatusForList = (subscription: SubscriptionEntity, now: Date): string => {
+  const status = Subscription.getStatus(subscription)(now);
+  switch (status) {
+    case SubscriptionStatusEnum.Cancelled:
+      return 'Cancelled';
+    case SubscriptionStatusEnum.Expired:
+      return 'Expired';
+    default:
+      return 'Active';
+  }
+};
 
 /**
  * サブスクリプション詳細を整形する
