@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "paths=$(jq -r '[.tool_input.file_path? // empty] + (.tool_input.file_paths? // []) | join(\" \")'); echo \"[HOOK ✅] $paths\" | tee -a ~/.claude/hook-test.log"
+          }
+        ]
+      }
+    ]
+  }
+}
