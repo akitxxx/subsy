@@ -1,0 +1,13 @@
+Bash³ήσΙΖΉΘLP - ,3ήξ
+
+LεB: 2025t86ε
+ΖΉΘ…Ή: 
+- ls ³ήσΙ: LSΔόλgγÿL	
+- mkdir ³ήσΙ: τ¥L
+- touch ³ήσΙ: τ¥L
+
+-	τnΉ:
+ώ(n allowed_tools -g mkdir h touch Lc8kΥ\Y‹Sh’Ί
+»­εκΖ£hnijΠισΉLΦ_-hU΅
+
+\: Claude Code Action
