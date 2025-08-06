@@ -53,7 +53,7 @@ jobs:
           allowed_tools: |
             Bash(mkdir:*)
             Bash(touch:*)
-            Bash(ls:)
+            Bash(ls:*)
             Bash(git:*)
             Bash(pnpm:*)
           
