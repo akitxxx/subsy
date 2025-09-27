@@ -2,9 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## AI Conversation Guidelines
+## AI Basic Guidelines
 
-基本的には日本語で回答すること
+- 基本的には日本語で回答すること
+- ファイル操作はUTF-8エンコーディングを使用すること
 
 ## 技術スタック
 
@@ -251,4 +252,3 @@ APIレイヤーはHonoを使用してルーティングとリクエスト処理�
 - フックパターンを使用してUIからロジックを分離
 - 環境固有の設定はNext.jsの環境変数システムで処理
 - すべてのAPIルートは`/api/`プレフィックスを持つ
-
