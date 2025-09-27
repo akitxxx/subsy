@@ -41,7 +41,12 @@ jobs:
             actions: read
 
           # Optional: Give a custom prompt to Claude. If this is not specified, Claude will perform the instructions specified in the comment that tagged it.
-          # prompt: 'Update the pull request description to include a summary of changes.'
+          prompt: |
+            スラッシュコマンドのテストを実行します。
+
+            まず、/generate-haiku コマンドを実行して、冬の俳句を生成してください。
+
+            その後、スラッシュコマンドが正常に動作したことを報告してください。
 
           # Optional: Add claude_args to customize behavior and configuration
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
