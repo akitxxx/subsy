@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 技術スタック
 
-- **フレームワーク**: Next.js with App Router (v15.1.4)
+- **フレームワーク**: Next.js with App Router
 - **APIレイヤー**: Hono（APIルーティング用）
 - **データベース**:
   - Supabase（PostgreSQLデータベースと認証）
@@ -26,7 +26,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **テスト**: Vitest
 - **リンティング/フォーマッティング**: Biome
 - **外部サービス**: LINE Bot SDK、OpenAI API
-- **実行環境要件**: Node.js v20以上、pnpm v10.5.2以上
+- **実行環境要件**: Node.js、pnpm
 
 ## よく使うコマンド
 
