@@ -48,8 +48,7 @@ jobs:
 
             その後、スラッシュコマンドが正常に動作したことを報告してください。
 
-          # Optional: Add claude_args to customize behavior and configuration
+          # Use settings file for configuration instead of claude_args
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
-          # or https://docs.claude.com/en/docs/claude-code/sdk#command-line for available options
-          claude_args: '--allowedTools SlashCommand,Read,Write,Edit,Bash,Glob,Grep,WebFetch,TodoWrite'
+          settings: '.github/claude-settings.json'
 
