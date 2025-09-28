@@ -20,9 +20,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - Tailwind CSS（スタイリング）
   - shadcn/ui（コンポーネントパターン）
 - **状態管理**:
-  - SWR（サーバー状態）
-  - React Context（クライアント状態）
-  - React Hook Form（フォーム状態）
+  - SWR
+  - React Context
+  - React Hook Form
 - **テスト**: Vitest
 - **リンティング/フォーマッティング**: Biome
 - **外部サービス**: LINE Bot SDK、OpenAI API
