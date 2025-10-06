@@ -48,3 +48,22 @@ jobs:
           # or https://docs.claude.com/en/docs/claude-code/sdk#command-line for available options
           # claude_args: '--model claude-opus-4-1-20250805 --allowed-tools Bash(gh pr:*)'
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+  
+      - name: Generate HTML from Claude transcripts
+        run: |
+          uvx claude-code-log@0.5.1
+        continue-on-error: true
+
+      - name: Upload ~/.claude as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-dotfiles-prepare
+          path: ~/.claude
+          include-hidden-files: true
+          if-no-files-found: warn
+
+          
