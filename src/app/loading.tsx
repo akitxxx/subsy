@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader } from '@/frontend/shared/components/ui/card';
-import { Skeleton } from '@/frontend/shared/components/ui/skeleton';
+import { Card, CardContent, CardHeader } from '@/web/shared/components/ui/card';
+import { Skeleton } from '@/web/shared/components/ui/skeleton';
 
 export default function Loading() {
   return (

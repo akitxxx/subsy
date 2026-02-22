@@ -111,7 +111,7 @@ pnpm db:reset:test
 
 - `src/` - ソースコードのルート
   - `app/` - Next.js App Routerのページとレイアウト
-  - `frontend/` - フロントエンド実装
+  - `web/` - フロントエンド実装
     - `features/` - 機能別モジュール（auth、dashboard、subscriptions等）
     - `shared/` - 共通コンポーネント、フック、ユーティリティ
   - `api/` - API実装
@@ -172,15 +172,15 @@ APIレイヤーはHonoを使用してルーティングとリクエスト処理�
 
 1. **コンポーネント構造**:
 
-   - UIコンポーネントは`frontend/shared/components`に配置
-   - 機能固有のコンポーネントは`frontend/features/*/components`に配置
+   - UIコンポーネントは`web/shared/components`に配置
+   - 機能固有のコンポーネントは`web/features/*/components`に配置
    - コンポーネントはロジック分離のためにフックを使用
 
 2. **フックパターン**:
 
    - カスタムフックはデータフェッチと状態管理をカプセル化
    - SWRはサーバー状態（キャッシング、再検証）に使用
-   - 機能固有のフックは`frontend/features/*/hooks`に配置
+   - 機能固有のフックは`web/features/*/hooks`に配置
 
 3. **スタイリング**:
    - ユーティリティファーストアプローチのTailwind CSS

@@ -1,5 +1,5 @@
-import { GoogleSignInButton } from '@/frontend/features/auth/components/GoogleSignInButton';
 import { createSupabaseServerClient } from '@/shared/lib/supabase/supabase';
+import { GoogleSignInButton } from '@/web/features/auth/components/GoogleSignInButton';
 import { redirect } from 'next/navigation';
 
 export default async function SignInPage() {

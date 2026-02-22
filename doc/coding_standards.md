@@ -197,7 +197,7 @@ async function getUserWithStats(
 - ファイル名は `[対象].spec.ts`
 
 ```
-src/frontend/features/users/
+src/web/features/users/
 ├── components/
 │   ├── UserCard.tsx
 │   └── UserCard.spec.tsx
@@ -209,7 +209,7 @@ src/frontend/features/users/
 ### テスト記述スタイル
 
 ```tsx
-// src/frontend/shared/components/ui/Button.spec.tsx
+// src/web/shared/components/ui/Button.spec.tsx
 import { render, fireEvent } from '@testing-library/react';
 import { Button } from './Button';
 

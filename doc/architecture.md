@@ -40,11 +40,11 @@
     - lib/ - ライブラリ統合
     - test/ - テスト用ユーティリティ
 
-### frontend/features/
+### web/features/
 
 各機能モジュールは以下のような構造を持ちます：
 
-- frontend/features/
+- web/features/
   - auth/ - 認証・認可関連機能
     - components/ - 認証UI
     - hooks/ - 認証関連フック
@@ -57,11 +57,11 @@
     - index.ts - 公開API
   - ... - その他機能モジュール
 
-### frontend/shared/
+### web/shared/
 
 フロントエンド共通モジュールの構造：
 
-- frontend/shared/
+- web/shared/
   - components/ - 共通UIコンポーネント
     - ui/ - 基本的なUIコンポーネント
     - forms/ - フォーム関連
@@ -119,7 +119,7 @@ API共通モジュールの構造：
 依存方向の原則:
 
 ```
-frontend/features → frontend/shared
+web/features → web/shared
        ↓
      shared
        ↑
@@ -127,8 +127,8 @@ frontend/features → frontend/shared
 ```
 
 - 許可される依存関係:
-  - `frontend/features` → `frontend/shared`, `shared`
-  - `frontend/shared` → `shared`
+  - `web/features` → `web/shared`, `shared`
+  - `web/shared` → `shared`
   - `api/features` → `api/shared`, `shared`
   - `api/shared` → `shared`
 
@@ -146,7 +146,7 @@ frontend/features → frontend/shared
 - ルーティング構成
 - ページレベルのメタデータ
 
-### frontend/features/
+### web/features/
 
 - 機能別のUI実装
 - ビジネスロジックとUIの結合
@@ -155,7 +155,7 @@ frontend/features → frontend/shared
 
 各機能モジュールの内部構造:
 ```
-frontend/features/users/
+web/features/users/
 ├── components/    # UI コンポーネント
 ├── hooks/         # 機能固有のカスタムフック
 ├── api.ts         # APIクライアント関数
@@ -164,7 +164,7 @@ frontend/features/users/
 └── index.ts       # 公開API
 ```
 
-### frontend/shared/
+### web/shared/
 
 - 再利用可能なUIコンポーネント
 - フロントエンド共通ユーティリティ

@@ -1,7 +1,7 @@
 'use client';
 
-import { Button } from '@/frontend/shared/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/frontend/shared/components/ui/card';
+import { Button } from '@/web/shared/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/web/shared/components/ui/card';
 import { useEffect } from 'react';
 
 export default function ErrorPage({
