@@ -1,5 +1,6 @@
 import type { HonoEnv } from '@/api/shared/types/hono';
 import { createBrowserClient, createServerClient } from '@supabase/ssr';
+import type { CookieOptions } from '@supabase/ssr';
 import type { User } from '@supabase/supabase-js';
 import type { Context } from 'hono';
 import { getCookie, setCookie } from 'hono/cookie';
@@ -40,7 +41,7 @@ export async function createSupabaseServerClient() {
       getAll() {
         return cookieStore.getAll();
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
         try {
           for (const { name, value, options } of cookiesToSet) {
             cookieStore.set(name, value, options);
@@ -72,8 +73,8 @@ export async function updateSession({
       getAll() {
         return request.cookies.getAll();
       },
-      setAll(cookiesToSet) {
-        for (const { name, value, options } of cookiesToSet) {
+      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
+        for (const { name, value } of cookiesToSet) {
           request.cookies.set(name, value);
         }
         response = NextResponse.next({ request });
@@ -128,7 +129,7 @@ export async function createSupabaseHono(c: Context<HonoEnv>) {
       getAll() {
         return Object.entries(cookie).map(([name, value]) => ({ name, value }));
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
         for (const { name, value, options } of cookiesToSet) {
           setCookie(c, name, value, {
             ...options,
