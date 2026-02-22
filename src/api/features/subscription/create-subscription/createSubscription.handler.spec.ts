@@ -1,3 +1,6 @@
+import { Hono } from 'hono';
+import { testClient } from 'hono/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CreateOrUpdateSubscriptionInput } from '@/api/features/subscription/shared/createOrUpdateSubscriptionSchema';
 import { type DrizzleClient, getDrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { cleanupDB } from '@/api/shared/test/dbHelper';
@@ -6,9 +9,6 @@ import type { HonoEnv } from '@/api/shared/types/hono';
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
-import { Hono } from 'hono';
-import { testClient } from 'hono/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createSubscriptionHandler } from './createSubscription.handler';
 
 describe('POST /api/subscriptions', () => {
@@ -79,7 +79,7 @@ describe('POST /api/subscriptions', () => {
       it('サブスクリプション名が重複している場合、エラーが返されること', async () => {
         // given
         const user = await createActiveUser(db)();
-        const subscription1 = await createSubscription(db)({ userId: user.id, name: 'Subscription' });
+        const _subscription1 = await createSubscription(db)({ userId: user.id, name: 'Subscription' });
         // when
         const input = {
           name: 'Subscription',

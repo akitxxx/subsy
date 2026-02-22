@@ -188,7 +188,7 @@ const handleDeleteSubscription = async (
 /**
  * メッセージ送信処理
  */
-const handleSendMessage = async (inject: Inject, args: SendMessageFunctionArgs): Promise<Output> => {
+const handleSendMessage = async (_inject: Inject, args: SendMessageFunctionArgs): Promise<Output> => {
   console.dir({ 'メッセージ送信:': { args } }, { depth: null });
   return { message: args.message };
 };

@@ -24,7 +24,7 @@ export const usersTable = pgTable(TABLE_NAMES.User, {
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });
-export const usersRelations = relations(usersTable, ({ one, many }) => ({
+export const usersRelations = relations(usersTable, ({ one: _one, many }) => ({
   userAuths: many(userAuthsTable),
   subscriptions: many(subscriptionsTable),
 }));

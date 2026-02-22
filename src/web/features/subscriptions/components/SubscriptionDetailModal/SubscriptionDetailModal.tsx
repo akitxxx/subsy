@@ -1,3 +1,5 @@
+import { AlertCircleIcon, CalendarIcon, CheckIcon, CreditCardIcon, InfoIcon, PencilIcon, TagIcon, XIcon } from 'lucide-react';
+import { useMemo } from 'react';
 import type { SubscriptionViewModel } from '@/shared/domain/subscription/subscription.viewModel';
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { DateUtils } from '@/shared/utils/date.util';
@@ -6,8 +8,6 @@ import { SubscriptionUtils } from '@/shared/utils/subscription.util';
 import { CancelButton, PrimaryButton } from '@/web/shared/components/button';
 import { Card, CardContent } from '@/web/shared/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/web/shared/components/ui/dialog';
-import { AlertCircleIcon, CalendarIcon, CheckIcon, ClockIcon, CreditCardIcon, InfoIcon, PencilIcon, TagIcon, XIcon } from 'lucide-react';
-import { useMemo } from 'react';
 
 type SubscriptionDetailModalProps = {
   subscription: SubscriptionViewModel | null;
@@ -17,11 +17,9 @@ type SubscriptionDetailModalProps = {
 };
 
 export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit }: SubscriptionDetailModalProps) => {
-  // subscription がnullの場合は何も表示しない
-  if (!subscription) return null;
-
   // サブスクリプションのステータス情報を生成
   const statusInfo = useMemo(() => {
+    if (!subscription) return null;
     if (subscription.isExpired) {
       return {
         label: '期限切れ',
@@ -45,6 +43,9 @@ export const SubscriptionDetailModal = ({ subscription, isOpen, onClose, onEdit 
       icon: <CheckIcon className="h-4 w-4" />,
     };
   }, [subscription]);
+
+  // subscription がnullの場合は何も表示しない
+  if (!subscription || !statusInfo) return null;
 
   // 通貨記号を決定
   const currencySymbol = subscription.currency === CurrencyEnum.Usd ? '$' : '¥';

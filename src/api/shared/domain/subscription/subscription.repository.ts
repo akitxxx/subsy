@@ -1,8 +1,8 @@
+import { and, asc, count, eq, gt, isNull, lt, or } from 'drizzle-orm';
 import { Subscription } from '@/api/shared/domain/subscription';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { subscriptionsTable } from '@/api/shared/lib/db/schema';
 import type { Tx } from '@/api/shared/types/tx';
-import { and, asc, count, eq, gt, isNull, lt, or } from 'drizzle-orm';
 import type { SubscriptionEntity } from './subscription.entity';
 
 type Inject = {
@@ -31,7 +31,7 @@ const countByUserIdAndName =
 
 const findManyByUserId =
   ({ db }: Inject) =>
-  async ({ tx, userId }: { tx?: Tx; userId: string }): Promise<SubscriptionEntity[]> => {
+  async ({ tx: _tx, userId }: { tx?: Tx; userId: string }): Promise<SubscriptionEntity[]> => {
     const subscriptions = await db.query.subscriptionsTable.findMany({
       where: eq(subscriptionsTable.userId, userId),
     });

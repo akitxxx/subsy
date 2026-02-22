@@ -3,7 +3,7 @@ import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionC
 import { FunctionName } from './subscription-functions';
 
 export const getPrompt = (p: { now: Date; subscriptions: SubscriptionEntity[] }) => {
-  const { now, subscriptions } = p;
+  const { now } = p;
   return `
   あなたはサブスクリプション管理システムの専門アシスタントです。ユーザーのメッセージを分析し、サブスクリプションに関する意図を正確に特定して適切な関数を呼び出してください。
 

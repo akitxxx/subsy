@@ -1,5 +1,7 @@
+import { Hono } from 'hono';
+import { testClient } from 'hono/testing';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type DrizzleClient, getDrizzleClient } from '@/api/shared/lib/db/drizzle';
-import { subscriptionsTable } from '@/api/shared/lib/db/schema';
 import { LineService } from '@/api/shared/lib/line';
 import { OpenAIService, type SubscriptionFunctionArgs } from '@/api/shared/lib/openai';
 import { cleanupDB } from '@/api/shared/test/dbHelper';
@@ -9,9 +11,6 @@ import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
 import { DateUtils } from '@/shared/utils/date.util';
-import { Hono } from 'hono';
-import { testClient } from 'hono/testing';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { lineWebhookHandler } from './lineWebhook.handler';
 
 // LineServiceのモック
@@ -82,7 +81,7 @@ describe('POST /api/line/webhook', () => {
         }),
       } satisfies OpenAIService);
 
-      const user = await createActiveUser(db)({ userAuth: { provider: ProviderEnum.Line, providerId: lineUserId } });
+      const _user = await createActiveUser(db)({ userAuth: { provider: ProviderEnum.Line, providerId: lineUserId } });
 
       const lineWebhookPayload = {
         destination: 'xxxxxxxxxx',

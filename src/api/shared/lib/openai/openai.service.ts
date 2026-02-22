@@ -1,10 +1,9 @@
-import type { SubscriptionEntity } from '@/api/shared/domain/subscription';
-import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
-import { DateUtils } from '@/shared/utils/date.util';
 import OpenAI from 'openai';
+import type { SubscriptionEntity } from '@/api/shared/domain/subscription';
+import { DateUtils } from '@/shared/utils/date.util';
 import type { OpenAIClientOptions, OpenAIServiceResult, ToolCallResult } from './openai.types';
 import { getPrompt } from './prompt';
-import { FunctionName, subscriptionFunctions } from './subscription-functions';
+import { subscriptionFunctions } from './subscription-functions';
 
 /**
  * OpenAI APIクライアントを作成する

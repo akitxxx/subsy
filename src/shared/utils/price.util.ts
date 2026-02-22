@@ -53,7 +53,7 @@ const input = {
   /**
    * 入力値を数値のみに変換
    */
-  parse: (input: string, currency: CurrencyEnum): string => {
+  parse: (input: string, _currency: CurrencyEnum): string => {
     const unformatted = input.replace(/,/g, '');
     return unformatted.replace(/\D/g, '');
   },

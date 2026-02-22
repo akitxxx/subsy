@@ -1,7 +1,6 @@
-import { createSupabaseServerClient, updateSession } from '@/shared/lib/supabase/supabase';
 import type { User } from '@supabase/supabase-js';
 import { type NextRequest, NextResponse } from 'next/server';
-import { honoClient } from './shared/lib/hono/hono';
+import { updateSession } from '@/shared/lib/supabase/supabase';
 
 // 認証をスキップするパス
 const PUBLIC_PATHS = {
@@ -13,7 +12,7 @@ export const config = {
   matcher: '/((?!_next/static|_next/image|favicon.ico).*)',
 };
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // apiはhono側のmiddlewareにて処理を行うため対象外とする

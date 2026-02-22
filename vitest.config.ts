@@ -13,7 +13,6 @@ export default defineConfig({
     globals: true,
     restoreMocks: true,
     clearMocks: true,
-    minWorkers: 1,
     maxWorkers: 1,
     maxConcurrency: 1,
   },

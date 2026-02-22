@@ -1,4 +1,4 @@
-import { type TextMessage, validateSignature as lineValidateSignature, messagingApi } from '@line/bot-sdk';
+import { validateSignature as lineValidateSignature, messagingApi, type TextMessage } from '@line/bot-sdk';
 import type { LineClientOptions, ReplyMessageParams, SendMessageParams } from './line.types';
 
 /**
@@ -28,7 +28,7 @@ const _createTextMessages = (messages: string | string[]): TextMessage[] => {
  */
 const sendMessage =
   (client: messagingApi.MessagingApiClient) =>
-  async (params: SendMessageParams, options?: LineClientOptions): Promise<messagingApi.PushMessageResponse> => {
+  async (params: SendMessageParams, _options?: LineClientOptions): Promise<messagingApi.PushMessageResponse> => {
     try {
       const messages = _createTextMessages(params.message);
       return await client.pushMessage({
@@ -49,7 +49,7 @@ const sendMessage =
  */
 const replyMessage =
   (client: messagingApi.MessagingApiClient) =>
-  async (params: ReplyMessageParams, options?: LineClientOptions): Promise<messagingApi.ReplyMessageResponse> => {
+  async (params: ReplyMessageParams, _options?: LineClientOptions): Promise<messagingApi.ReplyMessageResponse> => {
     try {
       const messages = _createTextMessages(params.message);
       return await client.replyMessage({

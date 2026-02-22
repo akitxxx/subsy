@@ -1,5 +1,4 @@
-import type { UserEntity } from '@/api/shared/domain/user';
-import type { UserRepository } from '@/api/shared/domain/user';
+import type { UserEntity, UserRepository } from '@/api/shared/domain/user';
 import { NotFoundError } from '@/api/shared/error';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import type { SessionUser } from '@/api/shared/types/sessionUser';
@@ -15,7 +14,7 @@ type Output = {
 };
 
 const run =
-  ({ sessionUser, db, userRepository }: Inject) =>
+  ({ sessionUser, db: _db, userRepository }: Inject) =>
   async (): Promise<Output> => {
     const user = await userRepository.findCurrentUserById({ id: sessionUser.id });
 

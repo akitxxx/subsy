@@ -1,3 +1,4 @@
+import type { MessageEvent, TextMessage } from '@line/bot-sdk';
 import type { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
 import { CreateUserDomainService } from '@/api/shared/domain/user/createUser.domainService';
 import type { UserRepository } from '@/api/shared/domain/user/user.repository';
@@ -5,7 +6,6 @@ import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import type { LineService } from '@/api/shared/lib/line';
 import type { OpenAIService } from '@/api/shared/lib/openai';
 import { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
-import type { MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk';
 import { executeFunctionByName } from './executionFunctionByName.workflow';
 
 type Inject = {
@@ -67,9 +67,12 @@ const sendMessage = async (lineService: LineService, event: MessageEvent, messag
  * メッセージイベントを処理する
  */
 const handleMessageEvent = async ({
-  inject: { db, lineService, openAiService, userRepository, subscriptionRepository },
+  inject: { db: _db, lineService, openAiService, userRepository, subscriptionRepository },
   event,
-}: { inject: Inject; event: MessageEvent }) => {
+}: {
+  inject: Inject;
+  event: MessageEvent;
+}) => {
   try {
     // 基本的な検証
     const validationResult = validateMessageEvent(event);

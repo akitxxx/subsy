@@ -1,6 +1,7 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Subscription, type SubscriptionEntity } from '@/api/shared/domain/subscription';
 import { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
-import { type DrizzleClient, getDrizzleClient } from '@/api/shared/lib/db/drizzle';
+import { getDrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { FunctionName } from '@/api/shared/lib/openai/subscription-functions';
 import { cleanupDB } from '@/api/shared/test/dbHelper';
 import { createActiveUser, createSubscription } from '@/api/shared/test/testDataFactory';
@@ -8,7 +9,6 @@ import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { LanguageEnum } from '@/shared/enums/language.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { executeFunctionByName } from './executionFunctionByName.workflow';
 
 describe('executeFunctionByName', () => {

@@ -1,11 +1,10 @@
-import { User } from '@/api/shared/domain/user';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { eq } from 'drizzle-orm';
 import type { UserRepository } from '@/api/shared/domain/user';
 import { CreateUserDomainService } from '@/api/shared/domain/user/createUser.domainService';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { userAuthsTable, usersTable } from '@/api/shared/lib/db/schema';
 import { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { eq } from 'drizzle-orm';
 
 type Inject = {
   supabase: SupabaseClient;

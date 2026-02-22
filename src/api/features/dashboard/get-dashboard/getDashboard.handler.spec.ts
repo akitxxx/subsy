@@ -1,15 +1,14 @@
-import { getDrizzleClient } from '@/api/shared/lib/db/drizzle';
+import { Hono } from 'hono';
+import { testClient } from 'hono/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
+import { getDrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { cleanupDB } from '@/api/shared/test/dbHelper';
-import { createActiveUser } from '@/api/shared/test/testDataFactory';
-import { createSubscription } from '@/api/shared/test/testDataFactory';
+import { createActiveUser, createSubscription } from '@/api/shared/test/testDataFactory';
 import type { HonoEnv } from '@/api/shared/types/hono';
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
-import { Hono } from 'hono';
-import { testClient } from 'hono/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getDashboardHandler } from './getDashboard.handler';
 
 describe('GET /api/dashboard', () => {
@@ -61,7 +60,7 @@ describe('GET /api/dashboard', () => {
         cancelledAt: null,
         expiredAt: null,
       });
-      const subscription3 = await createSubscription(db)({
+      const _subscription3 = await createSubscription(db)({
         userId: user.id,
         name: 'Test Subscription 3',
         price: '3000.00',

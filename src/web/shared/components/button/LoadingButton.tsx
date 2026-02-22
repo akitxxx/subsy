@@ -1,7 +1,7 @@
+import type { ReactNode } from 'react';
 import { Spinner } from '@/web/shared/components/ui/spinner';
 import { cn } from '@/web/shared/lib/utils';
-import type { ReactNode } from 'react';
-import { ActionButton, type ActionButtonProps, ButtonStateEnum } from './ActionButton';
+import { ActionButton, type ActionButtonProps } from './ActionButton';
 
 /**
  * スピナーの色のタイプ
