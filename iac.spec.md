@@ -197,21 +197,31 @@ infra/terraform/*.tfstate.backup
 
 ## terraform-plan.yml
 
-- トリガー: `infra/terraform/**` 変更を含む PR
-- 処理: `terraform init` → `fmt -check` → `validate` → `plan`
-- plan 結果を PR コメントに投稿
-- `terraform apply` はワークフローから実行しない（手動適用）
-- 必要な GitHub Secret: `TF_API_TOKEN`
+GitHub Actions ワークフローは使用しない。Terraform Cloud の VCS 連携で代替。
+
+TF Cloud workspace 設定（手動・初回のみ）:
+
+- General > Execution Mode: **Remote** に変更
+- Version Control: GitHub リポジトリを接続
+  - Working Directory: `infra/terraform`
+  - VCS Trigger Paths: `infra/terraform/**`（推奨）
+- Auto Apply: 有効（main マージ時に自動 apply）
+
+動作:
+
+- PR 時: TF Cloud が Speculative Plan を実行し、PR コメントに結果を投稿
+- main マージ時: TF Cloud が自動 apply
 
 ---
 
 ## State 管理
 
-Terraform Cloud（HCP Terraform Free）、Execution mode: **Local**。
+Terraform Cloud（HCP Terraform Free）、Execution mode: **Remote**（VCS 連携）。
 
-- 無料枠: 500リソースまで
-- plan/apply はローカルから実行、state のみクラウド保管
-- state ロック・バージョン管理が自動化
+- plan: main ブランチへの PR 時に TF Cloud が自動実行（Speculative Plan）
+- apply: PR の main へのマージ時に TF Cloud が自動実行（Auto Apply）
+- state: TF Cloud にクラウド保管、ロック・バージョン管理が自動化
+- Variables: TF Cloud workspace の Variables に設定（`terraform.tfvars` は不要）
 
 ---
 
@@ -219,8 +229,9 @@ Terraform Cloud（HCP Terraform Free）、Execution mode: **Local**。
 
 インフラ管理セクションを末尾に追加:
 - 管理ツール・ディレクトリ構成
-- 初回セットアップ手順（`terraform login` → tfvars 作成 → `init` → `plan` → `apply`）
-- 主要操作コマンド（`show` / `plan` / `apply` / `fmt` / `validate`）
+- 初回セットアップ手順（`terraform login` → `init` → TF Cloud Variables 設定）
+- 主要操作コマンド（`show` / `plan` / `fmt` / `validate`）
+- apply は main マージで TF Cloud が自動実行
 - 管理対象・管理対象外の明記（スキーマは Drizzle 管理のまま）
 
 ---
@@ -231,16 +242,20 @@ Terraform Cloud（HCP Terraform Free）、Execution mode: **Local**。
 
 1. `.gitignore` に Terraform エントリ追加
 2. `infra/terraform/` の全ファイル作成
-3. `.github/workflows/terraform-plan.yml` 作成
-4. `CLAUDE.md` 追記
+3. `CLAUDE.md` 追記
 
 ### Step 2: 環境セットアップ（初回のみ・手動）
 
-5. Terraform Cloud（https://app.terraform.io）でログインし、organization `pinolab` / workspace `subsy` を作成
-   - Execution mode: **Local** に設定すること
-6. `terraform.tfvars` を作成（tfvars.example をコピーして値を設定）
-7. `terraform login` を実行
-8. `terraform init`
+4. Terraform Cloud でワークスペース設定
+   - organization `pinolab` / workspace `subsy` を作成
+   - General > Execution Mode: **Remote** に変更
+   - Version Control: GitHub リポジトリを接続
+     - Working Directory: `infra/terraform`
+     - VCS Trigger Paths: `infra/terraform/**`
+   - Auto Apply: 有効
+   - Variables: 全変数を Terraform Variables として設定（sensitive 変数は Sensitive にチェック）
+5. `terraform login` を実行
+6. `terraform init`
 
 ### Step 3: Import（既存リソースの取り込み）
 

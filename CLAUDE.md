@@ -256,17 +256,17 @@ APIレイヤーはHonoを使用してルーティングとリクエスト処理�
 
 ### 管理ツールとディレクトリ
 
-- ツール: Terraform（HCP Terraform Free、Execution mode: Local）
+- ツール: Terraform（HCP Terraform Free、Execution mode: Remote / VCS 連携）
 - コード: `infra/terraform/`
-- ワークフロー: `.github/workflows/terraform-plan.yml`（PR 時に plan を実行）
+- plan: main ブランチへの PR 時に TF Cloud が自動実行
+- apply: main マージ時に TF Cloud が自動実行（Auto Apply）
 
 ### 初回セットアップ
 
+TF Cloud workspace で VCS 連携・Variables 設定後:
+
 ```bash
 cd infra/terraform
-cp terraform.tfvars.example terraform.tfvars
-# terraform.tfvars に実際の値を設定
-
 terraform login
 terraform init
 ```
@@ -275,10 +275,10 @@ terraform init
 
 ```bash
 terraform show      # state 表示
-terraform plan      # 差分確認
-terraform apply     # 反映（手動適用のみ）
+terraform plan      # 差分確認（ローカル確認用）
 terraform fmt       # フォーマット
 terraform validate  # 構文検証
+# apply は main マージで TF Cloud が自動実行
 ```
 
 ### 管理対象・管理対象外
