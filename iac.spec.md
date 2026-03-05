@@ -58,7 +58,6 @@ infra/terraform/
 ├── .terraform.lock.hcl        # providerバージョンロック（git管理対象）
 ├── terraform.tfvars.example   # 変数テンプレート（git管理対象）
 └── README.md                  # インフラ操作ガイド
-.github/workflows/terraform-plan.yml  # PR時にterraform planを実行
 ```
 
 変更対象:

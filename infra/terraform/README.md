@@ -7,19 +7,14 @@ Vercel + Supabase のインフラを Terraform で管理します。
 
 - Terraform >= 1.9
 - Terraform Cloud アカウント（organization: `pinolab`, workspace: `subsy`）
-  - Execution mode: **Local** に設定すること
-- Vercel API トークン
-- Supabase access token
+  - Execution mode: **Remote**（VCS 連携）
+- TF Cloud workspace の Variables に全変数を設定済みであること
 
 ## 初回セットアップ
 
 ```bash
 # Terraform Cloud にログイン
 terraform login
-
-# 変数ファイルを作成
-cp terraform.tfvars.example terraform.tfvars
-# terraform.tfvars を編集して実際の値を設定
 
 # プロバイダーの初期化
 terraform init
@@ -45,8 +40,6 @@ curl "https://api.vercel.com/v9/projects/prj_32sdS1T798it6d6eQ4VQe2G6CFLS/env" \
 terraform import vercel_project.subsy prj_32sdS1T798it6d6eQ4VQe2G6CFLS
 
 # Vercel 環境変数（各変数ごとに実行。ENV_VAR_ID は上記で確認した ID）
-terraform import vercel_project_environment_variable.node_env \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
 terraform import vercel_project_environment_variable.next_public_app_env \
   "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
 terraform import vercel_project_environment_variable.database_url \
@@ -67,6 +60,8 @@ terraform import vercel_project_environment_variable.next_public_supabase_url \
   "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
 terraform import vercel_project_environment_variable.next_public_supabase_anon_key \
   "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
+terraform import vercel_project_environment_variable.enable_experimental_corepack \
+  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
 
 # Supabase project
 terraform import supabase_project.subsy fxqwpmmojaggoqupdwuy
@@ -86,10 +81,10 @@ terraform plan
 
 ```bash
 terraform show      # 現在の state を表示
-terraform plan      # 差分を確認（apply 前に必ず実行）
-terraform apply     # インフラに反映（手動適用）
+terraform plan      # 差分確認（ローカル確認用、実行は TF Cloud 上）
 terraform fmt       # コードフォーマット
 terraform validate  # 構文検証
+# apply は main マージで TF Cloud が自動実行（Auto Apply）
 ```
 
 ## 管理対象
@@ -106,5 +101,5 @@ terraform validate  # 構文検証
 
 - Import 完了前に `terraform apply` しない（既存リソースを削除・再作成してしまう）
 - `terraform destroy` は慎重に（Supabase project 削除でデータ全消失）
-- `terraform.tfvars` は gitignore 対象（シークレットを含むため絶対にコミットしない）
+- シークレットは TF Cloud Variables で管理（ローカルに `terraform.tfvars` は不要）
 - `supabase_settings` の属性は `terraform providers schema -json` で確認できる
