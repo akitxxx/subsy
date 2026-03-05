@@ -140,21 +140,24 @@ provider "supabase" {
 vercel env ls
 ```
 
-`.env.example` に対応する環境変数（全 11 件）:
+環境変数（全 11 件）:
 
-| リソース名 | 環境変数キー | 値の参照元 |
-|------------|-------------|------------|
-| `node_env` | `NODE_ENV` | `"production"` （固定値） |
-| `next_public_app_env` | `NEXT_PUBLIC_APP_ENV` | `"production"` （固定値） |
-| `database_url` | `DATABASE_URL` | Supabase transaction pooler URL（ポート 6543） |
-| `line_channel_access_token` | `LINE_CHANNEL_ACCESS_TOKEN` | `var.line_channel_access_token` |
-| `line_channel_secret` | `LINE_CHANNEL_SECRET` | `var.line_channel_secret` |
-| `auth_google_client_id` | `AUTH_GOOGLE_CLIENT_ID` | `var.auth_google_client_id` |
-| `auth_google_client_secret` | `AUTH_GOOGLE_CLIENT_SECRET` | `var.auth_google_client_secret` |
-| `openai_api_key` | `OPENAI_API_KEY` | `var.openai_api_key` |
-| `next_public_api_host` | `NEXT_PUBLIC_API_HOST` | `var.next_public_api_host` |
-| `next_public_supabase_url` | `NEXT_PUBLIC_SUPABASE_URL` | `supabase_project.subsy` の output |
-| `next_public_supabase_anon_key` | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `supabase_project.subsy` の output |
+| リソース名 | 環境変数キー | target | 値の参照元 |
+|------------|-------------|--------|------------|
+| `next_public_app_env` | `NEXT_PUBLIC_APP_ENV` | production | `"production"` （固定値） |
+| `database_url` | `DATABASE_URL` | production | Supabase transaction pooler URL（ポート 6543） |
+| `next_public_api_host` | `NEXT_PUBLIC_API_HOST` | production | `var.next_public_api_host` |
+| `line_channel_access_token` | `LINE_CHANNEL_ACCESS_TOKEN` | all | `var.line_channel_access_token` |
+| `line_channel_secret` | `LINE_CHANNEL_SECRET` | all | `var.line_channel_secret` |
+| `auth_google_client_id` | `AUTH_GOOGLE_CLIENT_ID` | all | `var.auth_google_client_id` |
+| `auth_google_client_secret` | `AUTH_GOOGLE_CLIENT_SECRET` | all | `var.auth_google_client_secret` |
+| `openai_api_key` | `OPENAI_API_KEY` | all | `var.openai_api_key` |
+| `next_public_supabase_url` | `NEXT_PUBLIC_SUPABASE_URL` | all | `supabase_project.subsy` の output |
+| `next_public_supabase_anon_key` | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | all | `var.supabase_anon_key` |
+| `enable_experimental_corepack` | `ENABLE_EXPERIMENTAL_COREPACK` | all | `"1"` （固定値、pnpm 用） |
+
+- `NODE_ENV` は Vercel が自動設定するため Terraform 管理外
+- `_DB_PASSWORD` は不要（`DATABASE_URL` に DB パスワードを含む）
 
 DATABASE_URL の形式:
 ```

@@ -6,13 +6,6 @@ resource "vercel_project" "subsy" {
 # import 前に以下のコマンドで実際の設定を確認し、各リソースの target を合わせてください:
 #   vercel env ls
 
-resource "vercel_project_environment_variable" "node_env" {
-  project_id = vercel_project.subsy.id
-  key        = "NODE_ENV"
-  value      = "production"
-  target     = ["production"]
-}
-
 resource "vercel_project_environment_variable" "next_public_app_env" {
   project_id = vercel_project.subsy.id
   key        = "NEXT_PUBLIC_APP_ENV"
@@ -31,35 +24,35 @@ resource "vercel_project_environment_variable" "line_channel_access_token" {
   project_id = vercel_project.subsy.id
   key        = "LINE_CHANNEL_ACCESS_TOKEN"
   value      = var.line_channel_access_token
-  target     = ["production"]
+  target     = ["production", "preview", "development"]
 }
 
 resource "vercel_project_environment_variable" "line_channel_secret" {
   project_id = vercel_project.subsy.id
   key        = "LINE_CHANNEL_SECRET"
   value      = var.line_channel_secret
-  target     = ["production"]
+  target     = ["production", "preview", "development"]
 }
 
 resource "vercel_project_environment_variable" "auth_google_client_id" {
   project_id = vercel_project.subsy.id
   key        = "AUTH_GOOGLE_CLIENT_ID"
   value      = var.auth_google_client_id
-  target     = ["production"]
+  target     = ["production", "preview", "development"]
 }
 
 resource "vercel_project_environment_variable" "auth_google_client_secret" {
   project_id = vercel_project.subsy.id
   key        = "AUTH_GOOGLE_CLIENT_SECRET"
   value      = var.auth_google_client_secret
-  target     = ["production"]
+  target     = ["production", "preview", "development"]
 }
 
 resource "vercel_project_environment_variable" "openai_api_key" {
   project_id = vercel_project.subsy.id
   key        = "OPENAI_API_KEY"
   value      = var.openai_api_key
-  target     = ["production"]
+  target     = ["production", "preview", "development"]
 }
 
 resource "vercel_project_environment_variable" "next_public_api_host" {
@@ -73,12 +66,19 @@ resource "vercel_project_environment_variable" "next_public_supabase_url" {
   project_id = vercel_project.subsy.id
   key        = "NEXT_PUBLIC_SUPABASE_URL"
   value      = "https://${supabase_project.subsy.id}.supabase.co"
-  target     = ["production"]
+  target     = ["production", "preview", "development"]
 }
 
 resource "vercel_project_environment_variable" "next_public_supabase_anon_key" {
   project_id = vercel_project.subsy.id
   key        = "NEXT_PUBLIC_SUPABASE_ANON_KEY"
   value      = var.supabase_anon_key
-  target     = ["production"]
+  target     = ["production", "preview", "development"]
+}
+
+resource "vercel_project_environment_variable" "enable_experimental_corepack" {
+  project_id = vercel_project.subsy.id
+  key        = "ENABLE_EXPERIMENTAL_COREPACK"
+  value      = "1"
+  target     = ["production", "preview", "development"]
 }
