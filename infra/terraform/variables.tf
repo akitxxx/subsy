@@ -19,7 +19,6 @@ variable "supabase_db_password" {
 variable "supabase_anon_key" {
   description = "Supabase anonymous (public) API key"
   type        = string
-  sensitive   = true
 }
 
 variable "auth_google_client_id" {

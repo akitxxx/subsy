@@ -1,5 +1,6 @@
 resource "vercel_project" "subsy" {
-  name = "subsy"
+  name      = "subsy"
+  framework = "nextjs"
 }
 
 # 環境変数の target（environments）は変数ごとに異なる設定が Vercel GUI で行われています。
@@ -18,6 +19,7 @@ resource "vercel_project_environment_variable" "database_url" {
   key        = "DATABASE_URL"
   value      = "postgresql://postgres.fxqwpmmojaggoqupdwuy:${var.supabase_db_password}@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
   target     = ["production"]
+  sensitive  = true
 }
 
 resource "vercel_project_environment_variable" "line_channel_access_token" {
@@ -25,6 +27,7 @@ resource "vercel_project_environment_variable" "line_channel_access_token" {
   key        = "LINE_CHANNEL_ACCESS_TOKEN"
   value      = var.line_channel_access_token
   target     = ["production", "preview", "development"]
+  sensitive  = true
 }
 
 resource "vercel_project_environment_variable" "line_channel_secret" {
@@ -32,6 +35,7 @@ resource "vercel_project_environment_variable" "line_channel_secret" {
   key        = "LINE_CHANNEL_SECRET"
   value      = var.line_channel_secret
   target     = ["production", "preview", "development"]
+  sensitive  = true
 }
 
 resource "vercel_project_environment_variable" "auth_google_client_id" {
@@ -46,6 +50,7 @@ resource "vercel_project_environment_variable" "auth_google_client_secret" {
   key        = "AUTH_GOOGLE_CLIENT_SECRET"
   value      = var.auth_google_client_secret
   target     = ["production", "preview", "development"]
+  sensitive  = true
 }
 
 resource "vercel_project_environment_variable" "openai_api_key" {
@@ -53,6 +58,7 @@ resource "vercel_project_environment_variable" "openai_api_key" {
   key        = "OPENAI_API_KEY"
   value      = var.openai_api_key
   target     = ["production", "preview", "development"]
+  sensitive  = true
 }
 
 resource "vercel_project_environment_variable" "next_public_api_host" {
