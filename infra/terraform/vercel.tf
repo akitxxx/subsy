@@ -17,7 +17,7 @@ resource "vercel_project_environment_variable" "next_public_app_env" {
 resource "vercel_project_environment_variable" "database_url" {
   project_id = vercel_project.subsy.id
   key        = "DATABASE_URL"
-  value      = "postgresql://postgres.fxqwpmmojaggoqupdwuy:${var.supabase_db_password}@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
+  value      = "postgresql://postgres.${supabase_project.subsy.id}:${var.supabase_db_password}@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
   target     = ["production"]
   sensitive  = true
 }
