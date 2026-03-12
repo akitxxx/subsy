@@ -252,3 +252,40 @@ APIレイヤーはHonoを使用してルーティングとリクエスト処理�
 - 環境固有の設定はNext.jsの環境変数システムで処理
 - すべてのAPIルートは`/api/`プレフィックスを持つ
 
+## インフラ管理（Terraform）
+
+### 管理ツールとディレクトリ
+
+- ツール: Terraform（HCP Terraform Free、Execution mode: Remote / VCS 連携）
+- コード: `infra/terraform/`
+- plan: main ブランチへの PR 時に TF Cloud が自動実行
+- apply: main マージ時に TF Cloud が自動実行（Auto Apply）
+
+### 初回セットアップ
+
+TF Cloud workspace で VCS 連携・Variables 設定後:
+
+```bash
+cd infra/terraform
+terraform login
+terraform init
+```
+
+### 主要コマンド
+
+```bash
+terraform show      # state 表示
+terraform plan      # 差分確認（ローカル確認用）
+terraform fmt       # フォーマット
+terraform validate  # 構文検証
+# apply は main マージで TF Cloud が自動実行
+```
+
+### 管理対象・管理対象外
+
+| リソース | 管理 |
+|----------|------|
+| Vercel project・環境変数 | Terraform |
+| Supabase project・Auth 設定 | Terraform |
+| データベーススキーマ | Drizzle ORM（Terraform 管理外） |
+
