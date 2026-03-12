@@ -12,8 +12,8 @@ resource "supabase_settings" "subsy" {
   project_ref = supabase_project.subsy.id
 
   auth = jsonencode({
-    site_url                  = "https://subsy.vercel.app"
-    additional_redirect_urls  = ["https://subsy.vercel.app"]
+    site_url                  = var.next_public_api_host
+    additional_redirect_urls  = [var.next_public_api_host]
     external_google_enabled   = true
     external_google_client_id = var.auth_google_client_id
     external_google_secret    = var.auth_google_client_secret
