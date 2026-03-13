@@ -1,4 +1,5 @@
 import type { MessageEvent, TextMessage } from '@line/bot-sdk';
+import { Effect } from 'effect';
 import type { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
 import { CreateUserDomainService } from '@/api/shared/domain/user/createUser.domainService';
 import type { UserRepository } from '@/api/shared/domain/user/user.repository';
@@ -29,29 +30,38 @@ type Output = {
  */
 const run =
   (inject: Inject) =>
-  async ({ payload }: Input): Promise<Output> => {
-    console.dir({ 'LineWebhookUsecase.run': payload }, { depth: null });
+  ({ payload }: Input): Effect.Effect<Output, never> =>
+    Effect.gen(function* () {
+      console.dir({ 'LineWebhookUsecase.run': payload }, { depth: null });
 
-    // ペイロードのバリデーション
-    if (!payload || !payload.events || !Array.isArray(payload.events)) {
-      console.error('無効なLINE Webhookペイロード', payload);
-      return { success: false };
-    }
-
-    // イベントごとに処理
-    for (const event of payload.events) {
-      try {
-        // メッセージイベントだけを処理
-        if (!('message' in event && event.message.type === 'text')) return { success: false };
-
-        await handleMessageEvent({ inject, event: event as MessageEvent });
-      } catch (error) {
-        console.error('LINE Webhookイベント処理エラー:', error);
+      // ペイロードのバリデーション
+      if (!payload || !payload.events || !Array.isArray(payload.events)) {
+        console.error('無効なLINE Webhookペイロード', payload);
+        return { success: false };
       }
-    }
 
-    return { success: true };
-  };
+      // イベントごとに処理
+      yield* Effect.tryPromise({
+        try: () => processEvents(inject, payload.events),
+        catch: () => new Error('イベント処理に失敗しました'),
+      }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+
+      return { success: true };
+    });
+
+const processEvents = async (inject: Inject, events: LineEvent[]): Promise<boolean> => {
+  for (const event of events) {
+    try {
+      // メッセージイベントだけを処理
+      if (!('message' in event && event.message.type === 'text')) return false;
+
+      await handleMessageEvent({ inject, event: event as MessageEvent });
+    } catch (error) {
+      console.error('LINE Webhookイベント処理エラー:', error);
+    }
+  }
+  return true;
+};
 
 // ==========
 

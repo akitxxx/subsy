@@ -1,6 +1,7 @@
+import { Effect } from 'effect';
+import { createFactory } from 'hono/factory';
 import { UserRepository } from '@/api/shared/domain/user/user.repository';
 import type { HonoEnv } from '@/api/shared/types/hono';
-import { createFactory } from 'hono/factory';
 import { OAuthCallbackUsecase } from './oauthCallback.usecase';
 
 const factory = createFactory<HonoEnv>();
@@ -18,12 +19,14 @@ export const oauthCallbackHandler = factory.createHandlers(async (c) => {
   const db = c.get('db');
   const supabase = c.get('supabase');
 
-  const { error } = await OAuthCallbackUsecase.run({
-    db,
-    supabase,
-    authCode: code,
-    userRepository: UserRepository.new({ db }),
-  })();
+  const { error } = await Effect.runPromise(
+    OAuthCallbackUsecase.run({
+      db,
+      supabase,
+      authCode: code,
+      userRepository: UserRepository.new({ db }),
+    })(),
+  );
 
   if (error) {
     console.error({ 'auth callback error': error });

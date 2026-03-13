@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
 import type { UserRepository } from '@/api/shared/domain/user';
 import { CreateUserDomainService } from '@/api/shared/domain/user/createUser.domainService';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
@@ -19,28 +20,42 @@ type Output = {
 
 const run =
   ({ db, supabase, authCode, userRepository }: Inject) =>
-  async (): Promise<Output> => {
-    const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
+  (): Effect.Effect<Output, never> =>
+    Effect.gen(function* () {
+      const sessionResult = yield* Effect.tryPromise({
+        try: () => supabase.auth.exchangeCodeForSession(authCode),
+        catch: (e) => e as Error,
+      }).pipe(Effect.catchAll((e) => Effect.succeed({ data: null, error: e })));
 
-    if (error) return { error };
+      if (sessionResult.error) return { error: sessionResult.error as Error };
 
-    const [user] = await db
-      .select({ id: usersTable.id })
-      .from(userAuthsTable)
-      .innerJoin(usersTable, eq(userAuthsTable.userId, usersTable.id))
-      .where(eq(userAuthsTable.providerId, data.user.id));
+      const data = sessionResult.data;
+      if (!data) return { error: new Error('No session data') };
 
-    if (user) return { error: null };
+      const users = yield* Effect.tryPromise({
+        try: () =>
+          db
+            .select({ id: usersTable.id })
+            .from(userAuthsTable)
+            .innerJoin(usersTable, eq(userAuthsTable.userId, usersTable.id))
+            .where(eq(userAuthsTable.providerId, data.user.id)),
+        catch: (e) => e as Error,
+      }).pipe(Effect.catchAll(() => Effect.succeed([] as { id: string }[])));
 
-    // DBにUserレコードがなければ作成する
-    if (!user) {
-      await CreateUserDomainService.run({ userRepository })({
-        provider: ProviderEnum.Google, // TODO: プロバイダーによって変える
-        providerId: data.user.id,
-      });
-    }
+      const user = users[0];
+      if (user) return { error: null };
 
-    return { error: null };
-  };
+      // DBにUserレコードがなければ作成する
+      yield* Effect.tryPromise({
+        try: () =>
+          CreateUserDomainService.run({ userRepository })({
+            provider: ProviderEnum.Google, // TODO: プロバイダーによって変える
+            providerId: data.user.id,
+          }),
+        catch: (e) => e as Error,
+      }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+
+      return { error: null };
+    });
 
 export const OAuthCallbackUsecase = { run };
