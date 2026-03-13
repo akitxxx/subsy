@@ -1,5 +1,6 @@
-import type { SubscriptionEntity } from '@/api/shared/domain/subscription';
-import type { SubscriptionRepository } from '@/api/shared/domain/subscription';
+import { Effect } from 'effect';
+import type { SubscriptionEntity, SubscriptionRepository } from '@/api/shared/domain/subscription';
+import { InternalServerError } from '@/api/shared/error/errors';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { DateUtils } from '@/shared/utils/date.util';
 
@@ -17,11 +18,15 @@ type Output = {
 };
 
 const run = ({ subscriptionRepository }: Inject) => {
-  return async (p: Input): Promise<Output> => {
-    const now = DateUtils.create.now();
-    const subscriptions = await subscriptionRepository.findManyActiveAndRecentlyExpired({ userId: p.userId, now });
-    return { subscriptions };
-  };
+  return (p: Input): Effect.Effect<Output, InternalServerError> =>
+    Effect.gen(function* () {
+      const now = DateUtils.create.now();
+      const subscriptions = yield* Effect.tryPromise({
+        try: () => subscriptionRepository.findManyActiveAndRecentlyExpired({ userId: p.userId, now }),
+        catch: () => new InternalServerError('サブスクリプションの取得に失敗しました'),
+      });
+      return { subscriptions };
+    });
 };
 
 export const GetSubscriptionsUsecase = { run };
