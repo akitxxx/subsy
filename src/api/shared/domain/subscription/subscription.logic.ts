@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { match } from 'ts-pattern';
 import type { SelectSubscription } from '@/api/shared/lib/db/schema';
 import type { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { SubscriptionStatusEnum } from '@/shared/enums/subscription/subscriptionStatus.enum';
@@ -57,12 +58,7 @@ const getNextPaymentAt = (e: SubscriptionEntity) => (now: Date) => {
  * 次回支払日は常に00:00:00形式でサイクル終了日の翌日を返します。
  * これはexpiredAt（23:59:59.999形式）の1ミリ秒後に相当します。
  */
-const _calculateNextPaymentAt = (p: {
-  cycle: SubscriptionCycleEnum;
-  startedAt: Date;
-  cancelledAt: Date | null;
-  now: Date;
-}): Date => {
+const _calculateNextPaymentAt = (p: { cycle: SubscriptionCycleEnum; startedAt: Date; cancelledAt: Date | null; now: Date }): Date => {
   if (p.now < p.startedAt) return p.startedAt;
   // サイクルに応じて月数を計算
   const monthsPerCycle: number = SubscriptionUtils.calculate.getMonthsFromCycle(p.cycle);
@@ -105,11 +101,7 @@ const _calculateNextPaymentAt = (p: {
  * 期限切れ日は現在のサイクルの最終日の23:59:59.999形式で設定されます。
  * これはnextPaymentAtの1ミリ秒前に相当します。
  */
-const _calculateExpiredAt = (p: {
-  cycle: SubscriptionCycleEnum;
-  startedAt: Date;
-  cancelledAt: Date | null;
-}): Date | null => {
+const _calculateExpiredAt = (p: { cycle: SubscriptionCycleEnum; startedAt: Date; cancelledAt: Date | null }): Date | null => {
   if (!p.cancelledAt) return null;
 
   const nextPaymentAtFromCancelledAt = _calculateNextPaymentAt({
@@ -198,6 +190,16 @@ const update =
   };
 
 /**
+ * ステータスの表示文字列を取得
+ */
+const getStatusLabel = (status: SubscriptionStatusEnum): string =>
+  match(status)
+    .with(SubscriptionStatusEnum.Active, () => '利用中')
+    .with(SubscriptionStatusEnum.Cancelled, () => 'キャンセル済み')
+    .with(SubscriptionStatusEnum.Expired, () => '期限切れ')
+    .exhaustive();
+
+/**
  * DBからの取得データをエンティティに変換
  */
 const parseEntity = (data: SelectSubscription) => {
@@ -206,6 +208,7 @@ const parseEntity = (data: SelectSubscription) => {
 
 export const Subscription = {
   getStatus,
+  getStatusLabel,
   getIsInUse,
   getIsCancelled,
   getIsExpired,
