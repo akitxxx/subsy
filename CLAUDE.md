@@ -6,6 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 基本的には日本語で回答すること
 
+## 開発方針
+
+- プロジェクトのすべてのコンテキスト（コード、インフラ、設定、ドキュメント）をgitで管理する
+- AIが自律的に開発できる状態を目指し、必要な情報はリポジトリ内に集約する
+
 ## 技術スタック
 
 - **フレームワーク**: Next.js with App Router (v15.1.4)

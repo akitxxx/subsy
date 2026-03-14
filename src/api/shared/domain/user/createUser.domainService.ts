@@ -1,3 +1,5 @@
+import type { Effect } from 'effect';
+import type { InternalServerError } from '@/api/shared/error/errors';
 import type { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
 import { User } from './user.logic';
 import type { UserRepository } from './user.repository';
@@ -13,12 +15,12 @@ type Input = {
 
 const run =
   ({ userRepository }: Inject) =>
-  async (input: Input) => {
+  (input: Input): Effect.Effect<void, InternalServerError> => {
     const newUser = User.newUser({
       userAuth: { provider: input.provider, providerId: input.providerId },
     });
 
-    await userRepository.create({ entity: newUser });
+    return userRepository.create({ entity: newUser });
   };
 
 export const CreateUserDomainService = { run };

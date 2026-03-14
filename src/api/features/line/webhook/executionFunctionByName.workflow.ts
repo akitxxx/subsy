@@ -1,3 +1,5 @@
+import { Effect } from 'effect';
+import { match } from 'ts-pattern';
 import { Subscription, type SubscriptionEntity, type SubscriptionRepository } from '@/api/shared/domain/subscription';
 import type {
   DeleteSubscriptionFunctionArgs,
@@ -11,7 +13,6 @@ import { FunctionName } from '@/api/shared/lib/openai/subscription-functions';
 import { CurrencyEnum, getCurrentPrefix } from '@/shared/enums/currency.enum';
 import { LanguageEnum } from '@/shared/enums/language.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
-import { SubscriptionStatusEnum } from '@/shared/enums/subscription/subscriptionStatus.enum';
 import { DateUtils } from '@/shared/utils/date.util';
 import { PriceUtils } from '@/shared/utils/price.util';
 
@@ -42,24 +43,17 @@ export const executeFunctionByName =
     const { name, args } = functionCall;
 
     try {
-      switch (name) {
-        case FunctionName.createSubscription:
-          return handleCreateSubscription(inject, userId, args as SubscriptionFunctionArgs);
-        case FunctionName.getSubscriptions:
-          return handleGetSubscriptions(subscriptions);
-        case FunctionName.getSubscriptionDetail:
-          return handleGetSubscriptionDetail(subscriptions, args as GetSubscriptionDetailFunctionArgs);
-        case FunctionName.updateSubscription:
-          return handleUpdateSubscription(inject, subscriptions, args as UpdateSubscriptionFunctionArgs);
-        case FunctionName.deleteSubscription:
-          return handleDeleteSubscription(inject, userId, subscriptions, args as DeleteSubscriptionFunctionArgs);
-        case FunctionName.sendMessage:
-          return handleSendMessage(inject, args as SendMessageFunctionArgs);
-        case FunctionName.getMonthlyTotal:
-          return handleGetMonthlyTotal(subscriptions, args as GetMonthlyTotalFunctionArgs);
-        default:
+      return await match(name)
+        .with(FunctionName.createSubscription, () => handleCreateSubscription(inject, userId, args as SubscriptionFunctionArgs))
+        .with(FunctionName.getSubscriptions, () => handleGetSubscriptions(subscriptions))
+        .with(FunctionName.getSubscriptionDetail, () => handleGetSubscriptionDetail(subscriptions, args as GetSubscriptionDetailFunctionArgs))
+        .with(FunctionName.updateSubscription, () => handleUpdateSubscription(inject, subscriptions, args as UpdateSubscriptionFunctionArgs))
+        .with(FunctionName.deleteSubscription, () => handleDeleteSubscription(inject, userId, subscriptions, args as DeleteSubscriptionFunctionArgs))
+        .with(FunctionName.sendMessage, () => handleSendMessage(inject, args as SendMessageFunctionArgs))
+        .with(FunctionName.getMonthlyTotal, () => handleGetMonthlyTotal(subscriptions, args as GetMonthlyTotalFunctionArgs))
+        .otherwise(() => {
           throw new Error(`未知の機能: ${name}`);
-      }
+        });
     } catch (error) {
       console.error(`関数実行エラー: ${name}`, error);
       return { message: `処理中にエラーが発生しました: ${(error as Error).message}` };
@@ -87,7 +81,7 @@ const handleCreateSubscription = async (inject: Inject, userId: string, args: Su
     description: args.description ?? null,
   });
 
-  await inject.subscriptionRepository.create({ entity: newSubscription });
+  await Effect.runPromise(inject.subscriptionRepository.create({ entity: newSubscription }));
 
   return {
     message: `サブスクリプションを登録しました。\n\n${formatSubscriptionDetails(newSubscription)}`,
@@ -157,7 +151,7 @@ const handleUpdateSubscription = async (
     description: args.description ?? subscription.description,
   });
 
-  await inject.subscriptionRepository.update({ entity: updatedSubscription });
+  await Effect.runPromise(inject.subscriptionRepository.update({ entity: updatedSubscription }));
 
   return {
     message: `サブスクリプションを更新しました。\n\n${formatSubscriptionDetails(updatedSubscription)}`,
@@ -178,7 +172,7 @@ const handleDeleteSubscription = async (
   const subscription = subscriptions.find((s) => s.id === args.id);
   if (!subscription) return { message: 'サブスクリプションが見つかりません' };
 
-  await inject.subscriptionRepository.delete({ id: args.id, userId });
+  await Effect.runPromise(inject.subscriptionRepository.delete({ id: args.id, userId }));
 
   return {
     message: `サブスクリプションを削除しました。\n\n${formatSubscriptionDetails(subscription)}`,
@@ -287,7 +281,7 @@ const aggregatePayments = (payments: (PaymentInfo | null)[]): AggregatedPayments
     (acc, payment) => {
       if (payment.currency === CurrencyEnum.Jpy) {
         acc.totalJpy += payment.amount;
-      } else if (payment.currency === CurrencyEnum.Usd) {
+      } else {
         acc.totalUsd += payment.amount;
       }
 
@@ -311,17 +305,8 @@ const formatSubscriptionDetails = (subscription: SubscriptionEntity): string => 
   const cancelInfo = subscription.cancelledAt ? `キャンセル: ${formatDate(subscription.cancelledAt)}\n` : '';
   const expireInfo = subscription.expiredAt ? `期限切れ: ${formatDate(subscription.expiredAt)}\n` : '';
 
-  const statusStr = (() => {
-    const status = Subscription.getStatus(subscription)(now);
-    switch (status) {
-      case SubscriptionStatusEnum.Cancelled:
-        return 'キャンセル済み';
-      case SubscriptionStatusEnum.Expired:
-        return '期限切れ';
-      default:
-        return '利用中';
-    }
-  })();
+  const status = Subscription.getStatus(subscription)(now);
+  const statusStr = Subscription.getStatusLabel(status);
 
   return `名前: ${subscription.name}
 ステータス: ${statusStr}
@@ -340,30 +325,19 @@ const formatDate = (date: Date): string => {
 /**
  * 価格をフォーマットする補助関数
  */
-const formatPrice = (price: string, currency: CurrencyEnum): string => {
-  switch (currency) {
-    case CurrencyEnum.Jpy:
-      // 小数点以下を切り捨て
-      return `${getCurrentPrefix(currency)}${Math.floor(Number(price)).toLocaleString()}`;
-    case CurrencyEnum.Usd:
-      return `${getCurrentPrefix(currency)}${price.toLocaleString()}`;
-  }
-};
+const formatPrice = (price: string, currency: CurrencyEnum): string =>
+  match(currency)
+    .with(CurrencyEnum.Jpy, () => `${getCurrentPrefix(currency)}${Math.floor(Number(price)).toLocaleString()}`)
+    .with(CurrencyEnum.Usd, () => `${getCurrentPrefix(currency)}${price.toLocaleString()}`)
+    .exhaustive();
 
 /**
  * サイクル文字列から表示用の期間文字列を取得する補助関数
  */
-const getCycleMonths = (cycle: SubscriptionCycleEnum): string => {
-  switch (cycle) {
-    case SubscriptionCycleEnum.OneMonth:
-      return '月';
-    case SubscriptionCycleEnum.ThreeMonths:
-      return '3ヶ月';
-    case SubscriptionCycleEnum.SixMonths:
-      return '6ヶ月';
-    case SubscriptionCycleEnum.OneYear:
-      return '年';
-    default:
-      return '月';
-  }
-};
+const getCycleMonths = (cycle: SubscriptionCycleEnum): string =>
+  match(cycle)
+    .with(SubscriptionCycleEnum.OneMonth, () => '月')
+    .with(SubscriptionCycleEnum.ThreeMonths, () => '3ヶ月')
+    .with(SubscriptionCycleEnum.SixMonths, () => '6ヶ月')
+    .with(SubscriptionCycleEnum.OneYear, () => '年')
+    .exhaustive();

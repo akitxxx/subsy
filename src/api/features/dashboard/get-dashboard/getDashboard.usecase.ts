@@ -1,6 +1,7 @@
-import type { SubscriptionEntity } from '@/api/shared/domain/subscription';
+import { Effect } from 'effect';
+import type { SubscriptionEntity, SubscriptionRepository } from '@/api/shared/domain/subscription';
 import { Subscription } from '@/api/shared/domain/subscription';
-import type { SubscriptionRepository } from '@/api/shared/domain/subscription';
+import type { InternalServerError } from '@/api/shared/error/errors';
 import type { SessionUser } from '@/api/shared/types/sessionUser';
 import { DateUtils } from '@/shared/utils/date.util';
 
@@ -59,17 +60,18 @@ const getUpcomingSubscriptions = (now: Date, subscriptions: SubscriptionEntity[]
 
 const run =
   ({ sessionUser, subscriptionRepository }: Inject) =>
-  async (): Promise<Output> => {
-    const now = DateUtils.create.now();
-    const subscriptions = await subscriptionRepository.findManyActiveAndRecentlyExpired({ userId: sessionUser.id, now });
+  (): Effect.Effect<Output, InternalServerError> =>
+    Effect.gen(function* () {
+      const now = DateUtils.create.now();
+      const subscriptions = yield* subscriptionRepository.findManyActiveAndRecentlyExpired({ userId: sessionUser.id, now });
 
-    const totalThisMonth = calculateTotalAmount(now, subscriptions);
-    const upcomingSubscriptions = getUpcomingSubscriptions(now, subscriptions);
+      const totalThisMonth = calculateTotalAmount(now, subscriptions);
+      const upcomingSubscriptions = getUpcomingSubscriptions(now, subscriptions);
 
-    return {
-      totalThisMonth,
-      upcomingSubscriptions,
-    };
-  };
+      return {
+        totalThisMonth,
+        upcomingSubscriptions,
+      };
+    });
 
 export const GetDashboardUsecase = { run };

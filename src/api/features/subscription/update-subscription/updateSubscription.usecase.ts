@@ -1,7 +1,8 @@
+import { Effect } from 'effect';
 import type { SubscriptionEntity } from '@/api/shared/domain/subscription';
 import { Subscription } from '@/api/shared/domain/subscription';
 import type { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
-import { NotFoundError } from '@/api/shared/error/errors';
+import { type InternalServerError, NotFoundError } from '@/api/shared/error/errors';
 import type { SessionUser } from '@/api/shared/types/sessionUser';
 import type { CurrencyEnum } from '@/shared/enums/currency.enum';
 import type { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
@@ -28,23 +29,24 @@ type Output = {
 
 const run =
   ({ sessionUser, subscriptionRepository }: Inject) =>
-  async (input: Input): Promise<Output> => {
-    const subscription = await subscriptionRepository.findByIdAndUserId({ id: input.subscriptionId, userId: sessionUser.id });
-    if (!subscription) throw new NotFoundError('サブスクリプションが見つかりません');
+  (input: Input): Effect.Effect<Output, NotFoundError | InternalServerError> =>
+    Effect.gen(function* () {
+      const subscription = yield* subscriptionRepository.findByIdAndUserId({ id: input.subscriptionId, userId: sessionUser.id });
+      if (!subscription) return yield* Effect.fail(new NotFoundError('サブスクリプションが見つかりません'));
 
-    const updatedSubscription = Subscription.update(subscription)({
-      name: input.name,
-      price: input.price,
-      currency: input.currency,
-      cycle: input.cycle,
-      startedAt: input.startedAt,
-      cancelledAt: input.cancelledAt,
-      description: input.description,
+      const updatedSubscription = Subscription.update(subscription)({
+        name: input.name,
+        price: input.price,
+        currency: input.currency,
+        cycle: input.cycle,
+        startedAt: input.startedAt,
+        cancelledAt: input.cancelledAt,
+        description: input.description,
+      });
+
+      yield* subscriptionRepository.update({ entity: updatedSubscription });
+
+      return { subscription: updatedSubscription };
     });
-
-    await subscriptionRepository.update({ entity: updatedSubscription });
-
-    return { subscription: updatedSubscription };
-  };
 
 export const UpdateSubscriptionUsecase = { run };
