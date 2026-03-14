@@ -1,3 +1,4 @@
+import { Effect } from 'effect';
 import { match } from 'ts-pattern';
 import { Subscription, type SubscriptionEntity, type SubscriptionRepository } from '@/api/shared/domain/subscription';
 import type {
@@ -80,7 +81,7 @@ const handleCreateSubscription = async (inject: Inject, userId: string, args: Su
     description: args.description ?? null,
   });
 
-  await inject.subscriptionRepository.create({ entity: newSubscription });
+  await Effect.runPromise(inject.subscriptionRepository.create({ entity: newSubscription }));
 
   return {
     message: `サブスクリプションを登録しました。\n\n${formatSubscriptionDetails(newSubscription)}`,
@@ -150,7 +151,7 @@ const handleUpdateSubscription = async (
     description: args.description ?? subscription.description,
   });
 
-  await inject.subscriptionRepository.update({ entity: updatedSubscription });
+  await Effect.runPromise(inject.subscriptionRepository.update({ entity: updatedSubscription }));
 
   return {
     message: `サブスクリプションを更新しました。\n\n${formatSubscriptionDetails(updatedSubscription)}`,
@@ -171,7 +172,7 @@ const handleDeleteSubscription = async (
   const subscription = subscriptions.find((s) => s.id === args.id);
   if (!subscription) return { message: 'サブスクリプションが見つかりません' };
 
-  await inject.subscriptionRepository.delete({ id: args.id, userId });
+  await Effect.runPromise(inject.subscriptionRepository.delete({ id: args.id, userId }));
 
   return {
     message: `サブスクリプションを削除しました。\n\n${formatSubscriptionDetails(subscription)}`,

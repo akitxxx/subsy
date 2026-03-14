@@ -94,14 +94,14 @@ const handleMessageEvent = async ({
     const { userId: lineUserId, messageText } = validationResult;
 
     // userレコード取得
-    const user = await userRepository.findByLineUserId({ lineUserId });
+    const user = await Effect.runPromise(userRepository.findByLineUserId({ lineUserId }));
     if (!user) {
       await CreateUserDomainService.run({ userRepository })({ provider: ProviderEnum.Line, providerId: lineUserId });
       return;
     }
 
     // サブスクリプション一覧取得
-    const subscriptions = await subscriptionRepository.findManyByUserId({ userId: user.id });
+    const subscriptions = await Effect.runPromise(subscriptionRepository.findManyByUserId({ userId: user.id }));
 
     // OpenAI APIでメッセージをパース
     const result = await openAiService.parseSubscriptionIntent({ userMessage: messageText, subscriptions });

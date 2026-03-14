@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
 import type { UserEntity, UserRepository } from '@/api/shared/domain/user';
-import { NotFoundError } from '@/api/shared/error';
+import { type InternalServerError, NotFoundError } from '@/api/shared/error';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import type { SessionUser } from '@/api/shared/types/sessionUser';
 
@@ -16,12 +16,9 @@ type Output = {
 
 const run =
   ({ sessionUser, db: _db, userRepository }: Inject) =>
-  (): Effect.Effect<Output, NotFoundError> =>
+  (): Effect.Effect<Output, NotFoundError | InternalServerError> =>
     Effect.gen(function* () {
-      const user = yield* Effect.tryPromise({
-        try: () => userRepository.findCurrentUserById({ id: sessionUser.id }),
-        catch: () => new NotFoundError('ユーザーが見つかりません'),
-      });
+      const user = yield* userRepository.findCurrentUserById({ id: sessionUser.id });
 
       if (!user) {
         console.error('ユーザーが見つかりません', { sessionUserId: sessionUser.id });

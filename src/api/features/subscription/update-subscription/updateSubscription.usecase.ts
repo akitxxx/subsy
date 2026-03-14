@@ -2,7 +2,7 @@ import { Effect } from 'effect';
 import type { SubscriptionEntity } from '@/api/shared/domain/subscription';
 import { Subscription } from '@/api/shared/domain/subscription';
 import type { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
-import { InternalServerError, NotFoundError } from '@/api/shared/error/errors';
+import { type InternalServerError, NotFoundError } from '@/api/shared/error/errors';
 import type { SessionUser } from '@/api/shared/types/sessionUser';
 import type { CurrencyEnum } from '@/shared/enums/currency.enum';
 import type { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
@@ -31,10 +31,7 @@ const run =
   ({ sessionUser, subscriptionRepository }: Inject) =>
   (input: Input): Effect.Effect<Output, NotFoundError | InternalServerError> =>
     Effect.gen(function* () {
-      const subscription = yield* Effect.tryPromise({
-        try: () => subscriptionRepository.findByIdAndUserId({ id: input.subscriptionId, userId: sessionUser.id }),
-        catch: () => new InternalServerError('サブスクリプションの取得に失敗しました'),
-      });
+      const subscription = yield* subscriptionRepository.findByIdAndUserId({ id: input.subscriptionId, userId: sessionUser.id });
       if (!subscription) return yield* Effect.fail(new NotFoundError('サブスクリプションが見つかりません'));
 
       const updatedSubscription = Subscription.update(subscription)({
@@ -47,10 +44,7 @@ const run =
         description: input.description,
       });
 
-      yield* Effect.tryPromise({
-        try: () => subscriptionRepository.update({ entity: updatedSubscription }),
-        catch: () => new InternalServerError('サブスクリプションの更新に失敗しました'),
-      });
+      yield* subscriptionRepository.update({ entity: updatedSubscription });
 
       return { subscription: updatedSubscription };
     });

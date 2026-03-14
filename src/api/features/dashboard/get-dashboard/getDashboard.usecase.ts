@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import type { SubscriptionEntity, SubscriptionRepository } from '@/api/shared/domain/subscription';
 import { Subscription } from '@/api/shared/domain/subscription';
-import { InternalServerError } from '@/api/shared/error/errors';
+import type { InternalServerError } from '@/api/shared/error/errors';
 import type { SessionUser } from '@/api/shared/types/sessionUser';
 import { DateUtils } from '@/shared/utils/date.util';
 
@@ -63,10 +63,7 @@ const run =
   (): Effect.Effect<Output, InternalServerError> =>
     Effect.gen(function* () {
       const now = DateUtils.create.now();
-      const subscriptions = yield* Effect.tryPromise({
-        try: () => subscriptionRepository.findManyActiveAndRecentlyExpired({ userId: sessionUser.id, now }),
-        catch: () => new InternalServerError('サブスクリプションの取得に失敗しました'),
-      });
+      const subscriptions = yield* subscriptionRepository.findManyActiveAndRecentlyExpired({ userId: sessionUser.id, now });
 
       const totalThisMonth = calculateTotalAmount(now, subscriptions);
       const upcomingSubscriptions = getUpcomingSubscriptions(now, subscriptions);
