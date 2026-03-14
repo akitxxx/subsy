@@ -1,6 +1,10 @@
 pre-commit:
   commands:
-    check:
-      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
-      run: npx @biomejs/biome check --write --files-ignore-unknown=true {staged_files}
+    lint:
+      glob: "*.{js,ts,cjs,mjs,jsx,tsx}"
+      run: npx oxlint {staged_files}
+      stage_fixed: true
+    format:
+      glob: "*.{js,ts,cjs,mjs,jsx,tsx,json,jsonc,css}"
+      run: npx oxfmt --write {staged_files}
       stage_fixed: true
