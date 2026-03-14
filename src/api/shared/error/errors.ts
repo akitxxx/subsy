@@ -1,7 +1,7 @@
 import type { ErrorType, StatusCode } from '@/shared/types/error';
 
 // 基底エラークラス
-class AppError extends Error {
+export class AppError extends Error {
   constructor(
     public readonly type: ErrorType,
     public readonly title: string,

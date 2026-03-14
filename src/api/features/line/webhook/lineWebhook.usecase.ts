@@ -41,49 +41,42 @@ const run =
       }
 
       // イベントごとに処理
-      yield* Effect.tryPromise({
-        try: () => processEvents(inject, payload.events),
-        catch: () => new Error('イベント処理に失敗しました'),
-      }).pipe(Effect.catchAll(() => Effect.succeed(undefined)));
+      yield* processEvents(inject, payload.events);
 
       return { success: true };
     });
 
-const processEvents = async (inject: Inject, events: LineEvent[]): Promise<boolean> => {
-  for (const event of events) {
-    try {
-      // メッセージイベントだけを処理
-      if (!('message' in event && event.message.type === 'text')) return false;
-
-      await handleMessageEvent({ inject, event: event as MessageEvent });
-    } catch (error) {
-      console.error('LINE Webhookイベント処理エラー:', error);
-    }
-  }
-  return true;
-};
+const processEvents = (inject: Inject, events: LineEvent[]): Effect.Effect<void, never> =>
+  Effect.forEach(
+    events,
+    (event) => {
+      if (!('message' in event && event.message.type === 'text')) return Effect.void;
+      return handleMessageEvent({ inject, event: event as MessageEvent });
+    },
+    { discard: true },
+  );
 
 // ==========
 
-const sendMessage = async (lineService: LineService, event: MessageEvent, message: string) => {
+const sendMessage = (lineService: LineService, event: MessageEvent, message: string): Effect.Effect<void, never> => {
   if (!message || !event.replyToken) {
     console.error('not found message or replyToken', { message, event });
-    return;
+    return Effect.void;
   }
-  await lineService.replyMessage({ replyToken: event.replyToken, message });
+  return Effect.tryPromise(() => lineService.replyMessage({ replyToken: event.replyToken, message })).pipe(Effect.catchAll(() => Effect.void));
 };
 
 /**
  * メッセージイベントを処理する
  */
-const handleMessageEvent = async ({
+const handleMessageEvent = ({
   inject: { db: _db, lineService, openAiService, userRepository, subscriptionRepository },
   event,
 }: {
   inject: Inject;
   event: MessageEvent;
-}) => {
-  try {
+}): Effect.Effect<void, never> =>
+  Effect.gen(function* () {
     // 基本的な検証
     const validationResult = validateMessageEvent(event);
     if (!validationResult) {
@@ -94,38 +87,42 @@ const handleMessageEvent = async ({
     const { userId: lineUserId, messageText } = validationResult;
 
     // userレコード取得
-    const user = await Effect.runPromise(userRepository.findByLineUserId({ lineUserId }));
+    const user = yield* userRepository.findByLineUserId({ lineUserId });
     if (!user) {
-      await CreateUserDomainService.run({ userRepository })({ provider: ProviderEnum.Line, providerId: lineUserId });
+      yield* CreateUserDomainService.run({ userRepository })({ provider: ProviderEnum.Line, providerId: lineUserId });
       return;
     }
 
     // サブスクリプション一覧取得
-    const subscriptions = await Effect.runPromise(subscriptionRepository.findManyByUserId({ userId: user.id }));
+    const subscriptions = yield* subscriptionRepository.findManyByUserId({ userId: user.id });
 
     // OpenAI APIでメッセージをパース
-    const result = await openAiService.parseSubscriptionIntent({ userMessage: messageText, subscriptions });
+    const result = yield* Effect.tryPromise(() => openAiService.parseSubscriptionIntent({ userMessage: messageText, subscriptions }));
 
     // 対応する機能がなかった場合はメッセージを返す
-    if (!result.functionCall) {
-      await sendMessage(lineService, event, 'サブスクリプションに関する操作を指定してください。');
+    const { functionCall } = result;
+    if (!functionCall) {
+      yield* sendMessage(lineService, event, 'サブスクリプションに関する操作を指定してください。');
       return;
     }
 
     // 機能に応じた処理を実行して返信メッセージを取得
-    const functionResult = await executeFunctionByName({ subscriptionRepository })({
-      userId: user.id,
-      subscriptions,
-      functionCall: result.functionCall,
-    });
+    const functionResult = yield* Effect.tryPromise(() =>
+      executeFunctionByName({ subscriptionRepository })({
+        userId: user.id,
+        subscriptions,
+        functionCall,
+      }),
+    );
 
     // 結果をLINEで返信
-    await sendMessage(lineService, event, functionResult.message);
-  } catch (error) {
-    console.error('OpenAI API呼び出しエラー:', error);
-    await handleError(lineService, event);
-  }
-};
+    yield* sendMessage(lineService, event, functionResult.message);
+  }).pipe(
+    Effect.catchAll((error) => {
+      console.error('LINE Webhookイベント処理エラー:', error);
+      return sendMessage(lineService, event, '申し訳ありません、処理中にエラーが発生しました。しばらく経ってからもう一度お試しください。');
+    }),
+  );
 
 /**
  * メッセージイベントのバリデーション
@@ -142,16 +139,6 @@ const validateMessageEvent = (event: MessageEvent): { isValid: boolean; userId: 
   if (!messageText) return null;
 
   return { isValid: true, userId, messageText };
-};
-
-/**
- * エラーハンドリング
- */
-const handleError = async (lineService: LineService, event: MessageEvent): Promise<void> => {
-  await lineService.replyMessage({
-    replyToken: event.replyToken,
-    message: '申し訳ありません、処理中にエラーが発生しました。しばらく経ってからもう一度お試しください。',
-  });
 };
 
 export const LineWebhookUsecase = { run };
@@ -181,8 +168,6 @@ interface LineMessageEvent extends LineEventBase {
     text?: string;
   };
 }
-
-// その他の具体的なイベントタイプは必要に応じて追加
 
 // LINE Webhookのイベント型
 type LineEvent = LineMessageEvent | LineEventBase;

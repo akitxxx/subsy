@@ -1,6 +1,6 @@
 import { match, P } from 'ts-pattern';
 import type { ErrorResponse } from '@/shared/types/error';
-import { ConflictError, ForbiddenError, NotFoundError, UnauthorizedError, ValidationError } from './errors';
+import { AppError, ValidationError } from './errors';
 
 export const toErrorResponse = (error: Error): ErrorResponse => {
   console.dir(error, { depth: null });
@@ -19,31 +19,7 @@ export const toErrorResponse = (error: Error): ErrorResponse => {
         })),
       },
     }))
-    .with(P.instanceOf(NotFoundError), (e) => ({
-      error: {
-        type: e.type,
-        title: e.title,
-        status: e.status,
-        detail: e.message,
-      },
-    }))
-    .with(P.instanceOf(UnauthorizedError), (e) => ({
-      error: {
-        type: e.type,
-        title: e.title,
-        status: e.status,
-        detail: e.message,
-      },
-    }))
-    .with(P.instanceOf(ForbiddenError), (e) => ({
-      error: {
-        type: e.type,
-        title: e.title,
-        status: e.status,
-        detail: e.message,
-      },
-    }))
-    .with(P.instanceOf(ConflictError), (e) => ({
+    .with(P.instanceOf(AppError), (e) => ({
       error: {
         type: e.type,
         title: e.title,

@@ -279,14 +279,11 @@ const aggregatePayments = (payments: (PaymentInfo | null)[]): AggregatedPayments
 
   return validPayments.reduce(
     (acc, payment) => {
-      match(payment.currency)
-        .with(CurrencyEnum.Jpy, () => {
-          acc.totalJpy += payment.amount;
-        })
-        .with(CurrencyEnum.Usd, () => {
-          acc.totalUsd += payment.amount;
-        })
-        .exhaustive();
+      if (payment.currency === CurrencyEnum.Jpy) {
+        acc.totalJpy += payment.amount;
+      } else {
+        acc.totalUsd += payment.amount;
+      }
 
       acc.subscriptionCount += payment.count;
       return acc;

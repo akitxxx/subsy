@@ -1,4 +1,5 @@
 export {
+  AppError,
   ForbiddenError,
   InternalServerError,
   NotFoundError,
