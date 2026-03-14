@@ -51,3 +51,6 @@ infra/terraform/.terraform/
 infra/terraform/terraform.tfvars
 infra/terraform/*.tfstate
 infra/terraform/*.tfstate.backup
+
+# claude
+.claude/settings.local.json
