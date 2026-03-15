@@ -6,9 +6,9 @@ terraform {
       source  = "vercel/vercel"
       version = "~> 4.0"
     }
-    supabase = {
-      source  = "supabase/supabase"
-      version = "~> 1.0"
+    neon = {
+      source  = "kislerdm/neon"
+      version = "~> 0.13"
     }
   }
 
@@ -25,6 +25,6 @@ provider "vercel" {
   # 個人アカウントのため team は不要
 }
 
-provider "supabase" {
-  access_token = var.supabase_access_token
+provider "neon" {
+  api_key = var.neon_api_key
 }

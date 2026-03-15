@@ -14,12 +14,29 @@ resource "vercel_project_environment_variable" "next_public_app_env" {
   target     = ["production"]
 }
 
+# DATABASE_URL は Neon-Managed Vercel Integration が preview/development に自動注入する
+# Terraform では production のみ管理
 resource "vercel_project_environment_variable" "database_url" {
   project_id = vercel_project.subsy.id
   key        = "DATABASE_URL"
-  value      = "postgresql://postgres.${supabase_project.subsy.id}:${var.supabase_db_password}@aws-0-ap-northeast-1.pooler.supabase.com:6543/postgres"
+  value      = neon_project.subsy.connection_uri_pooler
   target     = ["production"]
   sensitive  = true
+}
+
+resource "vercel_project_environment_variable" "clerk_secret_key" {
+  project_id = vercel_project.subsy.id
+  key        = "CLERK_SECRET_KEY"
+  value      = var.clerk_secret_key
+  target     = ["production", "preview", "development"]
+  sensitive  = true
+}
+
+resource "vercel_project_environment_variable" "next_public_clerk_publishable_key" {
+  project_id = vercel_project.subsy.id
+  key        = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
+  value      = var.clerk_publishable_key
+  target     = ["production", "preview", "development"]
 }
 
 resource "vercel_project_environment_variable" "line_channel_access_token" {
@@ -38,21 +55,6 @@ resource "vercel_project_environment_variable" "line_channel_secret" {
   sensitive  = true
 }
 
-resource "vercel_project_environment_variable" "auth_google_client_id" {
-  project_id = vercel_project.subsy.id
-  key        = "AUTH_GOOGLE_CLIENT_ID"
-  value      = var.auth_google_client_id
-  target     = ["production", "preview", "development"]
-}
-
-resource "vercel_project_environment_variable" "auth_google_client_secret" {
-  project_id = vercel_project.subsy.id
-  key        = "AUTH_GOOGLE_CLIENT_SECRET"
-  value      = var.auth_google_client_secret
-  target     = ["production", "preview", "development"]
-  sensitive  = true
-}
-
 resource "vercel_project_environment_variable" "openai_api_key" {
   project_id = vercel_project.subsy.id
   key        = "OPENAI_API_KEY"
@@ -66,20 +68,6 @@ resource "vercel_project_environment_variable" "next_public_api_host" {
   key        = "NEXT_PUBLIC_API_HOST"
   value      = var.next_public_api_host
   target     = ["production"]
-}
-
-resource "vercel_project_environment_variable" "next_public_supabase_url" {
-  project_id = vercel_project.subsy.id
-  key        = "NEXT_PUBLIC_SUPABASE_URL"
-  value      = "https://${supabase_project.subsy.id}.supabase.co"
-  target     = ["production", "preview", "development"]
-}
-
-resource "vercel_project_environment_variable" "next_public_supabase_anon_key" {
-  project_id = vercel_project.subsy.id
-  key        = "NEXT_PUBLIC_SUPABASE_ANON_KEY"
-  value      = var.supabase_anon_key
-  target     = ["production", "preview", "development"]
 }
 
 resource "vercel_project_environment_variable" "enable_experimental_corepack" {
