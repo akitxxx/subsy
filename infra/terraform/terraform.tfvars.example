@@ -2,13 +2,11 @@
 # Copy to terraform.tfvars and fill in actual values
 # terraform.tfvars is gitignored (never commit secrets)
 
-vercel_api_token      = "YOUR_VERCEL_API_TOKEN"
-supabase_access_token = "YOUR_SUPABASE_ACCESS_TOKEN"
-supabase_db_password  = "YOUR_SUPABASE_DB_PASSWORD"
-supabase_anon_key     = "YOUR_SUPABASE_ANON_KEY"
+vercel_api_token = "YOUR_VERCEL_API_TOKEN"
+neon_api_key     = "YOUR_NEON_API_KEY"
 
-auth_google_client_id     = "YOUR_GOOGLE_CLIENT_ID"
-auth_google_client_secret = "YOUR_GOOGLE_CLIENT_SECRET"
+clerk_secret_key      = "YOUR_CLERK_SECRET_KEY"
+clerk_publishable_key = "YOUR_CLERK_PUBLISHABLE_KEY"
 
 openai_api_key = "YOUR_OPENAI_API_KEY"
 

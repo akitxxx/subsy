@@ -1,13 +1,12 @@
 # Terraform インフラ管理
 
-Vercel + Supabase のインフラを Terraform で管理します。
-アプローチは「既存リソースを `terraform import` で取り込む」Import-First です。
+Vercel + Neon のインフラを Terraform で管理します。
 
 ## 前提条件
 
 - Terraform >= 1.9
 - Terraform Cloud アカウント（organization: `pinolab`, workspace: `subsy`）
-  - Execution mode: **Remote**（VCS 連携）
+  - Execution mode: Remote（VCS 連携）
 - TF Cloud workspace の Variables に全変数を設定済みであること
 
 ## 初回セットアップ
@@ -19,63 +18,6 @@ terraform login
 # プロバイダーの初期化
 terraform init
 ```
-
-## 既存リソースの Import
-
-### 1. 環境変数 ID の確認
-
-```bash
-# Vercel 環境変数の ID 確認（vercel CLI 使用）
-vercel env ls
-
-# または Vercel API で確認
-curl "https://api.vercel.com/v9/projects/prj_32sdS1T798it6d6eQ4VQe2G6CFLS/env" \
-  -H "Authorization: Bearer $VERCEL_TOKEN" | jq '.envs[] | {id, key, target}'
-```
-
-### 2. Import の実行
-
-```bash
-# Vercel project
-terraform import vercel_project.subsy prj_32sdS1T798it6d6eQ4VQe2G6CFLS
-
-# Vercel 環境変数（各変数ごとに実行。ENV_VAR_ID は上記で確認した ID）
-terraform import vercel_project_environment_variable.next_public_app_env \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-terraform import vercel_project_environment_variable.database_url \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-terraform import vercel_project_environment_variable.line_channel_access_token \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-terraform import vercel_project_environment_variable.line_channel_secret \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-terraform import vercel_project_environment_variable.auth_google_client_id \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-terraform import vercel_project_environment_variable.auth_google_client_secret \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-terraform import vercel_project_environment_variable.openai_api_key \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-terraform import vercel_project_environment_variable.next_public_api_host \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-terraform import vercel_project_environment_variable.next_public_supabase_url \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-terraform import vercel_project_environment_variable.next_public_supabase_anon_key \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-terraform import vercel_project_environment_variable.enable_experimental_corepack \
-  "prj_32sdS1T798it6d6eQ4VQe2G6CFLS/ENV_VAR_ID"
-
-# Supabase project
-terraform import supabase_project.subsy fxqwpmmojaggoqupdwuy
-```
-
-### 3. 検証
-
-```bash
-terraform plan
-# → No changes. Your infrastructure matches the configuration.
-```
-
-差分が出た場合は、Terraform コードを実際の設定に合わせて修正してください。
-特に各環境変数の `target`（environments）は `vercel env ls` で確認した値に合わせること。
 
 ## 主要コマンド
 
@@ -93,13 +35,19 @@ terraform validate  # 構文検証
 |----------|------|
 | Vercel project 設定 | Terraform |
 | Vercel 環境変数 | Terraform |
-| Supabase project | Terraform |
-| Supabase Auth 設定 | Terraform |
+| Neon project / branch / role / database | Terraform |
+| Neon preview branching | Neon-Managed Vercel Integration |
+| Clerk 設定 | Clerk Dashboard（Terraform 管理外） |
 | データベーススキーマ | Drizzle ORM（Terraform 管理外） |
+
+## 責務分担
+
+- Terraform: インフラの土台（Neon project / main branch / role / database、Vercel project / 環境変数）
+- Neon-Managed Vercel Integration: preview branch の動的管理（自動作成・自動削除・環境変数注入）
+- Clerk: Dashboard で設定管理（Terraform 管理外）
 
 ## 注意事項
 
-- Import 完了前に `terraform apply` しない（既存リソースを削除・再作成してしまう）
-- `terraform destroy` は慎重に（Supabase project 削除でデータ全消失）
+- `terraform destroy` は慎重に（Neon project 削除でデータ全消失）
 - シークレットは TF Cloud Variables で管理（ローカルに `terraform.tfvars` は不要）
-- `supabase_settings` の属性は `terraform providers schema -json` で確認できる
+- Neon の DATABASE_URL は production のみ Terraform 管理。preview/development は Neon-Managed Integration が自動注入

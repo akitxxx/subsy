@@ -4,32 +4,21 @@ variable "vercel_api_token" {
   sensitive   = true
 }
 
-variable "supabase_access_token" {
-  description = "Supabase management API access token"
+variable "neon_api_key" {
+  description = "Neon API key"
   type        = string
   sensitive   = true
 }
 
-variable "supabase_db_password" {
-  description = "Supabase database password"
+variable "clerk_secret_key" {
+  description = "Clerk secret key for backend API"
   type        = string
   sensitive   = true
 }
 
-variable "supabase_anon_key" {
-  description = "Supabase anonymous (public) API key"
+variable "clerk_publishable_key" {
+  description = "Clerk publishable key for frontend"
   type        = string
-}
-
-variable "auth_google_client_id" {
-  description = "Google OAuth client ID"
-  type        = string
-}
-
-variable "auth_google_client_secret" {
-  description = "Google OAuth client secret"
-  type        = string
-  sensitive   = true
 }
 
 variable "openai_api_key" {
