@@ -20,11 +20,7 @@ const fetcher = async (subscription: SubscriptionCreateModel) => {
 export const useCreateSubscription = () => {
   const { mutate } = useSWR('/api/subscriptions');
 
-  const createSubscription = async ({
-    subscription,
-  }: {
-    subscription: SubscriptionCreateModel;
-  }) => {
+  const createSubscription = async ({ subscription }: { subscription: SubscriptionCreateModel }) => {
     await fetcher(subscription);
     mutate();
   };

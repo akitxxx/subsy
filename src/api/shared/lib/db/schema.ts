@@ -20,8 +20,12 @@ export const ALL_TABLES = Object.values(TABLE_NAMES);
 export const usersTable = pgTable(TABLE_NAMES.User, {
   id: uuid('id').primaryKey().defaultRandom(),
 
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
-  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .default(sql`CURRENT_TIMESTAMP`),
   deletedAt: timestamp('deleted_at', { withTimezone: true }),
 });
 export const usersRelations = relations(usersTable, ({ one: _one, many }) => ({
@@ -45,8 +49,12 @@ export const userAuthsTable = pgTable(
     // providerのuser id
     providerId: varchar('provider_id', { length: 255 }).notNull(),
 
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.provider] }),
@@ -80,8 +88,12 @@ export const subscriptionsTable = pgTable(
     expiredAt: timestamp('expired_at', { withTimezone: true }),
     description: text('description'),
 
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().default(sql`CURRENT_TIMESTAMP`),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
   },
   // index
