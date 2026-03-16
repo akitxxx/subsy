@@ -51,8 +51,15 @@
 - Vite+ で lint / format / test / type check を統合
 - tsgo による型チェック対応
 
-## TODO: Clerk + Neon アーキテクチャ移行
+## 2026-03-16: Clerk + Neon アーキテクチャ移行
 
-- Supabase Auth → Clerk（LINE OAuth）
-- Supabase PostgreSQL → Neon（サーバーレス）
-- 詳細: `docs/workspace/architecture-migration-plan.md`
+- Supabase Auth → Clerk に移行完了
+  - Next.js middleware で `clerkMiddleware()` による保護ルート制御
+  - Hono API で `@hono/clerk-auth` による認証
+  - 初回 API アクセス時に Clerk userId で DB ユーザーを自動作成（lazy create）
+  - `<ClerkProvider>`, `<UserButton>`, `<SignIn>` 等の Clerk UI コンポーネント導入
+- Supabase PostgreSQL → Neon に移行完了
+  - DB クライアント: `postgres` → `@neondatabase/serverless` (Pool)
+  - Drizzle ORM ドライバー: `drizzle-orm/postgres-js` → `drizzle-orm/neon-serverless`
+- ローカル DB: Supabase CLI → Docker Compose (PostgreSQL 18)
+- Supabase 関連コード・設定を全削除

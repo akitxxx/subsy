@@ -74,12 +74,13 @@
 - PR 時に自動 plan、main マージ時に Auto Apply
 - 管理対象: Vercel project・環境変数、DB project
 
-## ADR-010: Clerk + Neon 移行計画（Supabase 置き換え）
+## ADR-010: Clerk + Neon 移行（Supabase 置き換え）
 
-2026-03-16
+2026-03-16 (実施済み)
 
-- Supabase Auth → Clerk に移行（LINE OAuth 対応、マネージド認証）
-- Supabase PostgreSQL → Neon に移行（サーバーレス、scale-to-zero、branching）
+- Supabase Auth → Clerk に移行（マネージド認証）
+- Supabase PostgreSQL → Neon に移行（サーバーレス、scale-to-zero）
 - DB クライアント: `postgres` → `@neondatabase/serverless`
-- 詳細: `docs/workspace/architecture-migration-plan.md`
+- Drizzle ORM ドライバー: `drizzle-orm/postgres-js` → `drizzle-orm/neon-serverless`
+- ローカル DB: Supabase CLI → Docker Compose (PostgreSQL)
 - Supersedes ADR-002

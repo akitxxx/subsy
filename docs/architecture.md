@@ -45,11 +45,6 @@
 各機能モジュールは以下のような構造を持ちます：
 
 - web/features/
-  - auth/ - 認証・認可関連機能
-    - components/ - 認証UI
-    - hooks/ - 認証関連フック
-    - api.ts - 認証API
-    - index.ts - 公開API
   - users/ - ユーザー管理機能
     - components/ - ユーザー関連UI
     - hooks/ - ユーザー関連フック
@@ -76,10 +71,6 @@
 API機能モジュールの構造：
 
 - api/features/
-  - auth/ - 認証・認可関連API
-    - handlers/ - APIハンドラ
-    - services/ - ビジネスロジック
-    - index.ts - 公開API
   - users/ - ユーザー管理API
     - handlers/ - APIハンドラ
     - services/ - ビジネスロジック
@@ -93,7 +84,6 @@ API共通モジュールの構造：
 - api/shared/
   - db/ - データベース接続・設定
   - middlewares/ - 共通ミドルウェア
-    - auth.ts - 認証ミドルウェア
     - validation.ts - バリデーションミドルウェア
     - ... - その他ミドルウェア
   - errors/ - エラーハンドリング
@@ -201,10 +191,16 @@ web/features/users/
    - API通信用の関数は機能モジュール内に配置
 
 2. サーバーからデータベースへ:
-   - Drizzle ORMを使用してデータアクセス
-   - Supabaseも利用したデータ管理
+   - Drizzle ORMを使用してNeon (PostgreSQL) にアクセス
+   - `@neondatabase/serverless` ドライバーで接続
 
-3. レスポンス:
+3. 認証:
+   - Clerk がフロントエンドとバックエンドの認証を管理
+   - Next.js middleware (`clerkMiddleware`) でページルートを保護
+   - Hono API では `@hono/clerk-auth` ミドルウェアで認証
+   - 初回 API アクセス時に Clerk userId で DB ユーザーを自動作成（lazy create）
+
+4. レスポンス:
    - 共通のレスポンス形式を定義
    - エラーコードとメッセージの標準化
 
@@ -217,7 +213,7 @@ web/features/users/
 2. クライアント状態:
    - グローバル状態と局所的な状態の分離
    - React Context APIを活用した状態管理
-   
+
 3. フォーム状態:
    - React Hook Formを使用した入力値の状態管理
    - Zodを用いたバリデーション
@@ -232,4 +228,4 @@ web/features/users/
 2. フロントエンドでのエラー表示:
    - ユーザーへのエラー通知戦略
    - フォームエラーの表示方法
-   - システムエラーの処理方針 
+   - システムエラーの処理方針

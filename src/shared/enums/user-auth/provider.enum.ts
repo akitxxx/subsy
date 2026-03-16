@@ -1,5 +1,5 @@
 export const ProviderEnum = {
-  Google: 'Google',
+  Clerk: 'Clerk',
   Line: 'Line',
 } as const;
 export type ProviderEnum = (typeof ProviderEnum)[keyof typeof ProviderEnum];

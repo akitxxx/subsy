@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:18
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      # PostgreSQL 18+ はデータを /var/lib/postgresql 配下にバージョン別サブディレクトリで格納する
+      - pgdata:/var/lib/postgresql
+      # テスト用DBを初期化時に作成
+      - ./docker/init-test-db.sql:/docker-entrypoint-initdb.d/init-test-db.sql
+
+  # @neondatabase/serverless の Pool は WebSocket 経由で接続するため、
+  # ローカル PostgreSQL への WebSocket プロキシが必要
+  wsproxy:
+    image: ghcr.io/neondatabase/wsproxy:latest
+    environment:
+      APPEND_PORT: "postgres:5432"
+      ALLOW_ADDR_REGEX: ".*"
+      LOG_TRAFFIC: "false"
+    ports:
+      - "5488:80"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:

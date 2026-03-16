@@ -9,13 +9,6 @@
 - Node.js (v20以上)
 - pnpm (v10.5.1以上)
 - Docker Desktop
-- Supabase CLI
-
-### Supabase CLIのインストール
-
-```bash
-npm install -g supabase
-```
 
 ## 環境構築手順
 
@@ -30,27 +23,23 @@ pnpm install
 `.env.example`ファイルを`.env`としてコピーします：
 
 ```bash
-cp .env.example.env
+cp .env.example .env
 ```
 
-必要に応じて`.env`ファイル内の値を編集してください。特に以下の項目は個別に設定が必要な場合があります：
+必要に応じて`.env`ファイル内の値を編集してください。特に以下の項目は個別に設定が必要です：
 
-- `AUTH_GOOGLE_CLIENT_ID`
-- `AUTH_GOOGLE_CLIENT_SECRET`
+- `CLERK_SECRET_KEY`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
 
 ### 3. ローカルデータベースの起動
 
-Supabaseのローカル開発環境を起動します：
+Docker Compose で PostgreSQL を起動します：
 
 ```bash
 pnpm db:up
 ```
 
-テスト用データベースを作成します：
-
-```bash
-docker exec supabase_db_subsy createdb -U postgres test
-```
+初回起動時にテスト用DB（`test`）が自動作成されます。
 
 ### 4. データベースのマイグレーション
 
@@ -92,4 +81,4 @@ pnpm test:front
 
 ```bash
 pnpm test:back
-``` 
+```

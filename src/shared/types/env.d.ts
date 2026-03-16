@@ -10,16 +10,13 @@ declare namespace NodeJS {
     // LINE
     LINE_CHANNEL_ACCESS_TOKEN: string;
     LINE_CHANNEL_SECRET: string;
-    // Google
-    AUTH_GOOGLE_CLIENT_ID: string;
-    AUTH_GOOGLE_CLIENT_SECRET: string;
+    // Clerk
+    CLERK_SECRET_KEY: string;
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: string;
     // OpenAI
     OPENAI_API_KEY: string;
 
     // ex. http://localhost:3000
     NEXT_PUBLIC_API_HOST: string;
-    // supabase
-    NEXT_PUBLIC_SUPABASE_URL: string;
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: string;
   }
 }

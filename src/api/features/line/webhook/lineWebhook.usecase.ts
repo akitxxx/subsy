@@ -30,7 +30,7 @@ type Output = {
  */
 const run =
   (inject: Inject) =>
-  ({ payload }: Input): Effect.Effect<Output, never> =>
+  ({ payload }: Input): Effect.Effect<Output> =>
     Effect.gen(function* () {
       console.dir({ 'LineWebhookUsecase.run': payload }, { depth: null });
 
@@ -46,7 +46,7 @@ const run =
       return { success: true };
     });
 
-const processEvents = (inject: Inject, events: LineEvent[]): Effect.Effect<void, never> =>
+const processEvents = (inject: Inject, events: LineEvent[]): Effect.Effect<void> =>
   Effect.forEach(
     events,
     (event) => {
@@ -58,7 +58,7 @@ const processEvents = (inject: Inject, events: LineEvent[]): Effect.Effect<void,
 
 // ==========
 
-const sendMessage = (lineService: LineService, event: MessageEvent, message: string): Effect.Effect<void, never> => {
+const sendMessage = (lineService: LineService, event: MessageEvent, message: string): Effect.Effect<void> => {
   if (!message || !event.replyToken) {
     console.error('not found message or replyToken', { message, event });
     return Effect.void;
@@ -75,7 +75,7 @@ const handleMessageEvent = ({
 }: {
   inject: Inject;
   event: MessageEvent;
-}): Effect.Effect<void, never> =>
+}): Effect.Effect<void> =>
   Effect.gen(function* () {
     // 基本的な検証
     const validationResult = validateMessageEvent(event);

@@ -17,8 +17,9 @@ LINE ユーザー（日本）
 
 MVP 開発中
 
-## ペンディング事項
+## 技術基盤
 
-- Clerk + Neon 移行が最優先（`docs/workspace/architecture-migration-plan.md` 参照）
-  - Supabase Auth → Clerk（LINE OAuth 対応）
-  - Supabase PostgreSQL → Neon（サーバーレス PostgreSQL）
+- 認証: Clerk（マネージド認証）
+- データベース: Neon（サーバーレス PostgreSQL）
+- ORM: Drizzle ORM
+- ローカル DB: Docker Compose (PostgreSQL)

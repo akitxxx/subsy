@@ -6,7 +6,7 @@ This file provides guidance to AI coding agents when working with code in this r
 
 基本的には日本語で回答すること
 
-## 開発方針
+## Development Principles
 
 - プロジェクトのすべてのコンテキスト（コード、インフラ、設定、ドキュメント）をgitで管理する
 - AIが自律的に開発できる状態を目指し、必要な情報はリポジトリ内に集約する
@@ -18,13 +18,14 @@ This file provides guidance to AI coding agents when working with code in this r
 - `docs/context.md` - プロジェクトの背景、意思決定の経緯、ペンディング事項
 - `docs/progress.md` - 実装の進捗記録。主要マイルストーン達成時に更新
 - `docs/adr.md` - Architecture Decision Records。技術的な意思決定を行った場合は必ず新しい ADR を追記
+- `AGENT.md` の「技術スタック」セクション - ADR に基づく技術変更が実装に反映された時点で同期すること
 
 ## 技術スタック
 
-- フレームワーク: Next.js with App Router (v15.1.4)
+- フレームワーク: Next.js with App Router
 - APIレイヤー: Hono（APIルーティング用）
 - データベース:
-  - Supabase（PostgreSQLデータベースと認証）
+  - Neon（サーバーレス PostgreSQL）
   - Drizzle ORM（データベースアクセス）
 - 認証: Clerk（認証管理）
 - UIコンポーネント:
@@ -96,10 +97,10 @@ pnpm test --watch
 ### データベース操作
 
 ```bash
-# ローカルSupabaseの起動
+# ローカル PostgreSQL (Docker) の起動
 pnpm db:up
 
-# ローカルSupabaseの停止
+# ローカル PostgreSQL (Docker) の停止
 pnpm db:down
 
 # マイグレーションファイルの生成
@@ -131,7 +132,7 @@ pnpm db:reset:test
 - `src/` - ソースコードのルート
   - `app/` - Next.js App Routerのページとレイアウト
   - `web/` - フロントエンド実装
-    - `features/` - 機能別モジュール（auth、dashboard、subscriptions等）
+    - `features/` - 機能別モジュール（dashboard、subscriptions等）
     - `shared/` - 共通コンポーネント、フック、ユーティリティ
   - `api/` - API実装
     - `features/` - 機能別APIモジュール
@@ -207,7 +208,7 @@ APIレイヤーはHonoを使用してルーティングとリクエスト処理�
 
 ## データベースとデータアクセス
 
-1. データベース: Supabase経由のPostgreSQL
+1. データベース: Neon（サーバーレス PostgreSQL）
 
 2. ORM: Drizzle ORM
 
@@ -235,9 +236,10 @@ APIレイヤーはHonoを使用してルーティングとリクエスト処理�
 
 1. 認証（Authentication）:
 
-   - Clerk経由のGoogle OAuth
-   - 認証状態管理
-   - 保護されたルートとAPIエンドポイント
+   - Clerk による認証管理
+   - Next.js middleware で保護ルートを制御
+   - Hono API では `@hono/clerk-auth` ミドルウェアで認証
+   - 初回アクセス時に Clerk userId で DB ユーザーを自動作成
 
 2. ダッシュボード（Dashboard）:
 
@@ -259,7 +261,7 @@ APIレイヤーはHonoを使用してルーティングとリクエスト処理�
 
 - `.env.local`（ローカル開発用）
 - `.env.test`（テスト環境用）
-- 必要な変数：Clerk、Supabase、LINE Bot、OpenAI の設定
+- 必要な変数：Clerk、LINE Bot、OpenAI の設定
 
 ## 追加メモ
 
@@ -305,5 +307,5 @@ terraform validate  # 構文検証
 | リソース | 管理 |
 |----------|------|
 | Vercel project・環境変数 | Terraform |
-| Supabase project・Auth 設定 | Terraform |
+| Neon project・database・role | Terraform |
 | データベーススキーマ | Drizzle ORM（Terraform 管理外） |

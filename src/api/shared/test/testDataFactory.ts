@@ -12,7 +12,7 @@ export const createActiveUser = (db: DrizzleClient) => async (p?: Partial<Insert
     .returning();
   await db.insert(userAuthsTable).values({
     userId: user.id,
-    provider: ProviderEnum.Google,
+    provider: ProviderEnum.Clerk,
     providerId: user.id,
     ...p?.userAuth,
   });
