@@ -1,4 +1,4 @@
-import type { Effect } from 'effect';
+import { Effect } from 'effect';
 import type { InternalServerError } from '@/api/shared/error/errors';
 import type { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
 import { User } from './user.logic';
@@ -15,12 +15,12 @@ type Input = {
 
 const run =
   ({ userRepository }: Inject) =>
-  (input: Input): Effect.Effect<void, InternalServerError> => {
+  (input: Input): Effect.Effect<{ id: string }, InternalServerError> => {
     const newUser = User.newUser({
       userAuth: { provider: input.provider, providerId: input.providerId },
     });
 
-    return userRepository.create({ entity: newUser });
+    return Effect.map(userRepository.create({ entity: newUser }), () => ({ id: newUser.id }));
   };
 
 export const CreateUserDomainService = { run };

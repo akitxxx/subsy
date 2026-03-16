@@ -1,17 +1,19 @@
-import { neonConfig, Pool } from '@neondatabase/serverless';
+import { Pool } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
+import { configureNeonLocal } from './neonLocal';
 import * as schema from './schema';
 
 // ローカル環境では WebSocket プロキシ経由で PostgreSQL に接続
 if (process.env.NODE_ENV !== 'production') {
-  neonConfig.useSecureWebSocket = false;
-  neonConfig.pipelineTLS = false;
-  neonConfig.pipelineConnect = false;
-  neonConfig.wsProxy = () => '127.0.0.1:5488/v1';
+  configureNeonLocal();
 }
 
+// WebSocket 接続は TCP より高コストなため、モジュールレベルでキャッシュ
+let cached: DrizzleClient | null = null;
+
 export const getDrizzleClient = () => {
-  // dotenvをすでに読み込んでいる前提
+  if (cached) return cached;
+
   const dbUrl = process.env.DATABASE_URL;
 
   if (!dbUrl) {
@@ -19,8 +21,8 @@ export const getDrizzleClient = () => {
   }
 
   const pool = new Pool({ connectionString: dbUrl });
-
-  return drizzle(pool, { schema });
+  cached = drizzle(pool, { schema });
+  return cached;
 };
 
-export type DrizzleClient = ReturnType<typeof getDrizzleClient>;
+export type DrizzleClient = ReturnType<typeof drizzle<typeof schema>>;

@@ -2,11 +2,9 @@ import { NotFoundError, toErrorResponse } from '@/api/shared/error';
 import { CreateUserDomainService } from '@/api/shared/domain/user/createUser.domainService';
 import { UserRepository } from '@/api/shared/domain/user/user.repository';
 import { getDrizzleClient } from '@/api/shared/lib/db/drizzle';
-import { userAuthsTable, usersTable } from '@/api/shared/lib/db/schema';
 import type { HonoEnv } from '@/api/shared/types/hono';
 import { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
 import { clerkMiddleware, getAuth } from '@hono/clerk-auth';
-import { eq } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { type Context, Hono } from 'hono';
 import { handle } from 'hono/vercel';
@@ -49,14 +47,10 @@ privateApp.use(async (c: Context<HonoEnv>, next) => {
   }
 
   const db = c.get('db');
+  const userRepository = UserRepository.new({ db });
 
-  // Clerk userId で user_auths を検索
-  const [existingUser] = await db
-    .select({ id: usersTable.id })
-    .from(usersTable)
-    .innerJoin(userAuthsTable, eq(usersTable.id, userAuthsTable.userId))
-    .where(eq(userAuthsTable.providerId, clerkUserId))
-    .limit(1);
+  // Clerk userId で user_auths を検索（provider でフィルタ）
+  const existingUser = await Effect.runPromise(userRepository.findByProviderId({ provider: ProviderEnum.Clerk, providerId: clerkUserId }));
 
   if (existingUser) {
     c.set('sessionUser', existingUser);
@@ -64,24 +58,15 @@ privateApp.use(async (c: Context<HonoEnv>, next) => {
     return;
   }
 
-  // 未登録ユーザーの場合、自動作成
-  const userRepository = UserRepository.new({ db });
-  await Effect.runPromise(
+  // 未登録ユーザーの場合、自動作成して返り値から id を取得
+  const createdUser = await Effect.runPromise(
     CreateUserDomainService.run({ userRepository })({
       provider: ProviderEnum.Clerk,
       providerId: clerkUserId,
     }),
   );
 
-  // 作成したユーザーを取得
-  const [newUser] = await db
-    .select({ id: usersTable.id })
-    .from(usersTable)
-    .innerJoin(userAuthsTable, eq(usersTable.id, userAuthsTable.userId))
-    .where(eq(userAuthsTable.providerId, clerkUserId))
-    .limit(1);
-
-  c.set('sessionUser', newUser ?? null);
+  c.set('sessionUser', createdUser);
   await next();
 });
 

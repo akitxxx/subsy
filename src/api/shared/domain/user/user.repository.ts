@@ -86,10 +86,38 @@ const update =
       catch: () => new InternalServerError('ユーザーの更新に失敗しました'),
     });
 
+const findByProviderId =
+  ({ db }: Inject) =>
+  ({
+    tx,
+    provider,
+    providerId,
+  }: {
+    tx?: Tx;
+    provider: ProviderEnum;
+    providerId: string;
+  }): Effect.Effect<{ id: string } | null, InternalServerError> =>
+    Effect.tryPromise({
+      try: async () => {
+        const dbClient = tx ?? db;
+
+        const [result] = await dbClient
+          .select({ id: usersTable.id })
+          .from(usersTable)
+          .innerJoin(userAuthsTable, eq(usersTable.id, userAuthsTable.userId))
+          .where(and(eq(userAuthsTable.provider, provider), eq(userAuthsTable.providerId, providerId)))
+          .limit(1);
+
+        return result ?? null;
+      },
+      catch: () => new InternalServerError('プロバイダーIDによるユーザーの取得に失敗しました'),
+    });
+
 export const UserRepository = {
   new: (inject: Inject) => ({
     findCurrentUserById: findCurrentUserById(inject),
     findByLineUserId: findByLineUserId(inject),
+    findByProviderId: findByProviderId(inject),
     create: create(inject),
     update: update(inject),
   }),

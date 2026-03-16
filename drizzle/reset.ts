@@ -1,15 +1,11 @@
-import { neonConfig, Pool } from '@neondatabase/serverless';
+import { Pool } from '@neondatabase/serverless';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import { migrate } from 'drizzle-orm/neon-serverless/migrator';
 import ws from 'ws';
+import { configureNeonLocal } from '../src/api/shared/lib/db/neonLocal';
 import drizzleConfig from './drizzle.config';
 
-// ローカル PostgreSQL に WebSocket プロキシ経由で接続するための設定
-neonConfig.webSocketConstructor = ws;
-neonConfig.useSecureWebSocket = false;
-neonConfig.pipelineTLS = false;
-neonConfig.pipelineConnect = false;
-neonConfig.wsProxy = () => '127.0.0.1:5488/v1';
+configureNeonLocal({ wsConstructor: ws });
 
 export const resetDatabase = async () => {
   // dotenvをすでに読み込んでいる前提
@@ -17,6 +13,10 @@ export const resetDatabase = async () => {
 
   if (!DATABASE_URL) {
     throw new Error('DATABASE_URL is not defined');
+  }
+
+  if (!drizzleConfig.out) {
+    throw new Error('drizzle config out is not defined');
   }
 
   console.log('Resetting database:', DATABASE_URL);
@@ -30,7 +30,7 @@ export const resetDatabase = async () => {
 
     // マイグレーションを実行してテーブルを再作成
     const db = drizzle(pool);
-    await migrate(db, { migrationsFolder: drizzleConfig.out as string });
+    await migrate(db, { migrationsFolder: drizzleConfig.out });
     console.log('✅ Database reset successfully');
   } catch (error) {
     console.error('Error resetting database:', error);
