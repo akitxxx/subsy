@@ -11,6 +11,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - プロジェクトのすべてのコンテキスト（コード、インフラ、設定、ドキュメント）をgitで管理する
 - AIが自律的に開発できる状態を目指し、必要な情報はリポジトリ内に集約する
 
+## Docs (MUST keep up-to-date)
+
+以下のドキュメントは実装と同期していなければならない。該当する変更を行った場合、同じコミットまたは同じ作業の中で必ず更新すること。
+
+- `docs/context.md` - プロジェクトの背景、意思決定の経緯、ペンディング事項
+- `docs/progress.md` - 実装の進捗記録。主要マイルストーン達成時に更新
+- `docs/adr.md` - Architecture Decision Records。技術的な意思決定を行った場合は必ず新しい ADR を追記
+
 ## 技術スタック
 
 - **フレームワーク**: Next.js with App Router (v15.1.4)
