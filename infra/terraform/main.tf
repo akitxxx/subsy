@@ -14,6 +14,7 @@ terraform {
 
   cloud {
     organization = "pinolab"
+    project = "subsy"
     workspaces {
       name = "subsy"
     }
