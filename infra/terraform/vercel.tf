@@ -7,6 +7,8 @@ resource "vercel_project" "subsy" {
     repo              = "akitxxx/subsy"
     production_branch = "main"
   }
+
+  serverless_function_region = "hnd1"
 }
 
 # 環境変数の target（environments）は変数ごとに異なる設定が Vercel GUI で行われています。
