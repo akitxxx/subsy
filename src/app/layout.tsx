@@ -30,7 +30,7 @@ export default function RootLayout({
     <html lang="ja">
       <head>{process.env.NEXT_PUBLIC_APP_ENV === 'development' && <script src="https://unpkg.com/react-scan/dist/auto.global.js" async />}</head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ClerkProvider>
+        <ClerkProvider afterSignOutUrl="/sign-in">
           <Header />
           <main className="mx-auto max-w-[800px]">{children}</main>
         </ClerkProvider>

@@ -1,4 +1,5 @@
 import type { SubscriptionCreateModel, SubscriptionViewModel } from '@/shared/domain/subscription/subscription.viewModel';
+import { subscriptionInputSchema } from '@/shared/domain/subscription/subscription.validation';
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
@@ -37,10 +38,11 @@ type FormFieldProps = {
   id: string;
   label: string;
   required?: boolean;
+  error?: string;
   children: React.ReactNode;
 };
 
-const FormField = ({ id, label, required = false, children }: FormFieldProps) => (
+const FormField = ({ id, label, required = false, error, children }: FormFieldProps) => (
   <div className="grid gap-2 sm:gap-2.5 sm:grid-cols-7 sm:items-center sm:gap-x-4 group">
     <Label
       htmlFor={id}
@@ -49,7 +51,10 @@ const FormField = ({ id, label, required = false, children }: FormFieldProps) =>
       {label}
       {required && <span className="text-rose-500 ml-1 text-xs align-top">*</span>}
     </Label>
-    <div className="sm:col-span-5">{children}</div>
+    <div className="sm:col-span-5">
+      {children}
+      {error && <p className="text-sm text-rose-500 mt-1">{error}</p>}
+    </div>
   </div>
 );
 
@@ -69,16 +74,32 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
   );
 
   const [formData, setFormData] = useState<TFormData>(defaultFormData);
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   // モーダルが開かれた時にデータを初期化
   useEffect(() => {
     if (!isOpen) return;
     setFormData(subscription ?? defaultFormData);
+    setFormErrors({});
   }, [subscription, defaultFormData, isOpen]);
 
   // フォーム送信ハンドラ
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const result = subscriptionInputSchema.safeParse(formData);
+    if (!result.success) {
+      const errors: Record<string, string> = {};
+      for (const issue of result.error.issues) {
+        const key = issue.path[0];
+        if (typeof key === 'string' && !(key in errors)) {
+          errors[key] = issue.message;
+        }
+      }
+      setFormErrors(errors);
+      return;
+    }
+
     if (isEdit && subscription) {
       onUpdate({ ...subscription, ...formData });
     } else {
@@ -86,8 +107,17 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
     }
   };
 
+  // フィールドエラーをクリアするヘルパー
+  const clearFieldError = (field: string) => {
+    if (field in formErrors) {
+      const { [field]: _, ...rest } = formErrors;
+      setFormErrors(rest);
+    }
+  };
+
   // 金額入力ハンドラ
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    clearFieldError('price');
     const rawValue = e.target.value;
     const newPrice =
       formData.currency === CurrencyEnum.Usd ? PriceUtils.input.handleUsdPriceInput(rawValue) : PriceUtils.input.parse(rawValue, formData.currency);
@@ -97,6 +127,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
 
   // 通貨変更ハンドラ
   const handleCurrencyChange = (newCurrency: CurrencyEnum) => {
+    clearFieldError('currency');
     const newPrice = PriceUtils.input.handleCurrencyChange(formData.price, newCurrency, formData.currency);
 
     setFormData({
@@ -118,19 +149,22 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
         <form onSubmit={handleSubmit} className="overflow-y-auto max-h-[calc(100vh-12rem)]">
           <div className="px-4 sm:px-6 py-5 sm:py-6 space-y-5 sm:space-y-6">
             {/* サービス名フィールド */}
-            <FormField id="name" label="サービス名" required>
+            <FormField id="name" label="サービス名" required error={formErrors.name}>
               <Input
                 id="name"
                 placeholder="Netflix"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => {
+                  clearFieldError('name');
+                  setFormData({ ...formData, name: e.target.value });
+                }}
                 className="w-full transition-all border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm"
                 required
               />
             </FormField>
 
             {/* 金額フィールド */}
-            <FormField id="price" label="金額" required>
+            <FormField id="price" label="金額" required error={formErrors.price}>
               <div className="flex gap-4">
                 <div className="relative flex-1 group/price">
                   <Input
@@ -160,8 +194,15 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
             </FormField>
 
             {/* 支払いサイクルフィールド */}
-            <FormField id="cycle" label="支払いサイクル" required>
-              <Select value={formData.cycle} onValueChange={(value: SubscriptionCycleEnum) => setFormData({ ...formData, cycle: value })} required>
+            <FormField id="cycle" label="支払いサイクル" required error={formErrors.cycle}>
+              <Select
+                value={formData.cycle}
+                onValueChange={(value: SubscriptionCycleEnum) => {
+                  clearFieldError('cycle');
+                  setFormData({ ...formData, cycle: value });
+                }}
+                required
+              >
                 <SelectTrigger className="w-full border-gray-200 hover:border-gray-300 focus:border-primary-600 focus:ring-2 focus:ring-primary-100 shadow-sm">
                   <SelectValue placeholder="選択してください" />
                 </SelectTrigger>
@@ -175,7 +216,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
             </FormField>
 
             {/* 開始日時フィールド */}
-            <FormField id="startedAt" label="開始日時" required>
+            <FormField id="startedAt" label="開始日時" required error={formErrors.startedAt}>
               <div className="space-y-2">
                 <div className="grid grid-cols-12 gap-2 items-center">
                   <div className="col-span-7 sm:col-span-7">
@@ -184,6 +225,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                       type="date"
                       value={DateUtils.format.forDateInput(formData.startedAt)}
                       onChange={(e) => {
+                        clearFieldError('startedAt');
                         const updated = DateUtils.modify.updateFromDateInput(formData.startedAt, e.target.value);
                         setFormData({ ...formData, startedAt: updated });
                       }}
@@ -197,6 +239,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                       type="time"
                       value={DateUtils.format.forTimeInput(formData.startedAt)}
                       onChange={(e) => {
+                        clearFieldError('startedAt');
                         const updated = DateUtils.modify.updateFromTimeInput(formData.startedAt, e.target.value);
                         setFormData({ ...formData, startedAt: updated });
                       }}
@@ -222,7 +265,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
             </FormField>
 
             {/* キャンセル日時フィールド */}
-            <FormField id="cancelledAt" label="キャンセル日時">
+            <FormField id="cancelledAt" label="キャンセル日時" error={formErrors.cancelledAt}>
               <div className="space-y-2">
                 <div className="grid grid-cols-12 gap-2 items-center">
                   <div className="col-span-7 sm:col-span-7">
@@ -231,6 +274,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                       type="date"
                       value={formData.cancelledAt ? DateUtils.format.forDateInput(formData.cancelledAt) : ''}
                       onChange={(e) => {
+                        clearFieldError('cancelledAt');
                         if (e.target.value) {
                           const baseDate = formData.cancelledAt || DateUtils.create.now();
                           const updated = DateUtils.modify.updateFromDateInput(baseDate, e.target.value);
@@ -248,6 +292,7 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
                       type="time"
                       value={formData.cancelledAt ? DateUtils.format.forTimeInput(formData.cancelledAt) : ''}
                       onChange={(e) => {
+                        clearFieldError('cancelledAt');
                         if (e.target.value) {
                           const baseDate = formData.cancelledAt || DateUtils.create.now();
                           const updated = DateUtils.modify.updateFromTimeInput(baseDate, e.target.value);
@@ -278,12 +323,15 @@ export function SubscriptionModal({ isOpen, isEdit, onClose, onCreate, onUpdate,
             </FormField>
 
             {/* 説明フィールド */}
-            <FormField id="description" label="説明">
+            <FormField id="description" label="説明" error={formErrors.description}>
               <textarea
                 id="description"
                 placeholder="サブスクリプションの説明を入力してください"
                 value={formData.description ?? ''}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+                  clearFieldError('description');
+                  setFormData({ ...formData, description: e.target.value });
+                }}
                 className="w-full h-24 resize-none rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm transition-all hover:border-gray-300 focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-100"
               />
             </FormField>

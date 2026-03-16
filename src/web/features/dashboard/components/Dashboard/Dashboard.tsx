@@ -3,7 +3,9 @@
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { PriceUtils } from '@/shared/utils/price.util';
 import { SubscriptionListCard } from '@/web/features/subscriptions/components/SubscriptionListCard';
+import { Button } from '@/web/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/web/shared/components/ui/card';
+import { Skeleton } from '@/web/shared/components/ui/skeleton';
 import { CalendarIcon } from 'lucide-react';
 import { useDashboard } from './useDashboard';
 
@@ -36,6 +38,15 @@ const getDaysRemaining = (dateStr: string | null) => {
   return diffDays;
 };
 
+const ErrorMessage = ({ message, onRetry }: { message: string; onRetry: () => void }) => (
+  <div className="flex flex-col items-center gap-3 py-4">
+    <p className="text-sm text-destructive">{message}</p>
+    <Button variant="outline" size="sm" onClick={onRetry}>
+      再試行
+    </Button>
+  </div>
+);
+
 export const Dashboard = () => {
   const { dashboard, subscriptions, handleCreateSubscription, handleUpdateSubscription, handleDeleteSubscription } = useDashboard();
 
@@ -47,7 +58,13 @@ export const Dashboard = () => {
             <CardTitle>今月の合計</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold">¥{dashboard.data.totalThisMonth.toLocaleString()}</p>
+            {dashboard.isDashboardLoading ? (
+              <Skeleton className="h-10 w-32" />
+            ) : dashboard.dashboardError ? (
+              <ErrorMessage message="データの取得に失敗しました" onRetry={dashboard.refetchDashboard} />
+            ) : (
+              <p className="text-4xl font-bold">¥{dashboard.data.totalThisMonth.toLocaleString()}</p>
+            )}
           </CardContent>
         </Card>
 
@@ -56,7 +73,14 @@ export const Dashboard = () => {
             <CardTitle>次回支払い日が近いサブスク</CardTitle>
           </CardHeader>
           <CardContent>
-            {dashboard.data.upcomingSubscriptions.length > 0 ? (
+            {dashboard.isDashboardLoading ? (
+              <div className="space-y-3">
+                <Skeleton className="h-20 w-full" />
+                <Skeleton className="h-20 w-full" />
+              </div>
+            ) : dashboard.dashboardError ? (
+              <ErrorMessage message="データの取得に失敗しました" onRetry={dashboard.refetchDashboard} />
+            ) : dashboard.data.upcomingSubscriptions.length > 0 ? (
               <div className="space-y-3">
                 {dashboard.data.upcomingSubscriptions.map((sub) => {
                   const daysRemaining = getDaysRemaining(sub.expiredAt);
@@ -102,12 +126,34 @@ export const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <SubscriptionListCard
-          subscriptions={subscriptions.data}
-          onCreate={handleCreateSubscription}
-          onUpdate={handleUpdateSubscription}
-          onDelete={handleDeleteSubscription}
-        />
+        {subscriptions.isSubscriptionsLoading ? (
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32" />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </CardContent>
+          </Card>
+        ) : subscriptions.subscriptionsError ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>サブスク一覧</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ErrorMessage message="サブスクリプションの取得に失敗しました" onRetry={subscriptions.refetchSubscriptions} />
+            </CardContent>
+          </Card>
+        ) : (
+          <SubscriptionListCard
+            subscriptions={subscriptions.data}
+            onCreate={handleCreateSubscription}
+            onUpdate={handleUpdateSubscription}
+            onDelete={handleDeleteSubscription}
+          />
+        )}
       </div>
     </div>
   );

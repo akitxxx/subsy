@@ -10,7 +10,12 @@ export const useDashboard = () => {
   const [error, setError] = useState<string | null>(null);
 
   const { data: dashboardData, isLoading: isDashboardLoading, error: dashboardError, refetch: refetchDashboard } = useGetDashboard();
-  const { data: subscriptionsData, isLoading: isSubscriptionsLoading, error: subscriptionsError } = useGetSubscriptions();
+  const {
+    data: subscriptionsData,
+    isLoading: isSubscriptionsLoading,
+    error: subscriptionsError,
+    refetch: refetchSubscriptions,
+  } = useGetSubscriptions();
 
   const dashboard = useMemo(() => {
     return {
@@ -61,11 +66,13 @@ export const useDashboard = () => {
       data: dashboard,
       isDashboardLoading,
       dashboardError,
+      refetchDashboard,
     },
     subscriptions: {
       data: subscriptions,
       isSubscriptionsLoading,
       subscriptionsError,
+      refetchSubscriptions,
     },
     error,
     handleCreateSubscription,

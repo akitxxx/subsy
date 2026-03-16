@@ -75,13 +75,16 @@
 - lint errors 7 件 + warnings 15 件をすべて解消
 - Pre-commit hooks を Vite+ (`vp staged`) に統一、Lefthook 除去
 
+## 2026-03-16: P0 ブロッカー解消
+
+- ホームページリダイレクト: `src/app/page.tsx` で認証済みユーザーを `/dashboard` へ redirect
+- サインアウト後リダイレクト: `ClerkProvider` に `afterSignOutUrl="/sign-in"` を設定
+- エラーハンドリング UI:
+  - `src/app/not-found.tsx` 新規作成（404ページ）
+  - ダッシュボードに SWR エラー表示（エラーメッセージ + 再試行ボタン）とローディング Skeleton を追加
+  - `useGetSubscriptions` に `refetch` を追加
+
 ## 次のタスク
-
-### P0 - ブロッカー
-
-- ホームページリダイレクト（`/` → 未認証なら `/sign-in`、認証済みなら `/dashboard`）
-- エラーハンドリング UI（エラー画面・ローディング状態の視覚化）
-- サインアウト動作確認（Clerk `<UserButton>` の検証）
 
 ### P1 - 重要
 
