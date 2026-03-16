@@ -1,5 +1,6 @@
 resource "neon_project" "subsy" {
   name       = "subsy"
+  org_id     = "org-restless-pine-89113411"
   region_id  = "aws-ap-southeast-1"
   pg_version = 18
 

@@ -8,7 +8,9 @@ resource "vercel_project" "subsy" {
     production_branch = "main"
   }
 
-  serverless_function_region = "hnd1"
+  resource_config = {
+    function_default_regions = ["hnd1"]
+  }
 }
 
 # 環境変数の target（environments）は変数ごとに異なる設定が Vercel GUI で行われています。
@@ -36,7 +38,7 @@ resource "vercel_project_environment_variable" "clerk_secret_key" {
   project_id = vercel_project.subsy.id
   key        = "CLERK_SECRET_KEY"
   value      = var.clerk_secret_key
-  target     = ["production", "preview", "development"]
+  target     = ["production", "preview"]
   sensitive  = true
 }
 
@@ -51,7 +53,7 @@ resource "vercel_project_environment_variable" "line_channel_access_token" {
   project_id = vercel_project.subsy.id
   key        = "LINE_CHANNEL_ACCESS_TOKEN"
   value      = var.line_channel_access_token
-  target     = ["production", "preview", "development"]
+  target     = ["production", "preview"]
   sensitive  = true
 }
 
@@ -59,7 +61,7 @@ resource "vercel_project_environment_variable" "line_channel_secret" {
   project_id = vercel_project.subsy.id
   key        = "LINE_CHANNEL_SECRET"
   value      = var.line_channel_secret
-  target     = ["production", "preview", "development"]
+  target     = ["production", "preview"]
   sensitive  = true
 }
 
@@ -67,7 +69,7 @@ resource "vercel_project_environment_variable" "openai_api_key" {
   project_id = vercel_project.subsy.id
   key        = "OPENAI_API_KEY"
   value      = var.openai_api_key
-  target     = ["production", "preview", "development"]
+  target     = ["production", "preview"]
   sensitive  = true
 }
 
