@@ -1,6 +1,12 @@
 resource "vercel_project" "subsy" {
   name      = "subsy"
   framework = "nextjs"
+
+  git_repository = {
+    type              = "github"
+    repo              = "akitxxx/subsy"
+    production_branch = "main"
+  }
 }
 
 # 環境変数の target（environments）は変数ごとに異なる設定が Vercel GUI で行われています。
