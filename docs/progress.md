@@ -63,3 +63,33 @@
   - Drizzle ORM ドライバー: `drizzle-orm/postgres-js` → `drizzle-orm/neon-serverless`
 - ローカル DB: Supabase CLI → Docker Compose (PostgreSQL 18)
 - Supabase 関連コード・設定を全削除
+
+## 2026-03-16: コード品質改善 + 開発環境整備
+
+- Clerk+Neon 移行コードのリファクタリング
+  - DB 接続のシングルトン化（接続リーク防止）
+  - neonConfig 設定の共通ヘルパー抽出
+  - route.ts の重複クエリ除去、`findByProviderId` 追加
+  - `as string` 型アサーションをランタイムチェックに置換
+- テスト失敗 3 件修正（vi.mock パス解決、onError ハンドラ不足）
+- lint errors 7 件 + warnings 15 件をすべて解消
+- Pre-commit hooks を Vite+ (`vp staged`) に統一、Lefthook 除去
+
+## 次のタスク
+
+### P0 - ブロッカー
+
+- ホームページリダイレクト（`/` → 未認証なら `/sign-in`、認証済みなら `/dashboard`）
+- エラーハンドリング UI（エラー画面・ローディング状態の視覚化）
+- サインアウト動作確認（Clerk `<UserButton>` の検証）
+
+### P1 - 重要
+
+- テストカバレッジ拡大（フロントエンドテスト追加）
+- バリデーション強化（金額形式・日付妥当性チェック）
+
+### P2 - 改善
+
+- UI/UX 改善（モバイル最適化）
+- サブスク一覧のフィルタ・ソート
+- ヘルスチェック エンドポイント（`/api/health`）
