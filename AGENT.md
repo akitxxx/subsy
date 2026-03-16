@@ -37,6 +37,8 @@ This file provides guidance to AI coding agents when working with code in this r
   - React Context（クライアント状態）
   - React Hook Form（フォーム状態）
 - テスト: Vite+ (Vitest)
+  - import は `vitest` ではなく `vite-plus/test` から行う（例: `import { expect, test, vi } from 'vite-plus/test'`）
+  - `vitest` を直接インストールしない
 - リンティング/フォーマッティング: Vite+ (Oxlint + Oxfmt + TypeScript type check)
 - 外部サービス: LINE Bot SDK、OpenAI API
 - 実行環境要件: Node.js v20以上、pnpm v10.5.2以上
