@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { Subscription, type SubscriptionEntity } from '@/api/shared/domain/subscription';
 import { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
 import { getDrizzleClient } from '@/api/shared/lib/db/drizzle';

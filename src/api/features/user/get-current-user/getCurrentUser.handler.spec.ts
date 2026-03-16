@@ -4,7 +4,7 @@ import { createActiveUser } from '@/api/shared/test/testDataFactory';
 import type { HonoEnv } from '@/api/shared/types/hono';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vite-plus/test';
 import { getCurrentUserHandler } from './getCurrentUser.handler';
 
 describe('GET /api/users/me', () => {

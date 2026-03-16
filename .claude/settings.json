@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "vite-plus": {
+      "command": "pnpm",
+      "args": ["exec", "vp", "mcp"]
+    }
+  }
+}

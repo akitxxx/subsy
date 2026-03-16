@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { getDrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { cleanupDB } from '@/api/shared/test/dbHelper';

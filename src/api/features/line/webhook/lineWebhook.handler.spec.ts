@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { type DrizzleClient, getDrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { LineService } from '@/api/shared/lib/line';
 import { OpenAIService, type SubscriptionFunctionArgs } from '@/api/shared/lib/openai';

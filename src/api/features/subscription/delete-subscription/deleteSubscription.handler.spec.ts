@@ -5,7 +5,7 @@ import type { HonoEnv } from '@/api/shared/types/hono';
 import { DateUtils } from '@/shared/utils/date.util';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { deleteSubscriptionHandler } from './deleteSubscription.handler';
 
 describe('DELETE /api/subscriptions/:id', () => {

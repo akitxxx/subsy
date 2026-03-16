@@ -1,9 +1,0 @@
----
-description: 
-globs: 
-alwaysApply: false
----
-# 実装方針
-以下のドキュメントに準拠した実装をしてください。
-[architecture.md](mdc:doc/architecture.md)
-[coding_standards.md](mdc:doc/coding_standards.md)

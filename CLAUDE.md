@@ -27,8 +27,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - SWR（サーバー状態）
   - React Context（クライアント状態）
   - React Hook Form（フォーム状態）
-- **テスト**: Vitest
-- **リンティング/フォーマッティング**: Biome
+- **テスト**: Vite+ (Vitest)
+- **リンティング/フォーマッティング**: Vite+ (Oxlint + Oxfmt + TypeScript type check)
 - **外部サービス**: LINE Bot SDK、OpenAI API
 - **実行環境要件**: Node.js v20以上、pnpm v10.5.2以上
 
@@ -53,6 +53,9 @@ pnpm start
 ### コード品質
 
 ```bash
+# lint + format + type check を一括実行
+pnpm check
+
 # リントの実行
 pnpm lint
 
@@ -213,7 +216,7 @@ APIレイヤーはHonoを使用してルーティングとリクエスト処理�
    - テスト対象のコードと同じ場所に配置
 
 2. **テストセットアップ**:
-   - Vitestをテストランナーとして使用
+   - Vite+ (Vitest) をテストランナーとして使用
    - テストユーティリティは`src/shared/test/`
    - データベーステストヘルパーは`src/api/shared/test/`
 
@@ -249,7 +252,7 @@ APIレイヤーはHonoを使用してルーティングとリクエスト処理�
 
 ## 追加メモ
 
-- プロジェクトはリンティングとフォーマッティングにBiomeを使用（ESLintではない）
+- プロジェクトはVite+を使用（lint/format/test/type checkを統合、設定は`vite.config.ts`に集約）
 - テストを優先し、TDDアプローチを推奨
 - TypeScriptによる型安全性をコードベース全体で強制
 - ドメインモデルとビジネスロジックは再利用のために共有レイヤーに配置
@@ -293,4 +296,3 @@ terraform validate  # 構文検証
 | Vercel project・環境変数 | Terraform |
 | Supabase project・Auth 設定 | Terraform |
 | データベーススキーマ | Drizzle ORM（Terraform 管理外） |
-
