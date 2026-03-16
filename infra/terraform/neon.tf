@@ -10,5 +10,5 @@ resource "neon_project" "subsy" {
   }
 
   # サーバーレス環境のためパスワード保存を有効化
-  store_password = true
+  store_password = "yes"
 }
