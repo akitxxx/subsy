@@ -1,6 +1,6 @@
 resource "neon_project" "subsy" {
   name       = "subsy"
-  region_id  = "aws-ap-northeast-1"
+  region_id  = "aws-ap-southeast-1"
   pg_version = 18
 
   branch {
