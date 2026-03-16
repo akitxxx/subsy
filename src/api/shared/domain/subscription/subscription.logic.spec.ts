@@ -1,8 +1,8 @@
 import { CurrencyEnum } from '@/shared/enums/currency.enum';
 import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionCycle.enum';
 import { DateUtils } from '@/shared/utils/date.util';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vite-plus/test';
+import { vi } from 'vite-plus/test';
 import type { SubscriptionEntity } from './subscription.entity';
 import { Subscription } from './subscription.logic';
 

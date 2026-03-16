@@ -8,7 +8,7 @@ import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionC
 import { DateUtils } from '@/shared/utils/date.util';
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
 import { updateSubscriptionHandler } from './updateSubscription.handler';
 
 describe('PATCH /api/subscriptions/:id', () => {
