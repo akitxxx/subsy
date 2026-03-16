@@ -10,6 +10,8 @@ resource "neon_project" "subsy" {
     role_name     = "subsy_owner"
   }
 
+  history_retention_seconds = 21600
+
   # サーバーレス環境のためパスワード保存を有効化
   store_password = "yes"
 }
