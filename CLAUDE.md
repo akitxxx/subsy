@@ -61,6 +61,9 @@ pnpm lint
 
 # コードフォーマット
 pnpm format
+
+# 型チェックのみ実行
+pnpm typecheck
 ```
 
 ### テスト
