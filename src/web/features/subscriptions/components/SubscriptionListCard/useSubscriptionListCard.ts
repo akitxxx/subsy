@@ -3,9 +3,9 @@ import { useCallback, useState } from 'react';
 
 export const useSubscriptionListCard = (props: {
   subscriptions: SubscriptionViewModel[];
-  onCreate: (subscription: SubscriptionCreateModel) => void;
-  onUpdate: (subscription: SubscriptionViewModel) => void;
-  onDelete: (subscription: SubscriptionViewModel) => void;
+  onCreate: (subscription: SubscriptionCreateModel) => Promise<void>;
+  onUpdate: (subscription: SubscriptionViewModel) => Promise<void>;
+  onDelete: (subscription: SubscriptionViewModel) => Promise<void>;
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModal, setIsEditModal] = useState(false);

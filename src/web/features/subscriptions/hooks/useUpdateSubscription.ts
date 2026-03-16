@@ -8,7 +8,8 @@ const fetcher = async (subscription: SubscriptionViewModel) => {
     json: {
       ...subscription,
     },
-  } as unknown as { param: { id: string }; json: typeof subscription }); // MEMO: jsonの部分の型推論うまくいかないので一旦無理矢理
+    // eslint-disable-next-line typescript-eslint/no-unsafe-type-assertion -- Hono RPC の型推論がうまくいかないため
+  } as unknown as { param: { id: string }; json: typeof subscription });
   return res.json();
 };
 
@@ -17,7 +18,7 @@ export const useUpdateSubscription = () => {
 
   const updateSubscription = async ({ subscription }: { subscription: SubscriptionViewModel }) => {
     await fetcher(subscription);
-    mutate();
+    await mutate();
   };
 
   return { updateSubscription };

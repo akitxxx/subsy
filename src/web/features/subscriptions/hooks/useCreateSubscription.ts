@@ -22,7 +22,7 @@ export const useCreateSubscription = () => {
 
   const createSubscription = async ({ subscription }: { subscription: SubscriptionCreateModel }) => {
     await fetcher(subscription);
-    mutate();
+    await mutate();
   };
 
   return { createSubscription };

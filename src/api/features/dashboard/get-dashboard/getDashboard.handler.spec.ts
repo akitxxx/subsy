@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
+import { toErrorResponse } from '@/api/shared/error';
 import type { DrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { getDrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { cleanupDB } from '@/api/shared/test/dbHelper';
@@ -23,6 +24,11 @@ describe('GET /api/dashboard', () => {
       await next();
     });
     const route = app.get('/api/dashboard', ...getDashboardHandler);
+    // プロダクション（route.ts）と同じエラーハンドリングを設定
+    route.onError((err, c) => {
+      const errorResponse = toErrorResponse(err);
+      return c.json(errorResponse, errorResponse.error.status);
+    });
     return testClient(route);
   };
 

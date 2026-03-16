@@ -44,19 +44,26 @@ export const executeFunctionByName =
 
     try {
       return await match(name)
+        // OpenAI response の args が unknown 型のため、各 handler の引数型への assertion が不可避
+        // eslint-disable-next-line typescript-eslint/no-unsafe-type-assertion
         .with(FunctionName.createSubscription, () => handleCreateSubscription(inject, userId, args as SubscriptionFunctionArgs))
         .with(FunctionName.getSubscriptions, () => handleGetSubscriptions(subscriptions))
+        // eslint-disable-next-line typescript-eslint/no-unsafe-type-assertion
         .with(FunctionName.getSubscriptionDetail, () => handleGetSubscriptionDetail(subscriptions, args as GetSubscriptionDetailFunctionArgs))
+        // eslint-disable-next-line typescript-eslint/no-unsafe-type-assertion
         .with(FunctionName.updateSubscription, () => handleUpdateSubscription(inject, subscriptions, args as UpdateSubscriptionFunctionArgs))
+        // eslint-disable-next-line typescript-eslint/no-unsafe-type-assertion
         .with(FunctionName.deleteSubscription, () => handleDeleteSubscription(inject, userId, subscriptions, args as DeleteSubscriptionFunctionArgs))
+        // eslint-disable-next-line typescript-eslint/no-unsafe-type-assertion
         .with(FunctionName.sendMessage, () => handleSendMessage(inject, args as SendMessageFunctionArgs))
+        // eslint-disable-next-line typescript-eslint/no-unsafe-type-assertion
         .with(FunctionName.getMonthlyTotal, () => handleGetMonthlyTotal(subscriptions, args as GetMonthlyTotalFunctionArgs))
         .otherwise(() => {
           throw new Error(`未知の機能: ${name}`);
         });
     } catch (error) {
       console.error(`関数実行エラー: ${name}`, error);
-      return { message: `処理中にエラーが発生しました: ${(error as Error).message}` };
+      return { message: `処理中にエラーが発生しました: ${error instanceof Error ? error.message : String(error)}` };
     }
   };
 

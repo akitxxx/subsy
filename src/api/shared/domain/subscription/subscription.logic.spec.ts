@@ -188,6 +188,8 @@ describe('Subscription', () => {
     it('無効なサイクルの場合、エラーをスローすること', () => {
       expect(() => {
         const subscription = createSubscription({
+          // テストで意図的に無効値を渡している
+          // eslint-disable-next-line typescript-eslint/no-unsafe-type-assertion
           cycle: 'InvalidCycle' as SubscriptionCycleEnum,
           startedAt: new Date(2025, 0, 1),
         });

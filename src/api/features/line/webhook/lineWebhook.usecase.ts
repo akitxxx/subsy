@@ -1,4 +1,3 @@
-import type { MessageEvent, TextMessage } from '@line/bot-sdk';
 import { Effect } from 'effect';
 import type { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
 import { CreateUserDomainService } from '@/api/shared/domain/user/createUser.domainService';
@@ -51,19 +50,20 @@ const processEvents = (inject: Inject, events: LineEvent[]): Effect.Effect<void>
     events,
     (event) => {
       if (!('message' in event && event.message.type === 'text')) return Effect.void;
-      return handleMessageEvent({ inject, event: event as MessageEvent });
+      return handleMessageEvent({ inject, event });
     },
     { discard: true },
   );
 
 // ==========
 
-const sendMessage = (lineService: LineService, event: MessageEvent, message: string): Effect.Effect<void> => {
-  if (!message || !event.replyToken) {
+const sendMessage = (lineService: LineService, event: LineMessageEvent, message: string): Effect.Effect<void> => {
+  const { replyToken } = event;
+  if (!message || !replyToken) {
     console.error('not found message or replyToken', { message, event });
     return Effect.void;
   }
-  return Effect.tryPromise(() => lineService.replyMessage({ replyToken: event.replyToken, message })).pipe(Effect.catchAll(() => Effect.void));
+  return Effect.tryPromise(() => lineService.replyMessage({ replyToken, message })).pipe(Effect.catchAll(() => Effect.void));
 };
 
 /**
@@ -74,7 +74,7 @@ const handleMessageEvent = ({
   event,
 }: {
   inject: Inject;
-  event: MessageEvent;
+  event: LineMessageEvent;
 }): Effect.Effect<void> =>
   Effect.gen(function* () {
     // 基本的な検証
@@ -127,7 +127,7 @@ const handleMessageEvent = ({
 /**
  * メッセージイベントのバリデーション
  */
-const validateMessageEvent = (event: MessageEvent): { isValid: boolean; userId: string; messageText: string } | null => {
+const validateMessageEvent = (event: LineMessageEvent): { isValid: boolean; userId: string; messageText: string } | null => {
   // ユーザーID取得
   const userId = event.source.userId;
   if (!userId) return null;
@@ -135,7 +135,7 @@ const validateMessageEvent = (event: MessageEvent): { isValid: boolean; userId: 
   // テキストメッセージのみ処理
   if (event.message.type !== 'text') return null;
 
-  const messageText = (event.message as TextMessage).text;
+  const messageText = event.message.text;
   if (!messageText) return null;
 
   return { isValid: true, userId, messageText };

@@ -69,7 +69,8 @@ describe('PATCH /api/subscriptions/:id', () => {
       const res = await client.api.subscriptions[':id'].$patch({
         param: { id: subscription.id },
         json: input,
-      } as unknown as { param: { id: string }; json: typeof input }); // MEMO: jsonの部分の型推論うまくいかないので一旦無理矢理
+        // eslint-disable-next-line typescript-eslint/no-unsafe-type-assertion -- Hono RPC の型推論がうまくいかないため
+      } as unknown as { param: { id: string }; json: typeof input });
       // then
       expect(res.status).toBe(200);
 

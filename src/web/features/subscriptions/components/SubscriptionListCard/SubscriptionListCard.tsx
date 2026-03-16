@@ -14,9 +14,9 @@ import { useSubscriptionListCard } from './useSubscriptionListCard';
 
 type Props = {
   subscriptions: SubscriptionViewModel[];
-  onCreate: (subscription: SubscriptionCreateModel) => void;
-  onUpdate: (subscription: SubscriptionViewModel) => void;
-  onDelete: (subscription: SubscriptionViewModel) => void;
+  onCreate: (subscription: SubscriptionCreateModel) => Promise<void>;
+  onUpdate: (subscription: SubscriptionViewModel) => Promise<void>;
+  onDelete: (subscription: SubscriptionViewModel) => Promise<void>;
 };
 
 export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDelete }: Props) => {
@@ -134,7 +134,8 @@ const SubscriptionTableRow = ({ subscription, onOpenDetailModal, onOpenEditModal
     <TableRow
       className="cursor-pointer hover:bg-muted/50 transition-colors"
       onClick={(e) => {
-        const isDropdownClicked = (e.target as HTMLElement).closest('[role="menuitem"]');
+        const target = e.target;
+        const isDropdownClicked = target instanceof HTMLElement && target.closest('[role="menuitem"]');
         if (!isDropdownClicked) {
           onOpenDetailModal(subscription);
         }

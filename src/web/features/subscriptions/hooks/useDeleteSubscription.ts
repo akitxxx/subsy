@@ -11,7 +11,7 @@ export const useDeleteSubscription = () => {
 
   const deleteSubscription = async ({ subscriptionId }: { subscriptionId: string }) => {
     await fetcher(subscriptionId);
-    mutate();
+    await mutate();
   };
 
   return { deleteSubscription };

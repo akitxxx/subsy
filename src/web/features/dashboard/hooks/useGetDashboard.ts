@@ -15,7 +15,7 @@ export const useGetDashboard = () => {
   const { data, error, isLoading, mutate } = useSWR('/api/dashboard', fetcher);
 
   const refetch = useCallback(() => {
-    mutate();
+    void mutate();
   }, [mutate]);
 
   return { data, error, isLoading, refetch };

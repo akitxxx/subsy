@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vite-plus/test';
-import { Subscription, type SubscriptionEntity } from '@/api/shared/domain/subscription';
+import { Subscription } from '@/api/shared/domain/subscription';
 import { SubscriptionRepository } from '@/api/shared/domain/subscription/subscription.repository';
 import { getDrizzleClient } from '@/api/shared/lib/db/drizzle';
 import { FunctionName } from '@/api/shared/lib/openai/subscription-functions';
@@ -125,7 +125,7 @@ describe('executeFunctionByName', () => {
       // when
       const result = await executeFunctionByName({ subscriptionRepository })({
         userId: user.id,
-        subscriptions: [subscription1 as unknown as SubscriptionEntity, subscription2 as unknown as SubscriptionEntity],
+        subscriptions: [Subscription.parseEntity(subscription1), Subscription.parseEntity(subscription2)],
         functionCall: {
           name: FunctionName.getMonthlyTotal,
           args: {
@@ -158,7 +158,7 @@ describe('executeFunctionByName', () => {
       // when
       const result = await executeFunctionByName({ subscriptionRepository })({
         userId: user.id,
-        subscriptions: [subscription1 as unknown as SubscriptionEntity],
+        subscriptions: [Subscription.parseEntity(subscription1)],
         functionCall: {
           name: FunctionName.getMonthlyTotal,
           args: {

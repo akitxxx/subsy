@@ -13,13 +13,12 @@ import { ProviderEnum } from '@/shared/enums/user-auth/provider.enum';
 import { DateUtils } from '@/shared/utils/date.util';
 import { lineWebhookHandler } from './lineWebhook.handler';
 
-// LineServiceのモック
-vi.mock('@/api/shared/lib/line', () => {
+// vi.mock は @/ エイリアスを解決できないため相対パスを使用
+vi.mock('../../../shared/lib/line', () => {
   return { LineService: { new: () => ({ validateSignature: vi.fn().mockReturnValue(true) }) } };
 });
 
-// OpenAI サービスのモック
-vi.mock('@/api/shared/lib/openai', () => {
+vi.mock('../../../shared/lib/openai', () => {
   return { OpenAIService: { new: () => ({ parseSubscriptionIntent: vi.fn().mockReturnValue({}) }) } };
 });
 
