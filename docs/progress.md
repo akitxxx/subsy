@@ -75,21 +75,51 @@
 - lint errors 7 件 + warnings 15 件をすべて解消
 - Pre-commit hooks を Vite+ (`vp staged`) に統一、Lefthook 除去
 
-## 次のタスク
+## 2026-03-16: P0 ブロッカー解消
 
-### P0 - ブロッカー
+- ホームページリダイレクト: `src/app/page.tsx` で認証済みユーザーを `/dashboard` へ redirect
+- サインアウト後リダイレクト: `ClerkProvider` に `afterSignOutUrl="/sign-in"` を設定
+- エラーハンドリング UI:
+  - `src/app/not-found.tsx` 新規作成（404ページ）
+  - ダッシュボードに SWR エラー表示（エラーメッセージ + 再試行ボタン）とローディング Skeleton を追加
+  - `useGetSubscriptions` に `refetch` を追加
 
-- ホームページリダイレクト（`/` → 未認証なら `/sign-in`、認証済みなら `/dashboard`）
-- エラーハンドリング UI（エラー画面・ローディング状態の視覚化）
-- サインアウト動作確認（Clerk `<UserButton>` の検証）
+## 2026-03-17: バリデーション強化 + フロントエンドテスト追加
 
-### P1 - 重要
+- Zod バリデーションスキーマを共有ドメイン層に追加（`src/shared/domain/subscription/subscription.validation.ts`）
+  - name: 1-100文字、トリム付き
+  - price: 正の数値、上限 99999999.99
+  - cancelledAt: startedAt 以降であること
+  - description: 500文字以内
+- バックエンドスキーマを共有スキーマに置き換え
+- SubscriptionModal にクライアントサイドバリデーション統合（formErrors state + safeParse）
+- フロントエンドテスト環境構築
+  - @testing-library/react, @testing-library/user-event, @testing-library/jest-dom, jsdom 導入
+  - `test.projects` で node/jsdom 環境を分離（setup.node.ts / setup.jsdom.ts）
+  - `tsconfig.json` に `vite-plus/test/globals` 追加で vitest 型エラー解消
+- コンポーネントテスト追加（計18テスト）
+  - SubscriptionModal: バリデーションエラー表示、正常送信
+  - DeleteConfirmDialog: ダイアログ表示、ボタンコールバック
+  - SubscriptionDetailModal: 情報表示、ステータスバッジ、編集ボタン
+  - Dashboard: ローディング、エラー、正常表示
+- バリデーションスキーマテスト追加（20テスト）
 
-- テストカバレッジ拡大（フロントエンドテスト追加）
-- バリデーション強化（金額形式・日付妥当性チェック）
+## 2026-03-17: P2 改善タスク完了
 
-### P2 - 改善
-
-- UI/UX 改善（モバイル最適化）
+- ヘルスチェックエンドポイント (`GET /api/health`)
+  - publicApp に DB 接続チェック付きヘルスチェックを追加（200/503）
+  - テスト 2 件追加
 - サブスク一覧のフィルタ・ソート
-- ヘルスチェック エンドポイント（`/api/health`）
+  - `useSubscriptionFilter` hook でクライアントサイドフィルタ・ソート実装
+  - ステータスフィルタ（すべて/利用中/解約済み/期限切れ）、ソート（次回支払い日/サービス名/金額）、方向トグル
+  - `SubscriptionFilterBar` UI コンポーネント（shadcn/ui Select + Button）
+  - テスト 7 件追加
+- モバイル最適化
+  - `SubscriptionMobileCard` コンポーネント（カード形式表示）
+  - CSS 表示切替（`hidden sm:block` / `sm:hidden`）でテーブルとカードを切り替え
+  - テスト 5 件追加
+
+## 完了済み（P1）
+
+- SubscriptionListCard テスト追加 → P2 実装時に計 16 件のテストでカバー
+- バリデーションエラーメッセージの日本語化 → 2026-03-17 のバリデーション強化で対応済み

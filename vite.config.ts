@@ -1,17 +1,44 @@
+import path from 'node:path';
 import { defineConfig } from 'vite-plus';
 
 export default defineConfig({
   resolve: {
-    alias: { '@': './src' },
+    alias: { '@': path.resolve(import.meta.dirname, 'src') },
   },
   test: {
-    environment: 'node',
-    setupFiles: ['./src/shared/test/setup.ts'],
     globals: true,
     restoreMocks: true,
     clearMocks: true,
     maxWorkers: 1,
     maxConcurrency: 1,
+    projects: [
+      {
+        // バックエンド + shared テスト（node環境）
+        resolve: {
+          alias: { '@': path.resolve(import.meta.dirname, 'src') },
+        },
+        test: {
+          name: 'node',
+          environment: 'node',
+          globals: true,
+          include: ['src/api/**/*.spec.{ts,tsx}', 'src/shared/**/*.spec.{ts,tsx}'],
+          setupFiles: ['./src/shared/test/setup.node.ts'],
+        },
+      },
+      {
+        // フロントエンドテスト（jsdom環境）
+        resolve: {
+          alias: { '@': path.resolve(import.meta.dirname, 'src') },
+        },
+        test: {
+          name: 'jsdom',
+          environment: 'jsdom',
+          globals: true,
+          include: ['src/web/**/*.spec.{ts,tsx}'],
+          setupFiles: ['./src/shared/test/setup.jsdom.ts'],
+        },
+      },
+    ],
   },
   lint: {
     plugins: ['typescript', 'import', 'react'],

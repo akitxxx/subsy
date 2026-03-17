@@ -37,6 +37,8 @@ This file provides guidance to AI coding agents when working with code in this r
   - React Context（クライアント状態）
   - React Hook Form（フォーム状態）
 - テスト: Vite+ (Vitest)
+  - import は `vitest` ではなく `vite-plus/test` から行う（例: `import { expect, test, vi } from 'vite-plus/test'`）
+  - `vitest` を直接インストールしない
 - リンティング/フォーマッティング: Vite+ (Oxlint + Oxfmt + TypeScript type check)
 - 外部サービス: LINE Bot SDK、OpenAI API
 - 実行環境要件: Node.js v20以上、pnpm v10.5.2以上
@@ -229,8 +231,18 @@ APIレイヤーはHonoを使用してルーティングとリクエスト処理�
 
 2. テストセットアップ:
    - Vite+ (Vitest) をテストランナーとして使用
-   - テストユーティリティは`src/shared/test/`
+   - `test.projects` で node / jsdom 環境を分離
+     - `node` プロジェクト: `src/api/**`, `src/shared/**` のテスト（DB接続あり）
+     - `jsdom` プロジェクト: `src/web/**` のテスト（@testing-library/react）
+   - セットアップファイル:
+     - `src/shared/test/setup.node.ts` - DB接続設定（node環境用）
+     - `src/shared/test/setup.jsdom.ts` - jest-dom マッチャー拡張（jsdom環境用）
    - データベーステストヘルパーは`src/api/shared/test/`
+
+3. フロントエンドテスト:
+   - @testing-library/react + @testing-library/user-event
+   - Radix UI コンポーネントはモックで置き換え（`vi.mock('@radix-ui/react-dialog', ...)`）
+   - バリデーションは共有スキーマ（`src/shared/domain/subscription/subscription.validation.ts`）をフロントエンド・バックエンドで共用
 
 ## コア機能
 

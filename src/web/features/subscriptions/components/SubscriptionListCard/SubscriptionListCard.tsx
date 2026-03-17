@@ -10,6 +10,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/web/shared/components/ui/table';
 import { MoreHorizontal, Plus } from 'lucide-react';
 import { SubscriptionDetailModal } from '../SubscriptionDetailModal';
+import { SubscriptionFilterBar } from './SubscriptionFilterBar';
+import { SubscriptionMobileCard } from './SubscriptionMobileCard';
+import { useSubscriptionFilter } from './useSubscriptionFilter';
 import { useSubscriptionListCard } from './useSubscriptionListCard';
 
 type Props = {
@@ -40,6 +43,8 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
     handleSwitchToEditModal,
   } = useSubscriptionListCard({ subscriptions, onCreate, onUpdate, onDelete });
 
+  const { filteredSubscriptions, statusFilter, setStatusFilter, sortField, setSortField, toggleSortDirection } = useSubscriptionFilter(subscriptions);
+
   return (
     <Card className="mb-8">
       <CardHeader className="flex flex-row items-center justify-between">
@@ -50,20 +55,50 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
         </Button>
       </CardHeader>
       <CardContent>
-        {subscriptions.length > 0 ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>サービス名</TableHead>
-                <TableHead>金額</TableHead>
-                <TableHead>支払いサイクル</TableHead>
-                <TableHead>次回支払い日</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {subscriptions.map((subscription) => (
-                <SubscriptionTableRow
+        {subscriptions.length > 0 && (
+          <SubscriptionFilterBar
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            sortField={sortField}
+            onSortFieldChange={setSortField}
+            onToggleSortDirection={toggleSortDirection}
+          />
+        )}
+        {filteredSubscriptions.length > 0 ? (
+          <>
+            {/* デスクトップ: テーブル表示 */}
+            <div className="hidden sm:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>サービス名</TableHead>
+                    <TableHead>金額</TableHead>
+                    <TableHead>支払いサイクル</TableHead>
+                    <TableHead>次回支払い日</TableHead>
+                    <TableHead />
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredSubscriptions.map((subscription) => (
+                    <SubscriptionTableRow
+                      key={subscription.id}
+                      subscription={subscription}
+                      onOpenDetailModal={handleOpenDetailModal}
+                      onOpenEditModal={handleOpenModal}
+                      onOpenDeleteDialog={(sub) => {
+                        setCurrentSubscription(sub);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {/* モバイル: カード表示 */}
+            <div className="sm:hidden space-y-3">
+              {filteredSubscriptions.map((subscription) => (
+                <SubscriptionMobileCard
                   key={subscription.id}
                   subscription={subscription}
                   onOpenDetailModal={handleOpenDetailModal}
@@ -74,8 +109,8 @@ export const SubscriptionListCard = ({ subscriptions, onCreate, onUpdate, onDele
                   }}
                 />
               ))}
-            </TableBody>
-          </Table>
+            </div>
+          </>
         ) : (
           <div className="text-center py-8 text-muted-foreground">
             <div className="mb-2">サブスクリプションはありません</div>
