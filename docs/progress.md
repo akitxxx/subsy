@@ -84,12 +84,32 @@
   - ダッシュボードに SWR エラー表示（エラーメッセージ + 再試行ボタン）とローディング Skeleton を追加
   - `useGetSubscriptions` に `refetch` を追加
 
+## 2026-03-17: バリデーション強化 + フロントエンドテスト追加
+
+- Zod バリデーションスキーマを共有ドメイン層に追加（`src/shared/domain/subscription/subscription.validation.ts`）
+  - name: 1-100文字、トリム付き
+  - price: 正の数値、上限 99999999.99
+  - cancelledAt: startedAt 以降であること
+  - description: 500文字以内
+- バックエンドスキーマを共有スキーマに置き換え
+- SubscriptionModal にクライアントサイドバリデーション統合（formErrors state + safeParse）
+- フロントエンドテスト環境構築
+  - @testing-library/react, @testing-library/user-event, @testing-library/jest-dom, jsdom 導入
+  - `test.projects` で node/jsdom 環境を分離（setup.node.ts / setup.jsdom.ts）
+  - `tsconfig.json` に `vite-plus/test/globals` 追加で vitest 型エラー解消
+- コンポーネントテスト追加（計18テスト）
+  - SubscriptionModal: バリデーションエラー表示、正常送信
+  - DeleteConfirmDialog: ダイアログ表示、ボタンコールバック
+  - SubscriptionDetailModal: 情報表示、ステータスバッジ、編集ボタン
+  - Dashboard: ローディング、エラー、正常表示
+- バリデーションスキーマテスト追加（20テスト）
+
 ## 次のタスク
 
 ### P1 - 重要
 
-- テストカバレッジ拡大（フロントエンドテスト追加）
-- バリデーション強化（金額形式・日付妥当性チェック）
+- SubscriptionListCard テスト追加
+- バリデーションエラーメッセージの日本語化・UX改善
 
 ### P2 - 改善
 
