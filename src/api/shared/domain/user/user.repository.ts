@@ -33,7 +33,7 @@ const findCurrentUserById =
 
 const findByLineUserId =
   ({ db }: Inject) =>
-  ({ tx, lineUserId }: { tx?: Tx; lineUserId: string }): Effect.Effect<UserEntity, InternalServerError> =>
+  ({ tx, lineUserId }: { tx?: Tx; lineUserId: string }): Effect.Effect<UserEntity | null, InternalServerError> =>
     Effect.tryPromise({
       try: async () => {
         const dbClient = tx ?? db;
@@ -45,6 +45,7 @@ const findByLineUserId =
           .where(and(eq(userAuthsTable.providerId, lineUserId), eq(userAuthsTable.provider, ProviderEnum.Line)))
           .limit(1);
 
+        if (!result) return null;
         return User.parseEntity(result.users);
       },
       catch: () => new InternalServerError('LINE ユーザーの取得に失敗しました'),
