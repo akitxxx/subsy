@@ -10,6 +10,7 @@ import { type Context, Hono } from 'hono';
 import { handle } from 'hono/vercel';
 
 import dashboard from './dashboard.route';
+import health from './health.route';
 import line from './line.route';
 import subscription from './subscription.route';
 import user from './user.route';
@@ -22,6 +23,7 @@ publicApp.use(async (c: Context<HonoEnv>, next) => {
   await next();
 });
 
+publicApp.route('/health', health);
 publicApp.route('/line', line);
 
 // private routes（認証必要）
@@ -33,7 +35,12 @@ privateApp.use(async (c: Context<HonoEnv>, next) => {
   await next();
 });
 
-privateApp.use(clerkMiddleware());
+privateApp.use(
+  clerkMiddleware({
+    publishableKey: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    secretKey: process.env.CLERK_SECRET_KEY,
+  }),
+);
 
 // Clerk userId → DB user の解決 + lazy create
 privateApp.use(async (c: Context<HonoEnv>, next) => {

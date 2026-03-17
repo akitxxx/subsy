@@ -8,9 +8,19 @@ import { SubscriptionCycleEnum } from '@/shared/enums/subscription/subscriptionC
 import { SubscriptionStatusEnum } from '@/shared/enums/subscription/subscriptionStatus.enum';
 
 import { SubscriptionListCard } from './SubscriptionListCard';
+import { useSubscriptionFilter } from './useSubscriptionFilter';
 import { useSubscriptionListCard } from './useSubscriptionListCard';
 
 vi.mock('./useSubscriptionListCard');
+vi.mock('./useSubscriptionFilter');
+
+vi.mock('./SubscriptionFilterBar', () => ({
+  SubscriptionFilterBar: () => <div data-testid="subscription-filter-bar" />,
+}));
+
+vi.mock('./SubscriptionMobileCard', () => ({
+  SubscriptionMobileCard: ({ subscription }: { subscription: SubscriptionViewModel }) => <div data-testid="mobile-card">{subscription.name}</div>,
+}));
 
 vi.mock('@/web/features/subscriptions/components/SubscriptionModal', () => ({
   SubscriptionModal: () => <div data-testid="subscription-modal" />,
@@ -112,9 +122,20 @@ const defaultProps = {
   onDelete: vi.fn(),
 };
 
+const baseMockFilterHook: ReturnType<typeof useSubscriptionFilter> = {
+  filteredSubscriptions: [],
+  statusFilter: 'all',
+  setStatusFilter: vi.fn(),
+  sortField: 'nextPaymentAt',
+  setSortField: vi.fn(),
+  sortDirection: 'asc',
+  toggleSortDirection: vi.fn(),
+};
+
 describe('SubscriptionListCard', () => {
   beforeEach(() => {
     vi.mocked(useSubscriptionListCard).mockReturnValue(baseMockHook);
+    vi.mocked(useSubscriptionFilter).mockReturnValue(baseMockFilterHook);
   });
 
   it('サブスクリプション一覧がテーブルに表示される', () => {
@@ -122,11 +143,16 @@ describe('SubscriptionListCard', () => {
       createSubscription({ id: '1', name: 'Netflix', price: '1500' }),
       createSubscription({ id: '2', name: 'Spotify', price: '980' }),
     ];
+    vi.mocked(useSubscriptionFilter).mockReturnValue({
+      ...baseMockFilterHook,
+      filteredSubscriptions: subscriptions,
+    });
 
     render(<SubscriptionListCard {...defaultProps} subscriptions={subscriptions} />);
 
-    expect(screen.getByText('Netflix')).toBeInTheDocument();
-    expect(screen.getByText('Spotify')).toBeInTheDocument();
+    // テーブル行とモバイルカードの両方がDOMに存在する（CSS表示切替のため）
+    expect(screen.getAllByText('Netflix')).toHaveLength(2);
+    expect(screen.getAllByText('Spotify')).toHaveLength(2);
   });
 
   it('サブスクリプションがない場合に空メッセージが表示される', () => {
@@ -148,10 +174,15 @@ describe('SubscriptionListCard', () => {
   it('テーブル行クリックで handleOpenDetailModal が呼ばれる', async () => {
     const user = userEvent.setup();
     const subscription = createSubscription();
+    vi.mocked(useSubscriptionFilter).mockReturnValue({
+      ...baseMockFilterHook,
+      filteredSubscriptions: [subscription],
+    });
 
     render(<SubscriptionListCard {...defaultProps} subscriptions={[subscription]} />);
 
-    await user.click(screen.getByText('Netflix'));
+    // テーブル行のNetflix（最初の要素）をクリック
+    await user.click(screen.getAllByText('Netflix')[0]);
 
     expect(mockHandleOpenDetailModal).toHaveBeenCalledWith(subscription);
   });

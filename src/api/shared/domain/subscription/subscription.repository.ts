@@ -85,7 +85,6 @@ const findManyActiveAndRecentlyExpired =
     });
 
 /** サブスクリプションを取得 */
-// TODO: perf: nextPaymentAtをSQL側で計算して取得したい、パフォーマンス向上のため
 const findManyWillNextPaymentByUserId =
   ({ db }: Inject) =>
   (p: { userId: string }): Effect.Effect<SubscriptionEntity[], InternalServerError> =>
