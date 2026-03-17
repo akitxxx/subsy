@@ -17,11 +17,17 @@ describe('subscriptionInputSchema', () => {
     it('空文字はエラー', () => {
       const result = subscriptionInputSchema.safeParse({ ...validInput(), name: '' });
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('サービス名を入力してください');
+      }
     });
 
     it('101文字以上はエラー', () => {
       const result = subscriptionInputSchema.safeParse({ ...validInput(), name: 'a'.repeat(101) });
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('サービス名は100文字以内で入力してください');
+      }
     });
 
     it('100文字はOK', () => {
@@ -47,6 +53,9 @@ describe('subscriptionInputSchema', () => {
     it('空文字はエラー', () => {
       const result = subscriptionInputSchema.safeParse({ ...validInput(), price: '' });
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('金額を入力してください');
+      }
     });
 
     it('0はエラー', () => {
@@ -124,6 +133,9 @@ describe('subscriptionInputSchema', () => {
     it('501文字以上はエラー', () => {
       const result = subscriptionInputSchema.safeParse({ ...validInput(), description: 'a'.repeat(501) });
       expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe('説明は500文字以内で入力してください');
+      }
     });
 
     it('500文字はOK', () => {
